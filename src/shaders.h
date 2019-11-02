@@ -16,9 +16,7 @@ void shadersUIEvent(ofxMicroUI::element & e) {
 		if (ofxMicroUI::dirList * r = dynamic_cast<ofxMicroUI::dirList*>(&e)) {
 			string f = r->getFileName();
 			shadersMap[e.name].load(f);
-			cout << f << endl;
 		} else {
-			cout << "not radio" << endl;
 		}
 		// aqui vai ter bool e tudo mais
 	}
@@ -29,6 +27,7 @@ void beginShader(string name) {
 		ofShader *s = &shadersMap[name];
 		s->begin();
 		s->setUniform1f("time", ofGetElapsedTimef());
+//		cout << fbo->getWidth() << "x" << fbo->getHeight() << endl;
 		s->setUniform2f("outputDimensions", fbo->getWidth(), fbo->getHeight());
 		ofxMicroUI * ui = &u.uis[name]; //"ui"+
 		

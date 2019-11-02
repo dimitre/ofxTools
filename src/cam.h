@@ -295,9 +295,12 @@ void dmtrCamUIEvent_3d(ofxMicroUI::element & e) {
 		if (e.name == "resetLook") {
 			//cout << "resetLook!" << endl;
 			// TODO
-//			uiCam->getSlider("lookX")->set(0.0);
-//			uiCam->getSlider("lookY")->set(1.6);
-//			uiCam->getSlider("lookZ")->set(0.0);
+			if (!e._ui->presetIsLoading) {
+				uiCam->getSlider("lookX")->set(0.0);
+	//			uiCam->getSlider("lookY")->set(1.6);
+				uiCam->getSlider("lookY")->set(0.0);
+				uiCam->getSlider("lookZ")->set(0.0);
+			}
 		}
 		
 		else if (e.name == "ortho") {
@@ -317,15 +320,17 @@ void dmtrCamUIEvent_3d(ofxMicroUI::element & e) {
 			//cout << "reset cam" << endl;
 			uiCam->pFloat["rotX_accum"] = uiCam->pFloat["rotY_accum"] = uiCam->pFloat["rotZ_accum"] = 0;
 			//uiCam->pEasy["rotX_accum"] = uiCam->pEasy["rotY_accum"] = uiCam->pEasy["rotZ_accum"] = 0;
-	
-			// TODO
-//			uiCam->getElement("rotCamX")->set(float(0.0));
-//			uiCam->getElement("rotCamY")->set(float(0.0));
-//			uiCam->getElement("rotCamZ")->set(float(0.0));
 
-//			uiCam->getElement("rotCamXAuto")->set(float(0.0));
-//			uiCam->getElement("rotCamYAuto")->set(float(0.0));
-//			uiCam->getElement("rotCamZAuto")->set(float(0.0));
+			// TODO
+			if (!e._ui->presetIsLoading) {
+				uiCam->getSlider("rotCamX")->set(0);
+				uiCam->getSlider("rotCamY")->set(0);
+				uiCam->getSlider("rotCamZ")->set(0);
+
+				uiCam->getSlider("rotCamXAuto")->set(0);
+				uiCam->getSlider("rotCamYAuto")->set(0);
+				uiCam->getSlider("rotCamZAuto")->set(0);
+			}
 		}
 
 		else if (e.name == "shadeFlat") {
