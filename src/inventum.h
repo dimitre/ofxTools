@@ -73,5 +73,8 @@ void drawLogo() {
 void drawSecondWindow(ofEventArgs & args) {
 	ofBackground(0);
 	ofSetColor(255);
-	fbo->draw(0,0);
+	soft.fboFinal->draw(0,0);
+	soft.fboFinal->draw(-1920,160);
+	soft.fboFinal->draw(0,320);
+	soft.fboFinal->draw(-1920,480);
 }
