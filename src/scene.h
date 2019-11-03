@@ -1,3 +1,15 @@
+map <string, float> incrementadorTemporal;
+float incrementa(string qual) {
+	string uniqueId = uiC->uiName + qual;
+	incrementadorTemporal[uniqueId] += uiC->pFloat[qual];
+	return incrementadorTemporal[uniqueId];
+}
+
+ofColor getCor(float qual) {
+	return ofColor(255, ui->pEasy["alpha"]);
+}
+
+
 
 void drawMesh(ofMesh * m) {
 	if (ui->pString["draw"] == "wire") {
@@ -8,22 +20,32 @@ void drawMesh(ofMesh * m) {
 	}
 	if (ui->pString["draw"] == "points") {
 		//cout << "aqui " << endl;
-//		glPointSize(ui->pEasy["pointSize"]);
+		glPointSize(ui->pEasy["pointSize"]);
 //		glDisable(GL_POINT_SMOOTH);
 		m->draw(OF_MESH_POINTS);
 	}
 }
 
-
+bool checkIs3d() {
+	if (scene == "ocean" || scene == "3d" || scene == "galaxia") {
+		return true;
+	} else {
+		return false;
+	}
+}
 
 void begin3d() {
-	beginCam_3d();
-	beginShader("shaders3d");
+	if (checkIs3d()) {
+		beginCam_3d();
+		beginShader("shaders3d");
+	}
 }
 
 void end3d() {
-	endShader("shaders3d");
-	endCam_3d();
+	if (checkIs3d()) {
+		endShader("shaders3d");
+		endCam_3d();
+	}
 }
 
 
@@ -124,7 +146,23 @@ void setupScene() {
 }
 
 void drawScene(string scene) {
-	if (scene == "redes") {
+	
+	if (scene == "punchCard") {
+		float aresta = uiC->pFloat["aresta"];
+		float margem = 10;
+		ofSetColor(255);
+		for (int x=0; x<100; x++) {
+			for (int y=0; y<8; y++) {
+				float noise = ofNoise(x, y, ofGetElapsedTimef() * uiC->pFloat["velNoise"]);
+				if (noise > uiC->pFloat["minNoise"]) {
+					int raio = noise * 2 + 2;
+					ofDrawCircle(x*aresta + margem, y*aresta + margem + uiC->pFloat["offY"], raio);
+				}
+			}
+		}
+	}
+	
+	else if (scene == "redes") {
 		int numero = uiC->pInt["numero"];
 		
 		for (auto & r : redes) {
@@ -570,3 +608,26 @@ void drawScene(string scene) {
 
 }
 
+
+
+
+//
+//else if (*cena == "3d") {
+//	ofSetColor(255, ui->pFloat["alpha"]);
+//	beginCam_3d();
+//	//test();
+//	ofSpherePrimitive sphere;
+//	sphere.set(uiC->pEasy["raio"], uiC->pInt["resolution"]);
+//	float aresta = uiC->pEasy["aresta"];
+//	for (int x=-1; x<=1; x++) {
+//		for (int y=-1; y<=1; y++) {
+//			for (int z=-1; z<=1; z++) {
+//				ofPushMatrix();
+//				ofTranslate(x*aresta, y*aresta, z*aresta);
+//				sphere.drawWireframe();
+//				ofPopMatrix();
+//			}
+//		}
+//	}
+//	endCam_3d();
+//}
