@@ -20,14 +20,36 @@ void drawMesh(ofMesh * m) {
 	}
 	if (ui->pString["draw"] == "points") {
 		//cout << "aqui " << endl;
+		glDisable(GL_POINT_SMOOTH);
 		glPointSize(ui->pEasy["pointSize"]);
 //		glDisable(GL_POINT_SMOOTH);
 		m->draw(OF_MESH_POINTS);
 	}
 }
 
+
+
+//OLD SCENES
+
+struct objeto {
+public:
+	float raio;
+	float rand;
+	ofPoint pos;
+	int corIndice;
+	objeto() {}
+};
+
+vector <objeto> objetos;
+ofBoxPrimitive box;
+ofCylinderPrimitive cylinder;
+ofConePrimitive cone;
+ofSpherePrimitive sphere;
+ofIcoSpherePrimitive icoSphere;
+
+
 bool checkIs3d() {
-	if (scene == "ocean" || scene == "3d" || scene == "galaxia") {
+	if (scene == "ocean" || scene == "3d" || scene == "galaxia"  || scene == "solidos") {
 		return true;
 	} else {
 		return false;
@@ -55,8 +77,8 @@ float updown = 0;
 struct rede {
 public:
 	
-	int w = 6400;
-	int h = 256;
+	int w = 3840;
+	int h = 160;
 	
 	vector <glm::vec2> pontos;
 	glm::vec2 pos, vel;
@@ -79,7 +101,7 @@ public:
 		for (int a=0; a<numero; a++) {
 			float x = ofRandom(-30, 30);
 			float y = ofRandom(-30, 30);
-			pontos.push_back(glm::vec2(x, y));
+			pontos.emplace_back(x, y);
 		}
 	}
 	
@@ -140,7 +162,6 @@ vector <rede> redes;
 
 void setupScene() {
 	for (int a=0; a<150; a++) {
-//		redes.push_back(rede(a));
 		redes.emplace_back(a);
 	}
 }
@@ -179,30 +200,72 @@ void drawScene(string scene) {
 		if (numero > redes.size()) {
 			int dif = numero - redes.size();
 //			cout << dif << endl;
+			int n = redes.size();
 			for (int a=0; a<dif; a++) {
-				redes.emplace_back(a);
+				redes.emplace_back(a + n);
 			}
 		}
 	}
 	
 	else if (scene == "3d") {
-//		begin3d();
-		ofSpherePrimitive sphere;
-		sphere.set(uiC->pEasy["raio"], uiC->pInt["resolution"]);
 		float aresta = uiC->pEasy["aresta"];
 		float max = uiC->pInt["max"] * 0.5;
+		int index = 0;
+		ofSpherePrimitive sphere;
 		for (float x=-max; x<=max; x++) {
 			for (float y=-max; y<=max; y++) {
 				for (float z=-max; z<=max; z++) {
-					ofPushMatrix();
-					ofTranslate(x*aresta, y*aresta, z*aresta);
-					sphere.drawWireframe();
-					ofPopMatrix();
+					float n = ofNoise(index/10.0, uiC->pFloat["seed"]);
+					if (n > uiC->pFloat["showTreshold"]) {
+						ofPushMatrix();
+						float raio = uiC->pEasy["raio"] + uiC->pEasy["raioNoise"] * n;
+						float res = uiC->pFloat["resolution"] + n * uiC->pEasy["resolutionNoise"] * n;
+//						sphere.set(raio, uiC->pInt["resolution"]);
+						sphere.set(raio, res);
+						ofMesh m = sphere.getMesh();
+						float aa = aresta + uiC->pFloat["arestaNoise"] * n;
+						ofTranslate(x*aa, y*aa, z*aa);
+						//sphere.drawWireframe();
+						drawMesh(&m);
+						ofPopMatrix();
+					}
+					index++;
 				}
 			}
 		}
-		//ofDrawSphere(0,0,400);
-//		end3d();
+	}
+	
+	else if (*cena == "solidos") {
+		int numero = uiC->pInt["numero"] + updown * (float)uiC->pInt["numeroAudio"];
+		for (int a=0; a<numero; a++ ) {
+			of3dPrimitive * objeto;
+			objeto = &box;
+			if (uiC->pString["objeto"] == "box")
+				objeto = &box;
+			else if (uiC->pString["objeto"] == "sphere")
+				objeto = &sphere;
+			else if (uiC->pString["objeto"] == "cylinder")
+				objeto = &cylinder;
+			else if (uiC->pString["objeto"] == "cone")
+				objeto = &cone;
+			
+			
+			float raioRandom = ofNoise(a/10.0f) * uiC->pFloat["raioRandom"];
+			float raio = (uiC->pEasy["raio"] + uiC->pFloat["raioAudio"] * updown + raioRandom) * objetos[a].rand;
+			ofVec3f posicao = objetos[a].pos * (uiC->pEasy["fatorDistancia"] + uiC->pFloat["fatorDistanciaAudio"] * updown);
+			objeto->setScale(raio);
+			objeto->setPosition(posicao);
+			
+			if (ui->pBool["wire"]) {
+				objeto->drawWireframe();
+			}
+			if (ui->pBool["faces"]) {
+				objeto->drawFaces();
+			}
+			if (ui->pBool["point"]) {
+				objeto->getMesh().draw(OF_MESH_POINTS);
+			}
+		}
 	}
 	
 	else if (scene == "galaxia") {

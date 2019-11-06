@@ -261,7 +261,7 @@ void beginCamPos_3d(ofVec3f camPos, ofVec3f lookAtPos) {
 
 	camera3d.setPosition(camPos);
 	camera3d.lookAt( lookAtPos, lookAtOrientation );
-	camera3d.roll(uiCam->pFloat["roll"]);
+	camera3d.rollDeg(uiCam->pFloat["roll"]);
 	
 	camera3d.setFov(uiCam->pEasy["cameraFov"]);
 	camera3d.begin();
@@ -291,38 +291,27 @@ void endCamera3d() {
 void dmtrCamUIEvent_3d(ofxMicroUI::element & e) {
 	
 	if (e.tag == "camNeue") {
-		
-		if (e.name == "resetLook") {
-			//cout << "resetLook!" << endl;
-			// TODO
-			if (!e._ui->presetIsLoading) {
+		if (!e._settings->presetIsLoading) {
+
+			if (e.name == "resetLook") {
+				cout << e.name << endl;
 				uiCam->getSlider("lookX")->set(0.0);
 	//			uiCam->getSlider("lookY")->set(1.6);
 				uiCam->getSlider("lookY")->set(0.0);
 				uiCam->getSlider("lookZ")->set(0.0);
 			}
-		}
-		
-		else if (e.name == "ortho") {
-			if (e.b) {
-				camera3d.enableOrtho();
-			} else {
-				camera3d.disableOrtho();
+			
+			else if (e.name == "resetAutoRotate") {
+				cout << e.name << endl;
+				uiCam->pFloat["rotX_accum"] = uiCam->pFloat["rotY_accum"] = uiCam->pFloat["rotZ_accum"] = 0;
+				//uiCam->pEasy["rotX_accum"] = uiCam->pEasy["rotY_accum"] = uiCam->pEasy["rotZ_accum"] = 0;
 			}
-		}
-		
-		else if (e.name == "resetAutoRotate") {
-			uiCam->pFloat["rotX_accum"] = uiCam->pFloat["rotY_accum"] = uiCam->pFloat["rotZ_accum"] = 0;
-			//uiCam->pEasy["rotX_accum"] = uiCam->pEasy["rotY_accum"] = uiCam->pEasy["rotZ_accum"] = 0;
-		}
 
-		else if (e.name == "resetCam") {
-			//cout << "reset cam" << endl;
-			uiCam->pFloat["rotX_accum"] = uiCam->pFloat["rotY_accum"] = uiCam->pFloat["rotZ_accum"] = 0;
-			//uiCam->pEasy["rotX_accum"] = uiCam->pEasy["rotY_accum"] = uiCam->pEasy["rotZ_accum"] = 0;
+			else if (e.name == "resetCam") {
+				cout << e.name << endl;
+				uiCam->pFloat["rotX_accum"] = uiCam->pFloat["rotY_accum"] = uiCam->pFloat["rotZ_accum"] = 0;
+				//uiCam->pEasy["rotX_accum"] = uiCam->pEasy["rotY_accum"] = uiCam->pEasy["rotZ_accum"] = 0;
 
-			// TODO
-			if (!e._ui->presetIsLoading) {
 				uiCam->getSlider("rotCamX")->set(0);
 				uiCam->getSlider("rotCamY")->set(0);
 				uiCam->getSlider("rotCamZ")->set(0);
@@ -332,7 +321,16 @@ void dmtrCamUIEvent_3d(ofxMicroUI::element & e) {
 				uiCam->getSlider("rotCamZAuto")->set(0);
 			}
 		}
-
+			
+		
+		if (e.name == "ortho") {
+			if (e.b) {
+				camera3d.enableOrtho();
+			} else {
+				camera3d.disableOrtho();
+			}
+		}
+		
 		else if (e.name == "shadeFlat") {
 			if (e.b) {
 				glShadeModel(GL_FLAT);

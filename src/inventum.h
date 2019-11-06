@@ -1,3 +1,6 @@
+//	ofxMicroUIMidiController midiController;
+
+
 ofxMicroUI u;
 ofxMicroUI *ui  = &u.uis["ui"];
 ofxMicroUI *uiC  = &u.uis["scene"];
@@ -12,10 +15,35 @@ void uiEvents(ofxMicroUI::element & e);
 #include "shaders.h"
 #include "cam.h"
 #include "scene.h"
+#include "tools.h"
 
 #ifdef USESYPHON
 	ofxSyphonServer syphonOut;
 #endif
+
+void preSetupInventum() {
+	setupCam_3d();
+	u._settings->useFixedLabel = true;
+	shadersSetup();
+}
+
+void setupInventum() {
+	ofSetVerticalSync(false);
+
+	logo.load("inv2b.png");
+	
+	soft.fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+	soft.fbo2.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+	soft.fboFinal = &soft.fbo2;
+	
+	soft.setUI(&u);
+
+	if (ofGetTargetPlatform() != OF_TARGET_OSX) {
+		u.toggleVisible();
+		ofSetFullscreen(true);
+		ofHideCursor();
+	}
+}
 
 
 void startBlending() {
@@ -33,31 +61,8 @@ void startBlending() {
 
 
 
-void shortcutUIEvent(ofxMicroUI::element & e) {
-	if (ofIsStringInString(e.name, "_shortcut")) {
-		if (!e._ui->presetIsLoading && *e.s != "") {
-			vector <string> explode = ofSplitString(e.name, "_shortcut");
-			float val = ofToFloat(*e.s);
-			e._ui->getSlider(explode[0])->set(val);
-		}
-	}
-}
-
 ofImage logo;
 
-void setupInventum() {
-	logo.load("inv.png");
-	
-	soft.fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
-	soft.fbo2.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
-	soft.fboFinal = &soft.fbo2;
-	
-	if (ofGetTargetPlatform() != OF_TARGET_OSX) {
-		u.toggleVisible();
-		ofSetFullscreen(true);
-		ofHideCursor();
-	}
-}
 
 void drawLogo() {
 	if (ui->pBool["logo"] && logo.isAllocated()) {
