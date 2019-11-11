@@ -1,3 +1,41 @@
+float nextChange = 0;
+int nPreset = -1;
+
+ofxMicroUI * uiAutoPilot = &u.uis["autoPilot"];
+void setupAutoPilot() {
+	ofAddListener(ofEvents().draw, this, &ofApp::onAutoPilot);
+	uiAutoPilot->saveMode = ofxMicroUI::MASTER;
+	uiAutoPilot->loadMode = ofxMicroUI::MASTER;
+}
+
+void onAutoPilot(ofEventArgs &data) {
+	autoPilot();
+}
+
+void autoPilot() {
+	if (uiAutoPilot->pBool["autoPilot"]) {
+		if (ofGetElapsedTimef() > nextChange) {
+			nPreset = (nPreset + 1) % uiAutoPilot->pInt["maxPreset"];
+			u.loadPresetByIndex(nPreset);
+			if (uiAutoPilot->pBool["usePresetTime"]) {
+				nextChange = ofGetElapsedTimef() + ui->pFloat["presetMinutes"] * 60.0;
+//				nextChange = ofGetElapsedTimef() + ui->pFloat["presetMinutes"] * 1.0;
+			} else {
+				nextChange = ofGetElapsedTimef() + uiAutoPilot->pInt["nSeconds"];
+			}
+		}
+		
+		string debug =
+		ofToString(nPreset) +
+		" nc:" + ofToString(nextChange) +
+		" t:" + ofToString(ofGetElapsedTimef())
+		;
+		
+		uiAutoPilot->getInspector("debug")->set(debug);
+		//uiAutoPilot->getInspector("nextChange")->set();
+	}
+}
+
 
 //
 //float shaper(float in, float inMin, float inMax, float outMin, float outMax, float shaper){
@@ -8,6 +46,9 @@
 //	float out = ofMap(pct, 0,1, outMin, outMax, true);
 //	return out;
 //}
+
+
+
 
 
 

@@ -1,8 +1,15 @@
 #include "polar.h"
 
+bool girinoChanged = false;
+void girinoUIEvent(ofxMicroUI::element & e) {
+	girinoChanged = true;
+}
+
+
 struct girinoSettings {
 public:
 	bool circuit2;
+	//glm::vec2 dimensions = glm::vec2(800, 480);
 	glm::vec2 dimensions = glm::vec2(800, 480);
 	int minX, minY, maxX, maxY, largura, altura;
 	int margem = -50;
@@ -54,7 +61,9 @@ public:
 						ofRandom(0,_settings->dimensions.y));
 		rand = ofRandom(0,1);
 		//int n = ;
-		posSize = ofRandom(10,30);
+//		posSize = ofRandom(10,30);
+		//posSize = ofRandom(20,60);
+		posSize = ofRandom(50,60);
 		//positions.assign(n, ofPoint());
 		angulo = ofRandom(0,360);
 		alive = true;
@@ -218,10 +227,10 @@ void setupGirino() {
 float incrementador = 0;
 
 void drawGirino() {
-	
-//	if (changed)
+	//((inspector*)uiC->getElement("size"))->set(ofToString(gi.girinos.size()));
+	if (girinoChanged)
 	{
-//		cout << "updating changed" << endl;
+		cout << "updating changed" << endl;
 		gi.lock();
 		int index = 0;
 		for (auto & g : gi.girinos) {
@@ -229,13 +238,12 @@ void drawGirino() {
 			index++;
 			g.vel = uiC->pEasy["vel"] + g.rand * uiC->pEasy["velRand"];
 		}
-		changed = false;
+		girinoChanged = false;
 		gi.unlock();
 	}
 	
 	
 	
-	ofSetColor(255, ui->pFloat["alpha"]);
 
 	if (uiC->pBool["numeroWaves"]) {
 		float s = ofMap(sin(ofGetElapsedTimef() * 3), -1, 1, 100, 3000);

@@ -27,7 +27,7 @@ void shadersUIEvent(ofxMicroUI::element & e) {
 		if (ofxMicroUI::dirList * r = dynamic_cast<ofxMicroUI::dirList*>(&e)) {
 			string f = r->getFileName();
 			if (f != "" & f != shadersMapLoaded[e.name]) {
-				cout << "SHADERS " << e.name << "fileName :: " << f << endl;
+//				cout << "SHADERS " << e.name << "fileName :: " << f << endl;
 				shadersMap[e.name].load(f);
 				shadersMapLoaded[e.name] = f;
 			}

@@ -5,10 +5,18 @@ float incrementa(string qual) {
 	return incrementadorTemporal[uniqueId];
 }
 
+#ifdef USECOLOR
+ofColor getCor(float qual) {
+	ofColor c = ui->pColor["cor"].getLerped(ui->pColor["cor2"], qual);
+	c.a = ui->pEasy["alpha"];
+	return c;
+	//return ofColor(ui->pColor["cor"], ui->pEasy["alpha"]);
+}
+#else
 ofColor getCor(float qual) {
 	return ofColor(255, ui->pEasy["alpha"]);
 }
-
+#endif
 
 
 void drawMesh(ofMesh * m) {
@@ -93,7 +101,6 @@ public:
 		float maxVel = 0.7;
 		vel = glm::vec2(ofRandom(-maxVel, maxVel), ofRandom(-maxVel, maxVel));
 		pos = glm::vec2(ofRandom(0,w), ofRandom(0,h));
-		
 //		float qx = a * uiC->pFloat["qx"];
 //		float qy = a * uiC->pFloat["qy"];
 		numero = ofRandom(2,10);
@@ -168,6 +175,16 @@ void setupScene() {
 
 void drawScene(string scene) {
 	
+	if (scene == "rect") {
+		float audio = fmod(ofGetElapsedTimef() * .5, 1.0);
+		float w = uiC->pFloat["w"] * fbo->getWidth();
+		float h = uiC->pFloat["h"] * fbo->getWidth();
+		float x = (uiC->pFloat["x"] + uiC->pFloat["xAudio"]*audio) * fbo->getWidth();
+		float y = uiC->pFloat["y"] * fbo->getWidth();
+		ofSetColor(getCor(0));
+		ofDrawRectangle(x, y, w, h);
+	}
+	
 	if (scene == "punchCard") {
 		float aresta = uiC->pFloat["aresta"];
 		float margem = 10;
@@ -186,7 +203,11 @@ void drawScene(string scene) {
 	else if (scene == "redes") {
 		int numero = uiC->pInt["numero"];
 		
+		int index = 0;
 		for (auto & r : redes) {
+			float qual = index/(float)redes.size();
+			index ++;
+			ofSetColor(getCor(qual));
 			r.update();
 			r.draw();
 		}
@@ -267,6 +288,8 @@ void drawScene(string scene) {
 			}
 		}
 	}
+	
+	
 	
 	else if (scene == "galaxia") {
 //		begin3d();

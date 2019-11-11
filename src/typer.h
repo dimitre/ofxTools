@@ -4,10 +4,12 @@ ofTrueTypeFont font;
 
 
 void setupTyper() {
-	font.load("_type/Simetrica-Light_20190719T113225.otf", 20);
+	cout << "setupTyper" << endl;
+	font.load("_type/Simetrica-Light_20190719T113225.otf", 40);
 	frases = ofxMicroUI::textToVector("frases.txt");
-	
-
+	for (auto & f : frases) {
+		cout << f << endl;
+	}
 }
 
 string ofUTF16DecToUtf8Char(int input)
@@ -66,7 +68,10 @@ float nextCharTime = 0;
 
 
 void drawTyper() {
-	string texto = frases[uiC->pInt["frase"] % frases.size()];
+	string texto = "";
+	if (frases.size() > 0) {
+		texto = frases[uiC->pInt["frase"] % frases.size()];
+	}
 
 	Poco::UTF8Encoding utf8Encoding;
 		if (uiC->pBool["upper"]) {
