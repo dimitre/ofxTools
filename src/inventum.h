@@ -4,7 +4,7 @@
 ofxMicroUI u;
 ofxMicroUI *ui  = &u.uis["ui"];
 ofxMicroUI *uiC  = &u.uis["scene"];
-string *cena = &ui->pString["scene"];
+//string *cena = &ui->pString["scene"];
 string & scene = ui->pString["scene"];
 
 ofxMicroUISoftware soft;
@@ -65,7 +65,7 @@ void startBlending() {
 //ofImage logo;
 ofImage * logo = &ui->pImage["logo"];
 
-void drawLogo() {
+void drawLogo(string name = "") {
 //	cout << "drawLogo" << endl;
 	
 	if (ui->pBool["logo"] && logo->isAllocated()) {
@@ -76,12 +76,12 @@ void drawLogo() {
 		float h = logo->getHeight() * scale;
 		logo->draw(ui->pInt["logoX"], ui->pInt["logoY"], w, h);
 		//if () }
+		if (name != "")
 		{
 			int x = ui->pInt["logoX"] + 7;
 			int y = ui->pInt["logoY"] + h + 24;
 			ofSetColor(getCor(0));
-			u._settings->font.drawString("METAESPAÇO\nStudio Mirabilis & Dmtr.org", x, y);
-			//ofDrawBitmapString("Studio Mirabilis & Dmtr.org", x, y);
+			u._settings->font.drawString(name + "\nStudio Mirabilis & Dmtr.org", x, y);
 		}
 	}
 	

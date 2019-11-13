@@ -1,3 +1,6 @@
+
+float updown = 0;
+
 map <string, float> incrementadorTemporal;
 float incrementa(string qual) {
 	string uniqueId = uiC->uiName + qual;
@@ -55,9 +58,52 @@ ofConePrimitive cone;
 ofSpherePrimitive sphere;
 ofIcoSpherePrimitive icoSphere;
 
+struct poeira {
+public:
+	float qual;
+	glm::vec3 pos;
+	ofVboMesh mesh;
+	ofBoxPrimitive box;
+
+	poeira(float q) : qual(q) {
+		
+		float x = ofRandom(400, 2000);
+		float y = ofRandom(400, 2000);
+		float z = ofRandom(400, 2000);
+		if (ofRandom(0,10) > 5) x = -x;
+		if (ofRandom(0,10) > 5) y = -y;
+		if (ofRandom(0,10) > 5) z = -z;
+		pos = glm::vec3( x, y, z );
+		box.setResolution(2);
+		box.setPosition(pos);
+		box.set(15);
+		mesh = box.getMesh();
+		
+	}
+	void draw() {
+		ofPushMatrix();
+		ofTranslate(pos);
+		mesh.draw();
+		ofPopMatrix();
+		//box.draw();
+	}
+};
+
+vector <poeira> poeiras;
+
+void drawPoeira() {
+	int index = 0;
+	for (auto & p : poeiras) {
+		ofSetColor(getCor(p.qual));
+		p.draw();
+		if (index++ > uiC->pInt["numero"]) {
+			break;
+		}
+	}
+}
 
 bool checkIs3d() {
-	if (scene == "ocean" || scene == "3d" || scene == "galaxia"  || scene == "solidos") {
+	if (scene == "ocean" || scene == "3d" || scene == "galaxia"  || scene == "solidos" || scene == "poeira") {
 		return true;
 	} else {
 		return false;
@@ -78,8 +124,6 @@ void end3d() {
 	}
 }
 
-
-float updown = 0;
 
 
 struct rede {
@@ -168,24 +212,47 @@ vector <rede> redes;
 
 
 void setupScene() {
+	int n = 200;
+	poeiras.reserve(n);
+	for (int a=0; a<n; a++) {
+		poeiras.emplace_back(a/(float)n);
+	}
+
+	redes.reserve(150);
 	for (int a=0; a<150; a++) {
 		redes.emplace_back(a);
 	}
 }
 
+// scene = 3d
+//ofSpherePrimitive sphere;
+
+
 void drawScene(string scene) {
-	
-	if (scene == "rect") {
+	if (scene == "poeira") {
+		drawPoeira();
+	}
+	else if (scene == "rect") {
 		float audio = fmod(ofGetElapsedTimef() * .5, 1.0);
 		float w = uiC->pFloat["w"] * fbo->getWidth();
 		float h = uiC->pFloat["h"] * fbo->getWidth();
 		float x = (uiC->pFloat["x"] + uiC->pFloat["xAudio"]*audio) * fbo->getWidth();
 		float y = uiC->pFloat["y"] * fbo->getWidth();
-		ofSetColor(getCor(0));
+		float qualCor = audio * uiC->pFloat["qualCor"];
+		ofSetColor(getCor(qualCor));
 		ofDrawRectangle(x, y, w, h);
 	}
 	
-	if (scene == "punchCard") {
+	else if (scene == "pulse") {
+		ofColor cor = getCor(0);
+		if (!uiC->pBool["solid"]) {
+			cor.a = ofMap(sin(ofGetElapsedTimef() * uiC->pFloat["multTime"]), -1, 1, 0, 255);
+		}
+		ofSetColor(cor);
+		ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
+	}
+	
+	else if (scene == "punchCard") {
 		float aresta = uiC->pFloat["aresta"];
 		float margem = 10;
 		ofSetColor(255);
@@ -232,19 +299,20 @@ void drawScene(string scene) {
 		float aresta = uiC->pEasy["aresta"];
 		float max = uiC->pInt["max"] * 0.5;
 		int index = 0;
-		ofSpherePrimitive sphere;
 		for (float x=-max; x<=max; x++) {
 			for (float y=-max; y<=max; y++) {
 				for (float z=-max; z<=max; z++) {
-					float n = ofNoise(index/10.0, uiC->pFloat["seed"]);
+					float n = ofNoise(index * uiC->pFloat["noiseMult"], uiC->pFloat["seed"]);
+					//float nn = ofNoise(index * uiC->pFloat["noiseMult"] * 1.5, uiC->pFloat["seed"]);
 					if (n > uiC->pFloat["showTreshold"]) {
+						float nn = ofMap(n, uiC->pFloat["showTreshold"], 1, 0, 1);
 						ofPushMatrix();
-						float raio = uiC->pEasy["raio"] + uiC->pEasy["raioNoise"] * n;
-						float res = uiC->pFloat["resolution"] + n * uiC->pEasy["resolutionNoise"] * n;
+						float raio = uiC->pEasy["raio"] + uiC->pEasy["raioNoise"] * nn;
+						float res = uiC->pFloat["resolution"] + n * uiC->pEasy["resolutionNoise"] * nn;
 //						sphere.set(raio, uiC->pInt["resolution"]);
 						sphere.set(raio, res);
 						ofMesh m = sphere.getMesh();
-						float aa = aresta + uiC->pFloat["arestaNoise"] * n;
+						float aa = aresta + uiC->pFloat["arestaNoise"] * nn;
 						ofTranslate(x*aa, y*aa, z*aa);
 						//sphere.drawWireframe();
 						drawMesh(&m);
@@ -256,7 +324,7 @@ void drawScene(string scene) {
 		}
 	}
 	
-	else if (*cena == "solidos") {
+	else if (scene == "solidos") {
 		int numero = uiC->pInt["numero"] + updown * (float)uiC->pInt["numeroAudio"];
 		for (int a=0; a<numero; a++ ) {
 			of3dPrimitive * objeto;
@@ -345,6 +413,7 @@ void drawScene(string scene) {
 					float yy = (ofNoise(qq, b,c*1.5)*2-1.0) * espalhaRaio;
 					float zz = (ofNoise(qq, b,c*1.3)*2-1.0) * espalhaRaio;
 					
+					ofSetColor(getCor(qual));
 					
 					if (uiC->pString["solido"] == "box") {
 						ofDrawBox(xx,yy,zz, raio,raio,raio);
@@ -483,11 +552,13 @@ void drawScene(string scene) {
 		vector <glm::vec2> pontos;
 		float numero = uiC->pEasy["numero"];
 
+		float margin = uiC->pFloat["margin"];
+
 		for (int a=0; a<numero; a++) {
 			float qx = a * uiC->pFloat["qx"];
 			float qy = a * uiC->pFloat["qy"];
-			float x = ofNoise(qx, tempo) * fbo->getWidth();
-			float y = ofNoise(qy, tempo2) * fbo->getHeight();
+			float x = (ofNoise(qx, tempo)*margin*2.0 - margin ) * fbo->getWidth() ;
+			float y = (ofNoise(qy, tempo2)*margin*2.0 - margin ) * fbo->getHeight();
 			pontos.push_back(glm::vec2(x, y));
 		}
 		
@@ -505,8 +576,6 @@ void drawScene(string scene) {
 		}
 	}
 	
-
-
 	else if (scene == "redes0") {
 		float tempo = ofGetElapsedTimef() * uiC->pFloat["tempoX"];
 		float tempo2 = ofGetElapsedTimef() * uiC->pFloat["tempoY"];

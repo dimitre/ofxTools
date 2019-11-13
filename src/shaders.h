@@ -59,6 +59,11 @@ void beginShader(string name) {
 			s->setUniform1i(p.first, p.second);
 		}
 
+		for (auto & p : ui->pColor) {
+			ofFloatColor c = p.second;
+			s->setUniform4f(p.first, c.r, c.g, c.b, c.a);
+		}
+
 //		for (auto & p : ui->pPoint) {
 //            s->setUniform2f(p.first, p.second.x, p.second.y);
 //		}

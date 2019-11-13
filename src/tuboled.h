@@ -16,7 +16,7 @@ void drawTuboled() {
 }
 
 void setupTuboled() {
-	fboSmall->allocate(110,20);
+	fboSmall->allocate(160,20);
 	fboSmall->begin();
 	ofClear(0,255);
 	fboSmall->end();
