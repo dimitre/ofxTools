@@ -1,2 +1,3 @@
 .DS_Store
-
+.cquery_cache/*
+.cquery_cache
