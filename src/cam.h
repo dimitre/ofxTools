@@ -15,8 +15,8 @@ ofEasyCam camera3d;
 //ofxDmtrUI3 *uiMaterial = ui;
 
 ofxMicroUI *uiCam = &u.uis["cam"];
-ofxMicroUI *uiLuz = &u.uis["uiLuz"];
-ofxMicroUI *uiMaterial = &u.uis["uiMaterial"];
+ofxMicroUI *uiLuz = &u.uis["luz"];
+ofxMicroUI *uiMaterial = &u.uis["material"];
 
 ofVec3f cameraLook3d, cameraLookPosition3d;
 
@@ -94,9 +94,10 @@ float	ambientColorMaterial	0 255 255
 endTemplate)";
 
 	
-	//uiCam->createFromLines(s);
+	// uiCam->createFromLines(s);
 //	uiLuz->createFromLines(s);
 //	uiMaterial->createFromLines(s);
+	
 	luzinha3d.setPointLight();
 //	camera3d.enableInertia();
 
@@ -293,8 +294,8 @@ void dmtrCamUIEvent_3d(ofxMicroUI::element & e) {
 	if (e.tag == "camNeue") {
 		if (!e._settings->presetIsLoading) {
 
+//			cout << e.name << endl;
 			if (e.name == "resetLook") {
-				cout << e.name << endl;
 				uiCam->getSlider("lookX")->set(0.0);
 	//			uiCam->getSlider("lookY")->set(1.6);
 				uiCam->getSlider("lookY")->set(0.0);
@@ -302,13 +303,11 @@ void dmtrCamUIEvent_3d(ofxMicroUI::element & e) {
 			}
 			
 			else if (e.name == "resetAutoRotate") {
-				cout << e.name << endl;
 				uiCam->pFloat["rotX_accum"] = uiCam->pFloat["rotY_accum"] = uiCam->pFloat["rotZ_accum"] = 0;
 				//uiCam->pEasy["rotX_accum"] = uiCam->pEasy["rotY_accum"] = uiCam->pEasy["rotZ_accum"] = 0;
 			}
 
 			else if (e.name == "resetCam") {
-				cout << e.name << endl;
 				uiCam->pFloat["rotX_accum"] = uiCam->pFloat["rotY_accum"] = uiCam->pFloat["rotZ_accum"] = 0;
 				//uiCam->pEasy["rotX_accum"] = uiCam->pEasy["rotY_accum"] = uiCam->pEasy["rotZ_accum"] = 0;
 

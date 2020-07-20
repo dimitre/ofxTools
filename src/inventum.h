@@ -23,7 +23,7 @@ void uiEvents(ofxMicroUI::element & e);
 
 void preSetupInventum() {
 	setupCam_3d();
-	u._settings->useFixedLabel = true;
+//	u._settings->useFixedLabel = true;
 	shadersSetup();
 }
 
@@ -81,7 +81,8 @@ void drawLogo(string name = "") {
 			int x = ui->pInt["logoX"] + 7;
 			int y = ui->pInt["logoY"] + h + 24;
 			ofSetColor(getCor(0));
-			u._settings->font.drawString(name + "\nStudio Mirabilis & Dmtr.org", x, y);
+//			u._settings->font.drawString(name + "\nStudio Mirabilis & Dmtr.org", x, y);
+			u._settings->font.drawString(name + "\nStudio Mirabilis & Vision Artes", x, y);
 		}
 	}
 	

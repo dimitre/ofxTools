@@ -1,44 +1,40 @@
 map <string, ofShader> shadersMap;
 map <string, string> shadersMapLoaded;
-
-//ofxMicroUI * uiShader = ui;
 ofxMicroUI * uiShader = &u.uis["shaders"];
-ofxMicroUI * uiShaders2d = &u.uis["shaders2d"];
-ofxMicroUI * uiShaders3d = &u.uis["shaders3d"];
 
 void shadersSetup() {
 	ofAddListener(uiShader->uiEvent, this, &ofApp::shadersUIEvent);
-//	ofAddListener(uiShaders2d->uiEvent, this, &ofApp::shadersUIEvent);
-//	ofAddListener(uiShaders3d->uiEvent, this, &ofApp::shadersUIEvent);
 }
 
-void shadersReload() {
+void shadersReload(string s = "") {
 	cout << "SHADERS RELOAD" << endl;
 	for (auto & s : shadersMap) {
+		cout << s.first << endl;
 		s.second.load(shadersMapLoaded[s.first]);
+		u.uis[s.first].reload();
 	}
 	uiShader->reload();
-	uiShaders2d->reload();
-	uiShaders3d->reload();
 }
 
 void shadersUIEvent(ofxMicroUI::element & e) {
-	if (e.name == "shaders2d" || e.name == "shaders3d" || e.name == "shadersgenerators") {
+//	cout << "shadersUIEvent " << e.name << endl;
+	if (e.name == "shaders2d" || e.name == "shaders3d" || e.name == "shadersGen") {
 		if (ofxMicroUI::dirList * r = dynamic_cast<ofxMicroUI::dirList*>(&e)) {
 			string f = r->getFileName();
 			if (f != "" & f != shadersMapLoaded[e.name]) {
-//				cout << "SHADERS " << e.name << "fileName :: " << f << endl;
+				cout << "SHADERS LOAD " << e.name << "fileName :: " << f << endl;
 				shadersMap[e.name].load(f);
 				shadersMapLoaded[e.name] = f;
 			}
 		} else {
+			
 		}
 		// aqui vai ter bool e tudo mais
 	}
 }
 
 void beginShader(string name) {
-	if (uiShader->pBool[name] && shadersMap[name].isLoaded()) {
+	if (uiShader->pBool[name + "_on"] && shadersMap[name].isLoaded()) {
 		ofShader *s = &shadersMap[name];
 		s->begin();
 		s->setUniform1f("time", ofGetElapsedTimef());
@@ -71,7 +67,7 @@ void beginShader(string name) {
 }
 
 void endShader(string name) {
-	if (uiShader->pBool[name] && shadersMap[name].isLoaded()) {
+	if (uiShader->pBool[name + "_on"] && shadersMap[name].isLoaded()) {
 		shadersMap[name].end();
 	}
 }

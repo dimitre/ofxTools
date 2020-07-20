@@ -102,17 +102,13 @@ void drawPoeira() {
 	}
 }
 
-bool checkIs3d() {
-	if (scene == "ocean" || scene == "3d" || scene == "galaxia"  || scene == "solidos" || scene == "poeira") {
-		return true;
-	} else {
-		return false;
-	}
-}
+
 
 void begin3d() {
 	if (checkIs3d()) {
 		beginCam_3d();
+		beginIlumina_3d();
+		beginMaterial_3d();
 		beginShader("shaders3d");
 	}
 }
@@ -120,6 +116,8 @@ void begin3d() {
 void end3d() {
 	if (checkIs3d()) {
 		endShader("shaders3d");
+		endMaterial_3d();
+		endIlumina_3d();
 		endCam_3d();
 	}
 }
@@ -212,7 +210,7 @@ vector <rede> redes;
 
 
 void setupScene() {
-	int n = 200;
+	int n = 400;
 	poeiras.reserve(n);
 	for (int a=0; a<n; a++) {
 		poeiras.emplace_back(a/(float)n);
@@ -228,10 +226,110 @@ void setupScene() {
 //ofSpherePrimitive sphere;
 
 
+//static ofxMicroUI * uiStatic = &u.uis["ui"];
+
+struct uva {
+public:
+	vector <uva> uvas;
+	ofSpherePrimitive bola;
+	float radius;
+	ofNode position;
+	//glm::vec3 pos;
+	int gen = 0;
+	ofVboMesh mesh;
+	
+	string & drawMode;
+
+	uva (int g, string & d) : gen(g), drawMode(d) {
+		radius = ofRandom(20,40);
+		bola.setRadius(radius);
+		bola.setResolution(16);
+		
+		mesh = bola.getMesh();
+		mesh.disableColors();
+		
+		if (gen < 4) {
+			int numero = ofRandom(2,8);
+			for (int a=0; a<numero; a++) {
+				//ofNode pos;
+				uvas.emplace_back(gen+1, drawMode);
+				uvas.back().position = position;
+				uvas.back().position.orbitDeg(ofRandom(-30, 30) , ofRandom(-30,30), radius*7, position);
+			}
+		}
+	}
+	
+	void draw() {
+		ofPushMatrix();
+		ofTranslate(position.getPosition());
+		//bola.draw();
+		
+		ofVboMesh *m = &mesh;
+		
+		if (drawMode == "wire") {
+			m->drawWireframe();
+		}
+		if (drawMode == "faces") {
+			m->drawFaces();
+		}
+		if (drawMode == "points") {
+			glDisable(GL_POINT_SMOOTH);
+			m->draw(OF_MESH_POINTS);
+		}
+		
+		ofPopMatrix();
+		for (auto & u : uvas) {
+			u.draw();
+		}
+	}
+};
+
+uva uvinha = uva(0, ui->pString["draw"]);
+
+
+
+bool checkIs3d() {
+	// futuro = regexp
+	glShadeModel(uiLuz->pBool["shadeFlat"] ? GL_FLAT : GL_SMOOTH);
+	
+	if (
+		scene == "box" ||
+		scene == "ocean" || scene == "3d" || scene == "galaxia"  ||
+		scene == "solidos" || scene == "poeira" || scene == "novelo" ||
+		scene == "uva"
+		) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+
 void drawScene(string scene) {
+	
+	if (uiBpm->pBool["bpm"]) {
+		updown = bpm.getPercent();
+		if (uiBpm->pString["wave"] == "sin") {
+			updown = sin(bpm.getPercent() * 3.1415926) *0.5 + .5;
+//			cout << updown << endl;
+		}
+	} else {
+		updown = fft.updown;
+	}
+	
 	if (scene == "poeira") {
 		drawPoeira();
 	}
+	
+	else if (scene == "box") {
+		float aresta = uiC->pFloat["aresta"] + updown * uiC->pFloat["arestaAudio"];
+		ofDrawBox(aresta);
+	}
+	
+	else if (scene == "image") {
+		uiC->pImage["image"].draw(0,0);
+	}
+	
 	else if (scene == "rect") {
 		float audio = fmod(ofGetElapsedTimef() * .5, 1.0);
 		float w = uiC->pFloat["w"] * fbo->getWidth();
@@ -241,6 +339,33 @@ void drawScene(string scene) {
 		float qualCor = audio * uiC->pFloat["qualCor"];
 		ofSetColor(getCor(qualCor));
 		ofDrawRectangle(x, y, w, h);
+	}
+	
+	else if (scene == "uva") {
+		ofSetColor(getCor(0));
+		uvinha.draw();
+	}
+	
+	else if (scene == "novelo") {
+		ofPushMatrix();
+		ofNoFill();
+		float a = uiC->pEasy["contador"] / 100.0f + uiC->pEasy["contadorInicio"];
+		float enrosco = uiC->pEasy["enrosco"] + uiC->pEasy["enroscoAudio"] * updown;
+		float enrosco2 = uiC->pEasy["enrosco2"] + uiC->pEasy["enrosco2Audio"] * updown;
+		
+		float limite = uiC->pInt["limite"] + uiC->pInt["limiteAudio"] * updown;
+		for (int y = 1; y < limite; y++)
+		{
+			ofSetColor(getCor(y/limite));
+			//ofSetColor(255 - y/20, y%255, a);
+			ofRotateYDeg (.02*10.0);
+			ofRotateXDeg (sin(y/uiC->pEasy["desenrosco"]*a) * enrosco);
+			ofRotateZDeg (sin(y/uiC->pEasy["desenrosco2"]*a) * enrosco2);
+			ofTranslate (0,0, -a);
+			
+			ofDrawLine(y/2, 0, y/2, uiC->pEasy["comprimento"]);
+		}
+		ofPopMatrix();
 	}
 	
 	else if (scene == "pulse") {
@@ -295,14 +420,17 @@ void drawScene(string scene) {
 		}
 	}
 	
+
+	
 	else if (scene == "3d") {
 		float aresta = uiC->pEasy["aresta"];
 		float max = uiC->pInt["max"] * 0.5;
 		int index = 0;
+		float noise = uiC->pFloat["noiseMult"] + updown*uiC->pFloat["noiseMultAudio"];
 		for (float x=-max; x<=max; x++) {
 			for (float y=-max; y<=max; y++) {
 				for (float z=-max; z<=max; z++) {
-					float n = ofNoise(index * uiC->pFloat["noiseMult"], uiC->pFloat["seed"]);
+					float n = ofNoise(index * noise, uiC->pFloat["seed"]);
 					//float nn = ofNoise(index * uiC->pFloat["noiseMult"] * 1.5, uiC->pFloat["seed"]);
 					if (n > uiC->pFloat["showTreshold"]) {
 						float nn = ofMap(n, uiC->pFloat["showTreshold"], 1, 0, 1);

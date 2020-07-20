@@ -7,7 +7,7 @@ void uiColorsSetup() {
 }
 
 void colorsUIEvent(ofxMicroUI::element & e) {
-	u._settings->colorUIBg 			= uiColors->pFloat["colorUIBg"];
+	u._settings->uiColorBg 			= ofColor(uiColors->pFloat["colorUIBg"], uiColors->pFloat["colorUIOpacity"]);
 	u._settings->colorVal 			= uiColors->pFloat["colorVal"];
 	u._settings->colorBg 			= uiColors->pFloat["colorBg"];
 	u._settings->useBgRainbow 		= uiColors->pBool["useBgRainbow"];
