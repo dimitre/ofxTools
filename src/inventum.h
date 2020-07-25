@@ -28,22 +28,10 @@ void preSetupInventum() {
 }
 
 void setupInventum() {
-
-//	logo.load("inv2b.png");
-	
 	soft.fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 	soft.fbo2.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 	soft.fboFinal = &soft.fbo2;
-	
 	soft.setUI(&u);
-
-//	ofSetVerticalSync(false);
-
-//	if (ofGetTargetPlatform() != OF_TARGET_OSX) {
-//		u.toggleVisible();
-//		ofSetFullscreen(true);
-//		ofHideCursor();
-//	}
 }
 
 
@@ -59,8 +47,6 @@ void startBlending() {
 		ofEnableBlendMode(OF_BLENDMODE_SCREEN);
 	}
 }
-
-
 
 //ofImage logo;
 ofImage * logo = &ui->pImage["logo"];

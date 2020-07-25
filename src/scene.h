@@ -322,7 +322,7 @@ void drawScene(string scene) {
 	}
 	
 	else if (scene == "box") {
-		float aresta = uiC->pFloat["aresta"] + updown * uiC->pFloat["arestaAudio"];
+		float aresta = uiC->pEasy["aresta"] + updown * uiC->pEasy["arestaAudio"];
 		ofDrawBox(aresta);
 	}
 	
@@ -426,21 +426,21 @@ void drawScene(string scene) {
 		float aresta = uiC->pEasy["aresta"];
 		float max = uiC->pInt["max"] * 0.5;
 		int index = 0;
-		float noise = uiC->pFloat["noiseMult"] + updown*uiC->pFloat["noiseMultAudio"];
+		float noise = uiC->pEasy["noiseMult"] + updown*uiC->pEasy["noiseMultAudio"];
 		for (float x=-max; x<=max; x++) {
 			for (float y=-max; y<=max; y++) {
 				for (float z=-max; z<=max; z++) {
-					float n = ofNoise(index * noise, uiC->pFloat["seed"]);
+					float n = ofNoise(index * noise, uiC->pEasy["seed"]);
 					//float nn = ofNoise(index * uiC->pFloat["noiseMult"] * 1.5, uiC->pFloat["seed"]);
-					if (n > uiC->pFloat["showTreshold"]) {
-						float nn = ofMap(n, uiC->pFloat["showTreshold"], 1, 0, 1);
+					if (n > uiC->pEasy["showTreshold"]) {
+						float nn = ofMap(n, uiC->pEasy["showTreshold"], 1, 0, 1);
 						ofPushMatrix();
 						float raio = uiC->pEasy["raio"] + uiC->pEasy["raioNoise"] * nn;
-						float res = uiC->pFloat["resolution"] + n * uiC->pEasy["resolutionNoise"] * nn;
+						float res = uiC->pEasy["resolution"] + n * uiC->pEasy["resolutionNoise"] * nn;
 //						sphere.set(raio, uiC->pInt["resolution"]);
 						sphere.set(raio, res);
 						ofMesh m = sphere.getMesh();
-						float aa = aresta + uiC->pFloat["arestaNoise"] * nn;
+						float aa = aresta + uiC->pEasy["arestaNoise"] * nn;
 						ofTranslate(x*aa, y*aa, z*aa);
 						//sphere.drawWireframe();
 						drawMesh(&m);

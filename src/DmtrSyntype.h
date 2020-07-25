@@ -59,7 +59,8 @@ public:
 				//string letra = ofToString(l);
 				
 				string letra;
-				ofAppendUTF8(letra, l);
+//				ofAppendUTF8(letra, l);
+				ofUTF8Append(letra, l);
 //				cout << letra << endl;
 				ofStringReplace(letra, "-", "endash");
 				ofStringReplace(letra, "\303\207", "C cedilla");
