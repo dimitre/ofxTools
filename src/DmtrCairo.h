@@ -21,6 +21,7 @@ void beginCairo() {
 		//setupCairo(2880, )
 	//}
 	if (savingCairo) {
+		cout << "SAVINGCAIRO!" << endl;
 #ifdef SVGCAIRO
 		ofRectangle rect = ofRectangle(0,0,fbo->getWidth(), fbo->getHeight());
 		string fileName = "_output/syntype_"+ofGetTimestampString()+".svg";

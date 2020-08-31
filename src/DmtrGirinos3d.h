@@ -42,7 +42,7 @@
 		glm::vec3 pos;
 		float qual;
 		int cursor = 0;
-		ofVec3f positions[60];
+		glm::vec3 positions[60];
 		int posSize = 0;
 		float angulo;
 		float theta;

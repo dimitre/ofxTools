@@ -1,15 +1,14 @@
 //	ofxMicroUIMidiController midiController;
-
-
 ofxMicroUI u;
 ofxMicroUI *ui  = &u.uis["ui"];
 ofxMicroUI *uiC  = &u.uis["scene"];
-//string *cena = &ui->pString["scene"];
 string & scene = ui->pString["scene"];
 
 ofxMicroUISoftware soft;
 ofFbo * fbo = &soft.fbo;
 ofFbo * fbo2 = &soft.fbo2;
+//ofFbo * fbo3 = &soft.fbo3;
+
 void uiEvents(ofxMicroUI::element & e);
 
 #include "shaders.h"
@@ -30,6 +29,7 @@ void preSetupInventum() {
 void setupInventum() {
 	soft.fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 	soft.fbo2.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+//	soft.fbo3.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 	soft.fboFinal = &soft.fbo2;
 	soft.setUI(&u);
 }

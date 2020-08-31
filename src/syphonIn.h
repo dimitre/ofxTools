@@ -1,9 +1,9 @@
 ofxMicroUI * uiSyphon = &u.uis["syphon"];
-
-ofxSyphonClient	syphonIn;
+ofxSyphonClient syphonIn;
 ofxSyphonServerDirectory syphonList;
 
 void syphonUpdated(ofxSyphonServerDirectoryEventArgs &arg) {
+//	cout << "syphonIn syphonUpdated!!!" << endl;
 	uiSyphon->clear();
 	vector <string> options;
 	for (auto & s : syphonList.getServerList()) {
@@ -12,7 +12,7 @@ void syphonUpdated(ofxSyphonServerDirectoryEventArgs &arg) {
 		string nome = s.serverName + "--" + s.appName;
 		options.push_back(nome);
 	}
-	vector<string>lines = {"radioPipeNoLabel	syphon	" + ofJoinString(options, "|")};
+	vector <string> lines = { "radioPipeNoLabel	syphon	" + ofJoinString(options, "|")};
 	uiSyphon->createFromLines(lines);
 }
 

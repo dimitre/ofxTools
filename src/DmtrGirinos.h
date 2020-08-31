@@ -49,7 +49,7 @@ public:
 	
 	girinoSettings * _settings = NULL;
 	
-	// border
+	// border 
 	int minX, minY, maxX, maxY, largura, altura;
 
 	

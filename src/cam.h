@@ -7,133 +7,154 @@ float beat = 0.0;
 ofLight luzinha3d;
 ofMaterial material3d;
 
+//	float pointsPerMeter = 100.0;
+const float pointsPerMeter = 1.0;
 //ofCamera camera3d;
 ofEasyCam camera3d;
+glm::vec3 cameraLook3d;
+glm::vec3 cameraLookUp = { 0.f, 1.0f, 0.0f };
 
-//ofxDmtrUI3 *uiCam = ui;
-//ofxDmtrUI3 *uiLuz = ui;
-//ofxDmtrUI3 *uiMaterial = ui;
+
+ofNode lookNode;
 
 ofxMicroUI *uiCam = &u.uis["cam"];
 ofxMicroUI *uiLuz = &u.uis["luz"];
 ofxMicroUI *uiMaterial = &u.uis["material"];
 
-ofVec3f cameraLook3d, cameraLookPosition3d;
-
-ofNode lookNode;
 
 // precisa vir antes do loadMaster pra poder fazer os presets antes.
 void setupCam_3d() {
 	ofAddListener(uiCam->uiEvent, this, &ofApp::dmtrCamUIEvent_3d);
-	
-	
-string s =
-R"(beginTemplate	camControl3d
-tag	camNeue
-#bool	ortho	0
-bang	resetLook	0
-float	lookX	-30 30 0
-float	lookY	-1 20 0
-float	lookZ	-30 30 0
-float	cameraX	-20 20 0
-float	cameraY	-6 20 0
-float	cameraZ	-20 20 0
-bool	cameraPolar	1
-float	cameraDist	0 50 23
-float	cameraAngle	-180 180 -45
-float	cameraFov	10 180 35
-#radio	cameraFov_shortcut	12 22 35 50 70 100 150
-	
-bang	resetCam
-bang	resetAutoRotate
-float	rotCamX	-180 180 0
-float	rotCamY	-180 180 0	audio
-float	rotCamZ	-180 180 0
-float	rotCamXAuto	-1.5 1.5 0
-float	rotCamYAuto	-1.5 1.5 0
-float	rotCamZAuto	-1.5 1.5 0
-bool	rotCam	1
-tag
-endTemplate
-#=============================
-beginTemplate	luzControl
-tag	light
-toggle	LUZ	0 1 0
-float	luzX	-2000 2000 0	beat
-float	luzY	-2000 2000 0	beat
-float	luzZ	-2000 2000 0	beat
-bool	shadeFlat	0
-###
-float	lightAttenuationConstant	0 2 1
-float	lightAttenuationLinear	0 .0002 0
-float	lightAttenuationQuadratic	0 .000001 0
-###
-float	diffuseColorLuz	0 255 255
-#float	diffuseColorLuzAlpha	0 255 100
-float	specularColorLuz	0 255 255
-#float	specularColorLuzAlpha	0 255 100
-float	ambientColorLuz	0 255 255
-#=============================
-#color	specularColor
-#color	diffuseColor
-float	areaLight	0 2000 1000
-float	materialShininess	0 100 20
-bool	enableSeparateSpecularLight	1
-tag
-#bool	shadeFlat	0
-endTemplate
-#=============================
-beginTemplate	materialControl
-toggle	material	0 1 0
-#label	MATERIAL
-float	specularColorMaterial	0 255 255
-float	specularColorMaterialAlpha	0 255 100
-float	diffuseColorMaterial	0 255 255
-float	emissiveColorMaterial	0 255 255
-float	ambientColorMaterial	0 255 255
-endTemplate)";
-
-	
+	ofAddListener(uiLuz->uiEvent, this, &ofApp::luzUIEvent);
 	// uiCam->createFromLines(s);
 //	uiLuz->createFromLines(s);
 //	uiMaterial->createFromLines(s);
 	
-	luzinha3d.setPointLight();
+//	luzinha3d.setPointLight();
+
 //	camera3d.enableInertia();
 
+}
+
+
+void begin3d() {
+//	glShadeModel(uiLuz->pBool["shadeFlat"] ? GL_FLAT : GL_SMOOTH);
+	if (uiC->pBool["is3d"]) {
+		beginCam_3d();
+		beginMaterial_3d();
+		beginIlumina_3d();
+		beginShader("shaders3d");
+	}
+}
+
+void end3d() {
+	if (uiC->pBool["is3d"]) {
+		endShader("shaders3d");
+		endIlumina_3d();
+		endMaterial_3d();
+		endCam_3d();
+	}
+}
+
+
+
+
+
+struct luzUI {
+public:
+	ofxMicroUI * ui = NULL;
+	ofxMicroUI * uiLuz = NULL;
+	ofLight luz;
+	glm::vec3 pos;
+	
+	luzUI(ofxMicroUI * _ui, ofxMicroUI * _uiLuz) : ui(_ui), uiLuz(_uiLuz) {
+//		luz.setAreaLight(100, 100);
+		luz.setPointLight();
+	}
+	void begin() {
+		if (ui->pBool["on"]) {
+			
+			pos = glm::vec3(
+				ui->pEasy["luzX"],
+				ui->pEasy["luzY"],
+				ui->pEasy["luzZ"]
+			);
+			
+			ofSetColor(ui->pColor["diffuseColorLuz"]);
+//			luz.draw();
+			luz.setPosition(pos);
+				
+			luz.setAttenuation(
+				ui->pEasy["lightAttenuationConstant"],
+				ui->pEasy["lightAttenuationLinear"],
+				ui->pEasy["lightAttenuationQuadratic"]
+			);
+
+			luz.setDiffuseColor( ui->pColor["diffuseColor"]);
+			luz.setSpecularColor( ui->pColor["specularColor"]);
+			luz.setAmbientColor( uiLuz->pColor["ambientColor"]);
+			luz.enable();
+		}
+	}
+	
+	void end() {
+		if (ui->pBool["on"]) {
+			luz.disable();
+		}
+	}
+};
+
+luzUI luzes[3] = {
+	luzUI(&u.uis["luz0"], uiLuz),
+	luzUI(&u.uis["luz1"], uiLuz),
+	luzUI(&u.uis["luz2"], uiLuz)
+};
+
+void beginLuzes() {
+	for (auto & l : luzes) {
+		l.begin();
+	}
+}
+
+void endLuzes() {
+	for (auto & l : luzes) {
+		l.end();
+	}
 }
 	
 //--------------------------------------------------------------
 void beginIlumina_3d(){
-	if (uiLuz->pBool["LUZ"]) {
+	if (uiLuz->pBool["Lighting"]) {
 		ofEnableLighting();
-		//cout << "luz" << endl;
 		
-		luzinha3d.setAreaLight(uiLuz->pEasy["areaLight"],uiLuz->pEasy["areaLight"]);
-
-		luzinha3d.setAttenuation(
-							uiLuz->pEasy["lightAttenuationConstant"],
-							uiLuz->pEasy["lightAttenuationLinear"],
-							uiLuz->pEasy["lightAttenuationQuadratic"]);
+		if (uiLuz->pBool["on"]) {
+			luzinha3d.setAreaLight(uiLuz->pEasy["areaLight"],uiLuz->pEasy["areaLight"]);
+			luzinha3d.setAttenuation(
+								uiLuz->pEasy["lightAttenuationConstant"],
+								uiLuz->pEasy["lightAttenuationLinear"],
+								uiLuz->pEasy["lightAttenuationQuadratic"]);
+			luzinha3d.setPosition(
+								uiLuz->pEasy["luzX"] + uiLuz->pEasy["luzXBeat"] * beat,
+								uiLuz->pEasy["luzY"] + uiLuz->pEasy["luzYBeat"] * beat,
+								uiLuz->pEasy["luzZ"] + uiLuz->pEasy["luzZBeat"] * beat);
+			luzinha3d.setDiffuseColor( ofColor(uiLuz->pEasy["diffuseColorLuz"]));
+			luzinha3d.setSpecularColor( ofColor(uiLuz->pEasy["specularColorLuz"]));
+			luzinha3d.setAmbientColor( ofColor(uiLuz->pEasy["ambientColorLuz"]));
+			luzinha3d.enable();
+		}
 		
-		luzinha3d.setPosition(
-							uiLuz->pEasy["luzX"] + uiLuz->pEasy["luzXBeat"] * beat,
-							uiLuz->pEasy["luzY"] + uiLuz->pEasy["luzYBeat"] * beat,
-							uiLuz->pEasy["luzZ"] + uiLuz->pEasy["luzZBeat"] * beat);
-
-		luzinha3d.setDiffuseColor( ofColor(uiLuz->pEasy["diffuseColorLuz"]));
-		luzinha3d.setSpecularColor( ofColor(uiLuz->pEasy["specularColorLuz"]));
-		luzinha3d.setAmbientColor( ofColor(uiLuz->pEasy["ambientColorLuz"]));
-		luzinha3d.enable();
+		beginLuzes();
 	}
 }
 
 //--------------------------------------------------------------
 void endIlumina_3d(){
-	if (uiLuz->pBool["LUZ"]) {
+	if (uiLuz->pBool["Lighting"]) {
 		luzinha3d.disable();
 		ofDisableLighting();
 		ofDisableSeparateSpecularLight();
+		
+		endLuzes();
 	}
 }
 
@@ -158,6 +179,7 @@ void endMaterial_3d() {
 	}
 }
 
+
 //--------------------------------------------------------------
 void beginCam_3d(float eyeDistance = 0) {
 	
@@ -167,21 +189,19 @@ void beginCam_3d(float eyeDistance = 0) {
 		ofEnableDepthTest();
 	}
 
-	float pointsPerMeter = 100.0;
-	float cameraX = uiCam->pEasy["cameraX"] * pointsPerMeter;
-	float cameraZ = uiCam->pEasy["cameraZ"] * pointsPerMeter;
+	float cameraX = uiCam->pEasy["cameraX"];
+	float cameraZ = uiCam->pEasy["cameraZ"];
 	
-	camera3d.setNearClip(1.0);
-	camera3d.setFarClip(160 * pointsPerMeter);
+	camera3d.setNearClip(0.01);
+	camera3d.setFarClip(1600);
 
 	// 1.70, a altura de um adulto em p�
 
 	if (uiCam->pBool["cameraPolar"]) {
 		float a = uiCam->pEasy["cameraAngle"] + 90.0;
-		float d = uiCam->pEasy["cameraDist"] * pointsPerMeter;
+		float d = uiCam->pEasy["cameraDist"];
 		cameraX = r2x(a, d);
 		cameraZ = r2y(a, d);
-
 		cameraX += lookNode.getPosition().x;
 		cameraZ += lookNode.getPosition().z;
 	}
@@ -190,38 +210,31 @@ void beginCam_3d(float eyeDistance = 0) {
 	
 	if (!u.pBool["mouseCamera"]) {
 		camera3d.setPosition(cameraX,
-						   uiCam->pEasy["cameraY"] * pointsPerMeter,
+						   uiCam->pEasy["cameraY"],
 						   cameraZ);
 		
-		cameraLook3d = ofVec3f(uiCam->pEasy["lookX"] * pointsPerMeter,
-							   uiCam->pEasy["lookY"] * pointsPerMeter,
-							   uiCam->pEasy["lookZ"] * pointsPerMeter);
+		cameraLook3d = glm::vec3(uiCam->pEasy["lookX"],
+							   uiCam->pEasy["lookY"],
+							   uiCam->pEasy["lookZ"]);
 		
 		lookNode.setPosition(cameraLook3d);
 		
-//		cameraLookPosition3d = ofVec3f(uiCam->pEasy["lookX"] * pointsPerMeter,
-//									   (uiCam->pEasy["lookY"]+100) * pointsPerMeter,
-//									   uiCam->pEasy["lookZ"] * pointsPerMeter);
+//		cameraLookPosition3d = glm::vec3(uiCam->pEasy["lookX"],
+//									   (uiCam->pEasy["lookY"]+100),
+//									   uiCam->pEasy["lookZ"]);
 		
-		cameraLookPosition3d = {0.f, -2*pointsPerMeter, 0.0f};
-		
-		camera3d.lookAt(lookNode);
+		camera3d.lookAt(lookNode, cameraLookUp);
 		//camera3d.lookAt( cameraLook3d, cameraLookPosition3d );
 	}
-
-
-
 
 	camera3d.setFov(uiCam->pEasy["cameraFov"]);
 	camera3d.begin();
 	ofPushMatrix();
 	
-	
-	
 	float rotX = uiCam->pEasy["accelX"];
 	float rotY = uiCam->pEasy["accelY"];
 	float rotZ = uiCam->pEasy["accelZ"];
-	float rotation = ofGetFrameNum()/9.0f;
+	// float rotation = ofGetFrameNum()/9.0f;
 	
 	if (uiCam->pBool["rotCam"]) {
 		uiCam->pFloat["rotX_accum"] += uiCam->pFloat["rotCamXAuto"];
@@ -236,7 +249,7 @@ void beginCam_3d(float eyeDistance = 0) {
 
 
 //--------------------------------------------------------------
-void beginCamPos_3d(ofVec3f camPos, ofVec3f lookAtPos) {
+void beginCamPos_3d(glm::vec3 camPos, glm::vec3 lookAtPos) {
 	
 	if (uiCam->pBool["disableDepthTest"]) {
 		ofDisableDepthTest();
@@ -244,20 +257,19 @@ void beginCamPos_3d(ofVec3f camPos, ofVec3f lookAtPos) {
 		ofEnableDepthTest();
 	}
 	
-	float pointsPerMeter = 100.0;
-	float cameraX = uiCam->pEasy["cameraX"] * pointsPerMeter;
-	float cameraZ = uiCam->pEasy["cameraZ"] * pointsPerMeter;
+	float cameraX = uiCam->pEasy["cameraX"];
+	float cameraZ = uiCam->pEasy["cameraZ"];
 	
 	camera3d.setNearClip(1.0);
-	camera3d.setFarClip(160 * pointsPerMeter);
+	camera3d.setFarClip(160);
 	
 	// 1.70, a altura de um adulto em p�
 	
 	if (uiCam->pBool["cameraPolar"]) {
-		cameraX = r2x(uiCam->pEasy["cameraAngle"], uiCam->pEasy["cameraDist"] * pointsPerMeter);
-		cameraZ = r2y(uiCam->pEasy["cameraAngle"], uiCam->pEasy["cameraDist"] * pointsPerMeter);
+		cameraX = r2x(uiCam->pEasy["cameraAngle"], uiCam->pEasy["cameraDist"]);
+		cameraZ = r2y(uiCam->pEasy["cameraAngle"], uiCam->pEasy["cameraDist"]);
 	}
-	ofVec3f lookAtOrientation = lookAtPos;
+	glm::vec3 lookAtOrientation = lookAtPos;
 	lookAtOrientation.z += 3*pointsPerMeter;
 
 	camera3d.setPosition(camPos);
@@ -276,86 +288,78 @@ void endCam_3d() {
 	ofDisableDepthTest();
 }
 
-//--------------------------------------------------------------
-void beginCamera3d() {
-	ofEnableDepthTest();
-	beginCam_3d();
-}
+////--------------------------------------------------------------
+//void beginCamera3d() {
+//	ofEnableDepthTest();
+//	beginCam_3d();
+//}
+//
+////--------------------------------------------------------------
+//void endCamera3d() {
+//	endCam_3d();
+//	ofDisableDepthTest();
+//}
 
 //--------------------------------------------------------------
-void endCamera3d() {
-	endCam_3d();
-	ofDisableDepthTest();
+void luzUIEvent(ofxMicroUI::element & e) {
+	if (e.name == "shadeFlat") {
+		if (*e.b) {
+//			cout << e.name << *e.b << endl;
+			glShadeModel(GL_FLAT);
+			glMatrixMode(GL_MODELVIEW);
+			
+		} else {
+			glShadeModel(GL_SMOOTH);
+			glMatrixMode(GL_MODELVIEW);
+		}
+	}
+	
+	if (uiCam->pBool["enableSeparatapaecularLight"]) {
+		ofEnableSeparateSpecularLight();
+	} else {
+		ofDisableSeparateSpecularLight();
+	}
 }
 
 //--------------------------------------------------------------
 void dmtrCamUIEvent_3d(ofxMicroUI::element & e) {
-	
-	if (e.tag == "camNeue") {
-		if (!e._settings->presetIsLoading) {
+	if (!e._settings->presetIsLoading) {
 
 //			cout << e.name << endl;
-			if (e.name == "resetLook") {
-				uiCam->getSlider("lookX")->set(0.0);
-	//			uiCam->getSlider("lookY")->set(1.6);
-				uiCam->getSlider("lookY")->set(0.0);
-				uiCam->getSlider("lookZ")->set(0.0);
-			}
-			
-			else if (e.name == "resetAutoRotate") {
-				uiCam->pFloat["rotX_accum"] = uiCam->pFloat["rotY_accum"] = uiCam->pFloat["rotZ_accum"] = 0;
-				//uiCam->pEasy["rotX_accum"] = uiCam->pEasy["rotY_accum"] = uiCam->pEasy["rotZ_accum"] = 0;
-			}
-
-			else if (e.name == "resetCam") {
-				uiCam->pFloat["rotX_accum"] = uiCam->pFloat["rotY_accum"] = uiCam->pFloat["rotZ_accum"] = 0;
-				//uiCam->pEasy["rotX_accum"] = uiCam->pEasy["rotY_accum"] = uiCam->pEasy["rotZ_accum"] = 0;
-
-				uiCam->getSlider("rotCamX")->set(0);
-				uiCam->getSlider("rotCamY")->set(0);
-				uiCam->getSlider("rotCamZ")->set(0);
-
-				uiCam->getSlider("rotCamXAuto")->set(0);
-				uiCam->getSlider("rotCamYAuto")->set(0);
-				uiCam->getSlider("rotCamZAuto")->set(0);
-			}
-		}
-			
-		
-		if (e.name == "ortho") {
-			if (e.b) {
-				camera3d.enableOrtho();
-			} else {
-				camera3d.disableOrtho();
-			}
+		if (e.name == "resetLook") {
+			uiCam->getSlider("lookX")->set(0.0);
+//			uiCam->getSlider("lookY")->set(1.6);
+			uiCam->getSlider("lookY")->set(0.0);
+			uiCam->getSlider("lookZ")->set(0.0);
 		}
 		
-		else if (e.name == "shadeFlat") {
-			if (e.b) {
-				glShadeModel(GL_FLAT);
-				glMatrixMode(GL_MODELVIEW);
-				
-			} else {
-				glShadeModel(GL_SMOOTH);
-				glMatrixMode(GL_MODELVIEW);
-			}
+		else if (e.name == "resetAutoRotate") {
+			uiCam->pFloat["rotX_accum"] = uiCam->pFloat["rotY_accum"] = uiCam->pFloat["rotZ_accum"] = 0;
+			//uiCam->pEasy["rotX_accum"] = uiCam->pEasy["rotY_accum"] = uiCam->pEasy["rotZ_accum"] = 0;
 		}
-		
-		if (e.tag == "light") {
-			if (uiCam->pBool["enableSeparatapaecularLight"]) {
-				ofEnableSeparateSpecularLight();
-			} else {
-				ofDisableSeparateSpecularLight();
-			}
+
+		else if (e.name == "resetCam") {
+			uiCam->pFloat["rotX_accum"] = uiCam->pFloat["rotY_accum"] = uiCam->pFloat["rotZ_accum"] = 0;
+			//uiCam->pEasy["rotX_accum"] = uiCam->pEasy["rotY_accum"] = uiCam->pEasy["rotZ_accum"] = 0;
+
+			uiCam->getSlider("rotCamX")->set(0);
+			uiCam->getSlider("rotCamY")->set(0);
+			uiCam->getSlider("rotCamZ")->set(0);
+
+			uiCam->getSlider("rotCamXAuto")->set(0);
+			uiCam->getSlider("rotCamYAuto")->set(0);
+			uiCam->getSlider("rotCamZAuto")->set(0);
 		}
 	}
-//	if (ofIsStringInString(e.name, "saveLoad")) {
-//		vector <string> partes = ofSplitString(e.name, "_");
-//		if (partes[2] == "0") {
-//			uiCam->save("uiCam" + partes[1] + ".xml");
-//		} else {
-//			uiCam->load("uiCam" + partes[1] + ".xml");
-//		}
-//		//cout << e.name << endl;
-//	}
+		
+	
+	if (e.name == "ortho") {
+		if (*e.b) {
+			camera3d.enableOrtho();
+		} else {
+			camera3d.disableOrtho();
+		}
+	}
+	
+
 }

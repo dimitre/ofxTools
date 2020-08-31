@@ -59,6 +59,16 @@ void beginShader(string name) {
 			ofFloatColor c = p.second;
 			s->setUniform4f(p.first, c.r, c.g, c.b, c.a);
 		}
+		
+		for (auto & p : ui->pImage) {
+			s->setUniform1f("paletaWidth", 200);
+			if (ui->pBool["feed"]) {
+				s->setUniformTexture("paleta", soft.fbo.getTexture(), 1);
+			} else {
+				s->setUniformTexture(p.first, p.second.getTexture(), 1);
+			}
+		}
+		
 
 //		for (auto & p : ui->pPoint) {
 //            s->setUniform2f(p.first, p.second.x, p.second.y);

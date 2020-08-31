@@ -240,6 +240,8 @@ void loadLetter(string fileName) {
 
 void desenhaSyntype2() {
 	
+	// temporario vamos ver
+	ofTranslate(uiL->pFloat["offsetX"], uiL->pFloat["offsetY"]);
 	if (uiL->pBool["palavra"]) {
 		float cursorX = uiL->pFloat["offX"] * 100.0;
 		float cursorY = uiL->pFloat["offY"] * 100.0;
