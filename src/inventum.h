@@ -51,28 +51,7 @@ void startBlending() {
 //ofImage logo;
 ofImage * logo = &ui->pImage["logo"];
 
-void drawLogo(string name = "") {
-//	cout << "drawLogo" << endl;
-	
-	if (ui->pBool["logo"] && logo->isAllocated()) {
-//		cout << "draw yes " << endl;
-//		ofSetColor(255);
-		float scale = ui->pFloat["logoScale"];
-		float w = logo->getWidth() * scale;
-		float h = logo->getHeight() * scale;
-		logo->draw(ui->pInt["logoX"], ui->pInt["logoY"], w, h);
-		//if () }
-		if (name != "")
-		{
-			int x = ui->pInt["logoX"] + 7;
-			int y = ui->pInt["logoY"] + h + 24;
-			ofSetColor(getCor(0));
-//			u._settings->font.drawString(name + "\nStudio Mirabilis & Dmtr.org", x, y);
-			u._settings->font.drawString(name + "\nStudio Mirabilis & Vision Artes", x, y);
-		}
-	}
-	
-}
+
 
 #ifdef INFINITO
 void drawSecondWindow(ofEventArgs & args) {
@@ -101,3 +80,27 @@ void drawSecondWindow(ofEventArgs & args) {
 	}
 }
 #endif
+
+
+
+void drawLogo(string name = "") {
+//	cout << "drawLogo" << endl;
+	
+	if (ui->pBool["logo"] && logo->isAllocated()) {
+//		cout << "draw yes " << endl;
+//		ofSetColor(255);
+		float scale = ui->pFloat["logoScale"];
+		float w = logo->getWidth() * scale;
+		float h = logo->getHeight() * scale;
+		logo->draw(ui->pInt["logoX"], ui->pInt["logoY"], w, h);
+		//if () }
+		if (name != "")
+		{
+			int x = ui->pInt["logoX"] + 7;
+			int y = ui->pInt["logoY"] + h + 24;
+			ofSetColor(getCor(0));
+//			u._settings->font.drawString(name + "\nStudio Mirabilis & Dmtr.org", x, y);
+			u._settings->font.drawString(name + "\nStudio Mirabilis & Vision Artes", x, y);
+		}
+	}
+}

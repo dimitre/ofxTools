@@ -1,3 +1,28 @@
+void fboToPng(ofFbo * fbo) {
+	ofPixels pixelsExport;
+	ofFbo fboExport;
+	fboExport.allocate(fbo->getWidth(), fbo->getHeight(), GL_RGB);
+	fboExport.begin();
+	ofClear(0,255);
+	ofSetColor(255);
+	fbo->draw(0,0);
+	fboExport.end();
+	
+//	pixelsExport.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
+//	fbo->readToPixels(pixelsExport);
+	
+	pixelsExport.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR);
+	fboExport.readToPixels(pixelsExport);
+	
+	string p = ofToString(u.pString["presets"]);
+	string fullFileName = "_output/" + p + "_" +ofGetTimestampString() + ".png";
+	
+	ofSaveImage(pixelsExport, fullFileName);
+	string resultado = ofSystem("open " + ofToDataPath(fullFileName));
+}
+
+
+
 float nextChange = 0;
 int nPreset = -1;
 
@@ -60,68 +85,4 @@ void shortcutUIEvent(ofxMicroUI::element & e) {
 		}
 	}
 }
-
-
-
-//
-//class picker {
-//public:
-//	ofColor color = ofColor(0);
-//	ofColor lastColor = ofColor(0);
-//	ofVec2f pos;
-//	int index;
-//	int note;
-//	string name = "";
-//	
-//	picker(ofPoint p, int i) : pos(p), index(i) {}
-//	
-//	ofPixels * _pixels = NULL;
-//	float raio = 10;
-//
-//	void getColor() {
-//		lastColor = color;
-//		if (_pixels != NULL) {
-//			color = _pixels->getColor(pos.x, pos.y);
-//		}
-//	}
-//
-//	void draw() {
-//		ofFill();
-//		ofSetColor(color);
-//		// ofDrawCircle(pos.x, pos.y, raio);
-//		//ofSetColor(255);
-//		ofDrawRectangle(pos.x-raio*.5, pos.y-raio*.5, raio, raio);
-//
-//		ofNoFill();
-//		//ofSetColor(0);
-//		//ofDrawRectangle(pos.x-1, pos.y+1, raio, raio);
-//		ofSetColor(255, 0,70);
-//		ofDrawRectangle(pos.x -raio*.5, pos.y -raio*.5, raio, raio);
-//		ofFill();
-//	}
-//	
-//	void drawLabel() {
-//		ofSetColor(0);
-//		ofDrawBitmapString(name, pos.x - raio*.5,
-//						   pos.y + raio*.5 + 4);
-//		ofSetColor(255);
-//		ofDrawBitmapString(name, pos.x - raio*.5 + 0.25,
-//						   pos.y + raio*.5 + 4 - 0.25);
-////		ofDrawBitmapString(name, pos.x - raio *.5, pos.y + raio*.5)
-//	}
-//};
-//
-//vector <picker> pickers;
-//
-//void generatePickers() {
-//	pickers.clear();
-//	int index = 0;
-//	for (int a=0; a<11; a++) {
-//		float x = ofMap(a, 0, 11, 50, fbo->getWidth() - 50);
-//		float y = 100;
-//		//pickers.push_back(picker(ofPoint(x,y), a));
-//		pickers.emplace_back(ofPoint(x,y), a);
-//		//pickers.back()->_pixels = &pixels;
-//	}
-//}
 

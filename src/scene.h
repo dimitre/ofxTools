@@ -1,3 +1,4 @@
+#include "sceneNova.h"
 
 float updown = 0;
 
@@ -37,7 +38,6 @@ void drawMesh(ofMesh * m) {
 		m->draw(OF_MESH_POINTS);
 	}
 }
-
 
 
 //OLD SCENES
@@ -190,6 +190,8 @@ vector <rede> redes;
 
 
 void setupScene() {
+
+	
 	int n = 400;
 	poeiras.reserve(n);
 	for (int a=0; a<n; a++) {
@@ -267,120 +269,6 @@ public:
 uva uvinha = uva(0, ui->pString["draw"]);
 
 
-struct scene {
-public:
-	bool isSetup = false;
-	ofxMicroUI * uiC = NULL;
-
-	scene(ofxMicroUI * u) : uiC(u) {
-		ofAddListener(uiC->uiEvent, this, &scene::uiEvents);
-	}
-
-	virtual void uiEvents(ofxMicroUI::element & e) {
-	}
-	
-	virtual void setup() {
-		isSetup = true;
-	}
-	
-	virtual void draw() {
-		if (!isSetup) {
-			setup();
-		}
-	}
-};
-
-
-struct oceanScene : public scene {
-public:
-	
-	ofMesh mesh;
-	int width = 110;
-	float multiplicador = 0.4;
-	
-	using scene::scene;
-	
-	void uiEvents(ofxMicroUI::element & e) override {
-		if (e.name == "normals") {
-			if (*e.b) {
-				for( int i=0; i < mesh.getVertices().size(); i++ ) mesh.addNormal(glm::vec3(0,0,0));
-			} else {
-				mesh.clearNormals();
-			}
-		}
-	}
-	
-	void setup() override {
-		for (int x=0; x<width; x++) {
-			for (int z=0; z<width; z++) {
-				float y = 0;
-				glm::vec3 pos = glm::vec3(x*multiplicador - width/2*multiplicador, y, z*multiplicador - width/2*multiplicador);
-				mesh.addVertex(pos);
-			}
-		}
-
-		for (int x=0; x<width-1; x++) {
-			for (int z=0; z<width-1; z++) {
-				mesh.addIndex(x+z*width);				// 0
-				mesh.addIndex((x+1)+z*width);			// 1
-				mesh.addIndex(x+(z+1)*width);			// 10
-				mesh.addIndex((x+1)+z*width);			// 1
-				mesh.addIndex((x+1)+(z+1)*width);		// 11
-				mesh.addIndex(x+(z+1)*width);			// 10
-			}
-		}
-		
-		for( int i=0; i < mesh.getVertices().size(); i++ ) mesh.addNormal(glm::vec3(0,0,0));
-	}
-	
-	void draw() override {
-		if (!isSetup) {
-			setup();
-			isSetup = true;
-		}
-		
-		float updown = 0;
-		float noiseMult1 = uiC->pEasy["noiseMult1"] + uiC->pEasy["noiseMult1Audio"] * updown;
-		float noiseMult2 = uiC->pEasy["noiseMult2"] + uiC->pEasy["noiseMult2Audio"] * updown;
-		
-		float multY = uiC->pEasy["multY"] + uiC->pEasy["multYAudio"] * updown;
-		float multY2 = uiC->pEasy["multY2"] + uiC->pEasy["multY2Audio"] * updown;
-		
-		float easy1 = ofGetElapsedTimef() * uiC->pEasy["multiVel1"];
-		float easy2 = ofGetElapsedTimef() * uiC->pEasy["multiVel2"];
-		float offXTime = ofGetElapsedTimef() * uiC->pFloat["offXTime"];
-		float offYTime = ofGetElapsedTimef() * uiC->pFloat["offYTime"];
-
-		//ofSetColor(getCor(0));
-		//cout << multY << endl;
-		//cout << width << endl;
-		for (int y=0; y<width; y++) {
-			for (int x=0; x<width; x++) {
-				int index = x + y*width;
-				glm::vec3 tmpVec = mesh.getVertex(index);
-				
-				tmpVec.y = (ofNoise(x * noiseMult1 + offXTime, y * noiseMult1 + offYTime, easy1)-.5)
-				* multiplicador * multY;
-				
-				tmpVec.y += (ofNoise(x * noiseMult2 + offXTime, y * noiseMult2 + offYTime, easy2)-.5)
-				* multiplicador * multY2;
-				
-				if (uiC->pBool["esferas"]) {
-					//objeto3d(tmpVec, uiC->pFloat["raio"]);
-				} else {
-					mesh.setVertex(index, tmpVec);
-				}
-				//mesh.setColor(index, getCor((x + y*width)/(float)total));
-			}
-		}
-		
-		if (uiC->pBool["normals"]) {
-			calcNormals(mesh, true);
-		}
-
-	}
-} oceano = oceanScene(uiC);
-
 
 void drawScene(string scene) {
 	
@@ -396,8 +284,34 @@ void drawScene(string scene) {
 	}
 #endif
 	
+//	for (auto & s : scenesMap) {
+//		cout << s.first << endl;
+//	}
+	
+	drawScenesNova();
+//	if ( scenesMap.find(scene) != scenesMap.end() ) {
+//		scenesMap[scene]->draw();
+//	}
+	
+//	if (scene == "oceanTest") {
+//		oceano.draw();
+//		if (!uiC->pBool["esferas"]) {
+////			mesh.disableColors();
+//			drawMesh(&oceano.mesh);
+//		}
+//	}
+	
 	if (scene == "poeira") {
 		drawPoeira();
+	}
+	
+	else if (scene == "box") {
+		float aresta = uiC->pEasy["aresta"] + updown * uiC->pEasy["arestaAudio"];
+		ofDrawBox(aresta);
+	}
+	
+	else if (scene == "image") {
+		uiC->pImage["image"].draw(0,0);
 	}
 	
 	else if (scene == "gridbox") {
@@ -431,14 +345,7 @@ void drawScene(string scene) {
 		}
 	}
 	
-	else if (scene == "box") {
-		float aresta = uiC->pEasy["aresta"] + updown * uiC->pEasy["arestaAudio"];
-		ofDrawBox(aresta);
-	}
-	
-	else if (scene == "image") {
-		uiC->pImage["image"].draw(0,0);
-	}
+
 	
 	else if (scene == "rect") {
 		float audio = fmod(ofGetElapsedTimef() * .5, 1.0);
@@ -701,102 +608,8 @@ void drawScene(string scene) {
 		}
 	}
 	
-	else if (scene == "ocean") {
-		oceano.draw();
-		if (!uiC->pBool["esferas"]) {
-//			mesh.disableColors();
-			drawMesh(&oceano.mesh);
-		}
-	}
 
-	else if (scene == "ocean2") {
-		//ofRotate(-55.0 + sin(ofGetFrameNum()/100.0)*10.0, 1, 0, 0);
-		ofMesh mesh;
-//		int width = 70;
-//		float multiplicador = 80.0;
-		int width = 110;
-		float multiplicador = 0.4;
 
-		for (int x=0; x<width; x++) {
-			for (int z=0; z<width; z++) {
-				
-//				float y = ofNoise(x/10.0, z/10.0, ofGetFrameNum() ) * multiplicador * 12.0;
-				float y = 0;
-				glm::vec3 pos = glm::vec3(x*multiplicador - width/2*multiplicador, y, z*multiplicador - width/2*multiplicador);
-//				meshEq.addVertex(pos);
-				mesh.addVertex(pos);
-			}
-		}
-//		meshEq.disableColors();
-		
-		for (int x=0; x<width-1; x++) {
-			for (int z=0; z<width-1; z++) {
-//				meshEq.addIndex(x+z*width);				// 0
-//				meshEq.addIndex((x+1)+z*width);			// 1
-//				meshEq.addIndex(x+(z+1)*width);			// 10
-//				meshEq.addIndex((x+1)+z*width);			// 1
-//				meshEq.addIndex((x+1)+(z+1)*width);		// 11
-//				meshEq.addIndex(x+(z+1)*width);			// 10
-				
-				mesh.addIndex(x+z*width);				// 0
-				mesh.addIndex((x+1)+z*width);			// 1
-				mesh.addIndex(x+(z+1)*width);			// 10
-				mesh.addIndex((x+1)+z*width);			// 1
-				mesh.addIndex((x+1)+(z+1)*width);		// 11
-				mesh.addIndex(x+(z+1)*width);			// 10
-			}
-		}
-		// xaxa unused here
-		// int total = width * width;
-
-		// XAXA Unused here
-		// float noiseDiv = uiC->pEasy["noiseDiv"] + uiC->pEasy["noiseDivAudio"] * updown;
-		// float noiseDiv2 = uiC->pEasy["noiseDiv2"] + uiC->pEasy["noiseDiv2Audio"] * updown;
-		
-		float noiseMult1 = uiC->pEasy["noiseMult1"] + uiC->pEasy["noiseMult1Audio"] * updown;
-		float noiseMult2 = uiC->pEasy["noiseMult2"] + uiC->pEasy["noiseMult2Audio"] * updown;
-		
-		float multY = uiC->pEasy["multY"] + uiC->pEasy["multYAudio"] * updown;
-		float multY2 = uiC->pEasy["multY2"] + uiC->pEasy["multY2Audio"] * updown;
-		
-		float easy1 = ofGetElapsedTimef() * uiC->pEasy["multiVel1"];
-		float easy2 = ofGetElapsedTimef() * uiC->pEasy["multiVel2"];
-		float offXTime = ofGetElapsedTimef() * uiC->pFloat["offXTime"];
-		float offYTime = ofGetElapsedTimef() * uiC->pFloat["offYTime"];
-		ofSetColor(getCor(0));
-		//cout << multY << endl;
-		//cout << width << endl;
-		for (int y=0; y<width; y++) {
-			for (int x=0; x<width; x++) {
-				int index = x + y*width;
-				glm::vec3 tmpVec = mesh.getVertex(index);
-				
-				tmpVec.y = (ofNoise(x * noiseMult1 + offXTime, y * noiseMult1 + offYTime, easy1)-.5)
-				* multiplicador * multY;
-				
-				tmpVec.y += (ofNoise(x * noiseMult2 + offXTime, y * noiseMult2 + offYTime, easy2)-.5)
-				* multiplicador * multY2;
-				
-				if (uiC->pBool["esferas"]) {
-					//objeto3d(tmpVec, uiC->pFloat["raio"]);
-				} else {
-					mesh.setVertex(index, tmpVec);
-				}
-				//mesh.setColor(index, getCor((x + y*width)/(float)total));
-			}
-		}
-		
-		if (uiC->pBool["normals"]) {
-			calcNormals(mesh, false);
-		}
-		
-		if (!uiC->pBool["esferas"]) {
-			mesh.disableColors();
-			drawMesh(&mesh);
-		}
-	}
-	
-	
 	else if (scene == "plexus") {
 		float tempo = ofGetElapsedTimef() * uiC->pFloat["tempoX"];
 		float tempo2 = ofGetElapsedTimef() * uiC->pFloat["tempoY"];
@@ -1039,90 +852,3 @@ void drawScene(string scene) {
 
 
 
-static void calcNormals2( ofMesh & mesh, bool bNormalize ){
-    for( int i=0; i < mesh.getVertices().size(); i++ ) mesh.addNormal(ofPoint(0,0,0));
-    for( int i=0; i < mesh.getIndices().size(); i+=3 ){
-        const int ia = mesh.getIndices()[i];
-        const int ib = mesh.getIndices()[i+1];
-        const int ic = mesh.getIndices()[i+2];
-        
-        ofVec3f e1 = mesh.getVertices()[ia] - mesh.getVertices()[ib];
-        ofVec3f e2 = mesh.getVertices()[ic] - mesh.getVertices()[ib];
-        ofVec3f no = e2.cross( e1 );
-        
-        // depending on your clockwise / winding order, you might want to reverse the e2 / e1 above if your normals are flipped.
-        
-        mesh.getNormals()[ia] += no;
-        mesh.getNormals()[ib] += no;
-        mesh.getNormals()[ic] += no;
-    }
-
-//    if (bNormalize)
-//	for (auto & n : mesh.getNormals()) {
-//		n = glm::normalize(n);
-//	}
-//    for(int i=0; i < mesh.getNormals().size(); i++ ) {
-//        mesh.getNormals()[i].normalize;
-//
-//    }
-}
-
-static void calcNormals( ofMesh & mesh, bool bNormalize ){
-//	cout << "calcNormals2" << endl;
-//    for( int i=0; i < mesh.getVertices().size(); i++ ) mesh.addNormal(ofPoint(0,0,0));
-    for( int i=0; i < mesh.getIndices().size(); i+=3 ){
-        const int ia = mesh.getIndices()[i];
-        const int ib = mesh.getIndices()[i+1];
-        const int ic = mesh.getIndices()[i+2];
-//        ofVec3f e1 = mesh.getVertices()[ia] - mesh.getVertices()[ib];
-//        ofVec3f e2 = mesh.getVertices()[ic] - mesh.getVertices()[ib];
-//        ofVec3f no = e2.cross( e1 );
-		
-		glm::vec3 e1 = mesh.getVertices()[ia] - mesh.getVertices()[ib];
-		glm::vec3 e2 = mesh.getVertices()[ic] - mesh.getVertices()[ib];
-		glm::vec3 no = glm::cross(e2, e1);
-
-        // depending on your clockwise / winding order, you might want to reverse the e2 / e1 above if your normals are flipped.
-        mesh.getNormals()[ia] = no;
-        mesh.getNormals()[ib] = no;
-        mesh.getNormals()[ic] = no;
-    }
-
-	if (bNormalize) {
-		for (auto & n : mesh.getNormals()) {
-			n = glm::normalize(n);
-		}
-	}
-}
-
-
-static void calcNormals( ofVboMesh & mesh, bool bNormalize ){
-    for( int i=0; i < mesh.getVertices().size(); i++ ) mesh.addNormal(ofPoint(0,0,0));
-    for( int i=0; i < mesh.getIndices().size(); i+=3 ){
-        const int ia = mesh.getIndices()[i];
-        const int ib = mesh.getIndices()[i+1];
-        const int ic = mesh.getIndices()[i+2];
-        
-        ofVec3f e1 = mesh.getVertices()[ia] - mesh.getVertices()[ib];
-        ofVec3f e2 = mesh.getVertices()[ic] - mesh.getVertices()[ib];
-        ofVec3f no = e2.cross( e1 );
-		
-//        glm::vec3 e1 = mesh.getVertices()[ia] - mesh.getVertices()[ib];
-//        glm::vec3 e2 = mesh.getVertices()[ic] - mesh.getVertices()[ib];
-//		glm::vec3 no = glm::cross(e2, e1);
-        
-        // depending on your clockwise / winding order, you might want to reverse the e2 / e1 above if your normals are flipped.
-        
-        mesh.getNormals()[ia] += no;
-        mesh.getNormals()[ib] += no;
-        mesh.getNormals()[ic] += no;
-    }
-
-	//    if (bNormalize)
-//	for (auto & n : mesh.getNormals()) {
-//		n = glm::normalize(n);
-//	}
-//    for(int i=0; i < mesh.getNormals().size(); i++ ) {
-//        mesh.getNormals()[i].normalize();
-//    }
-}
