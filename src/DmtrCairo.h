@@ -16,6 +16,7 @@ void setupCairo(int w, int h) {
 	cairo->setupMemoryOnly(ofCairoRenderer::IMAGE, false, false, rect);
 }
 
+string savingCairoFilename = "";
 void beginCairo() {
 	//if (!cairoIsSetup) {
 		//setupCairo(2880, )
@@ -24,9 +25,9 @@ void beginCairo() {
 		cout << "SAVINGCAIRO!" << endl;
 #ifdef SVGCAIRO
 		ofRectangle rect = ofRectangle(0,0,fbo->getWidth(), fbo->getHeight());
-		string fileName = "_output/syntype_"+ofGetTimestampString()+".svg";
-		cout << "SAVING " << fileName << endl;
-		cairoOut->setup(fileName, ofCairoRenderer::SVG, false, false, rect);
+		savingCairoFilename = "_output/syntype_"+ofGetTimestampString()+".svg";
+		cout << "SAVING " << savingCairoFilename << endl;
+		cairoOut->setup(savingCairoFilename, ofCairoRenderer::SVG, false, false, rect);
 		ofSetCurrentRenderer(cairoOut);
 		ofGetCurrentRenderer()->setupGraphicDefaults();
 #endif
@@ -66,12 +67,14 @@ void endCairo() {
 		render.loadData(cairoOut->getImageSurfacePixels());
 		cairoOut->close();
 		savingCairo = false;
+		string resultado = ofSystem("open " + ofToDataPath(savingCairoFilename));
+
 	} else {
 		render.loadData(cairo->getImageSurfacePixels());
+		ofSetColor(255);
+		render.draw(0,0);
 	}
 
-	ofSetColor(255);
-	render.draw(0,0);
 }
 
 
