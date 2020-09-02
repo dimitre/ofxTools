@@ -167,6 +167,5 @@ void typerLoadFont() {
 	if (fontFile != "") {
 		cout << fontFile << endl;
 		font.load(fontFile, fontSize, true, true);
-		
 	}
 }

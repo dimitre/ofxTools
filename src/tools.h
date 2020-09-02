@@ -84,3 +84,38 @@ void autoPilot() {
 //	return out;
 //}
 
+
+
+
+
+//void startBlending() {
+//	ofEnableAlphaBlending();
+//	if (ui->pString["blend"] == "no") {
+//		ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+//	}
+//	else if (ui->pString["blend"] == "add") {
+//		ofEnableBlendMode(OF_BLENDMODE_ADD);
+//	}
+//	else if (ui->pString["blend"] == "screen") {
+//		ofEnableBlendMode(OF_BLENDMODE_SCREEN);
+//	}
+//}
+
+void startBlendingMode() {
+	string * s = &ui->pString["blend"];
+	if (*s == "alpha") {
+		ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+	}
+	else if (*s == "add") {
+		ofEnableBlendMode(OF_BLENDMODE_ADD);
+	}
+	else if (*s == "screen") {
+		ofEnableBlendMode(OF_BLENDMODE_SCREEN);
+	}
+	else if (*s == "multiply") {
+		ofEnableBlendMode(OF_BLENDMODE_MULTIPLY);
+	}
+	else if (*s == "subtract") {
+		ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
+	}
+}

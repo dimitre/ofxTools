@@ -80,7 +80,7 @@ public:
 				ui->pEasy["luzZ"]
 			);
 			
-			ofSetColor(ui->pColor["diffuseColorLuz"]);
+//			ofSetColor(ui->pColorEasy["diffuseColorLuz"]);
 //			luz.draw();
 			luz.setPosition(pos);
 				
@@ -90,9 +90,9 @@ public:
 				ui->pEasy["lightAttenuationQuadratic"]
 			);
 
-			luz.setDiffuseColor( ui->pColor["diffuseColor"]);
-			luz.setSpecularColor( ui->pColor["specularColor"]);
-			luz.setAmbientColor( uiLuz->pColor["ambientColor"]);
+			luz.setDiffuseColor( ui->pColorEasy["diffuseColor"]);
+			luz.setSpecularColor( ui->pColorEasy["specularColor"]);
+			luz.setAmbientColor( uiLuz->pColorEasy["ambientColor"]);
 			luz.enable();
 		}
 	}

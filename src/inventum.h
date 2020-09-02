@@ -13,12 +13,8 @@ void uiEvents(ofxMicroUI::element & e);
 
 #include "shaders.h"
 #include "cam.h"
-#include "scene.h"
+#include "scenes.h"
 #include "tools.h"
-
-#ifdef USESYPHON
-	ofxSyphonServer syphonOut;
-#endif
 
 void preSetupInventum() {
 	setupCam_3d();
@@ -34,19 +30,6 @@ void setupInventum() {
 	soft.setUI(&u);
 }
 
-
-void startBlending() {
-	ofEnableAlphaBlending();
-	if (ui->pString["blend"] == "no") {
-		ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-	}
-	else if (ui->pString["blend"] == "add") {
-		ofEnableBlendMode(OF_BLENDMODE_ADD);
-	}
-	else if (ui->pString["blend"] == "screen") {
-		ofEnableBlendMode(OF_BLENDMODE_SCREEN);
-	}
-}
 
 //ofImage logo;
 ofImage * logo = &ui->pImage["logo"];
@@ -83,24 +66,24 @@ void drawSecondWindow(ofEventArgs & args) {
 
 
 
-void drawLogo(string name = "") {
-//	cout << "drawLogo" << endl;
-	
-	if (ui->pBool["logo"] && logo->isAllocated()) {
-//		cout << "draw yes " << endl;
-//		ofSetColor(255);
-		float scale = ui->pFloat["logoScale"];
-		float w = logo->getWidth() * scale;
-		float h = logo->getHeight() * scale;
-		logo->draw(ui->pInt["logoX"], ui->pInt["logoY"], w, h);
-		//if () }
-		if (name != "")
-		{
-			int x = ui->pInt["logoX"] + 7;
-			int y = ui->pInt["logoY"] + h + 24;
-			ofSetColor(getCor(0));
-//			u._settings->font.drawString(name + "\nStudio Mirabilis & Dmtr.org", x, y);
-			u._settings->font.drawString(name + "\nStudio Mirabilis & Vision Artes", x, y);
-		}
-	}
-}
+//void drawLogo(string name = "") {
+////	cout << "drawLogo" << endl;
+//	
+//	if (ui->pBool["logo"] && logo->isAllocated()) {
+////		cout << "draw yes " << endl;
+////		ofSetColor(255);
+//		float scale = ui->pFloat["logoScale"];
+//		float w = logo->getWidth() * scale;
+//		float h = logo->getHeight() * scale;
+//		logo->draw(ui->pInt["logoX"], ui->pInt["logoY"], w, h);
+//		//if () }
+//		if (name != "")
+//		{
+//			int x = ui->pInt["logoX"] + 7;
+//			int y = ui->pInt["logoY"] + h + 24;
+//			ofSetColor(getCor(0));
+////			u._settings->font.drawString(name + "\nStudio Mirabilis & Dmtr.org", x, y);
+//			u._settings->font.drawString(name + "\nStudio Mirabilis & Vision Artes", x, y);
+//		}
+//	}
+//}
