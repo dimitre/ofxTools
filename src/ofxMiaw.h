@@ -5,10 +5,16 @@
 #include "ofxSvg.h"
 #endif
 
+#define USEASSIMP 1
+#ifdef USEASSIMP
+#include "ofxAssimpModelLoader.h"
+#endif
+
 class ofxScenes : public ofBaseApp {
 public:
 
 	
+#define USEASSIMP 1
 #define USESVG 1
 	ofxMicroUI * _u = NULL;
 	ofFbo * fbo = NULL;

@@ -1592,7 +1592,13 @@ public:
 						float aa = aresta + uiC->pEasy["arestaNoise"] * nn;
 						ofTranslate(x*aa, y*aa, z*aa);
 						//sphere.drawWireframe();
+
 						drawMeshStatic(&m, ui);
+
+						if (uiC->pBool["bundinha"]) {
+							ofTranslate(raio*1.3, 0);
+							drawMeshStatic(&m, ui);
+						}
 						ofPopMatrix();
 					}
 					index++;

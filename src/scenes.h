@@ -1,12 +1,19 @@
+//#define SCENESALL 1
+#define USEASSIMP 1
+
 // #include "polar.h"
 
 static ofColor getColor(float n, ofxMicroUI * ui) {
-	ofColor * c = &ui->pColorEasy["color"];
+//	cout << n << endl;
+//	ofColor * c = &ui->pColorEasy["color"];
 	if (ui->pBool["usePalette"]) {
-		c = &ui->pColor["colorPalette"];
+		return ((ofxMicroUI::colorPalette*)ui->getElement("colorPalette"))->getColor(n);
+//		c = &ui->pColorEasy["colorPalette"];
+	} else {
+		return ui->pColorEasy["color"];
 	}
 //	return ui->pColorEasy["color"];
-	return *c;
+//	return *c;
 //		return ofColor(255);
 }
 
@@ -82,7 +89,8 @@ public:
 	glm::vec2 middle;
 	
 	ofColor getCor(float n) {
-		return ui->pColorEasy["color"];
+		return getColor(n, ui);
+//		return ui->pColorEasy["color"];
 //		return ofColor(255);
 	}
 
@@ -120,7 +128,7 @@ struct sceneSvg : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	ofxSVG svg;
-	string loadedSvg = "";
+	string loadedFile = "";
 	vector<ofPolyline> outlines;
 
 	void setup() override {
@@ -154,9 +162,9 @@ public:
 			if (*e.s != "") {
 				string file = ((ofxMicroUI::dirList*)&e)->getFileName();
 				cout << file << endl;
-				if (loadedSvg != file && ofFile::doesFileExist(file)) {
+				if (loadedFile != file && ofFile::doesFileExist(file)) {
 					svg.load(file);
-					loadedSvg = file;
+					loadedFile = file;
 					outlines.clear();
 					for (ofPath p: svg.getPaths()){
 						// svg defaults to non zero winding which doesn't look so good as contours
@@ -174,6 +182,78 @@ public:
 #endif
 
 
+
+
+
+#ifdef USEASSIMP
+struct sceneModel : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	string loadedFile = "";
+	ofxAssimpModelLoader model;
+	ofMesh mesh;
+
+	
+	void setup() override {
+		model.drawFaces();
+	}
+	
+	void draw() override {
+		checkSetup();
+		ofSetColor(255);
+		model.update();
+		
+		ofPushMatrix();
+		ofTranslate(model.getPosition().x+100, model.getPosition().y, 0);
+		ofRotateDeg(-0, 0, 1, 0);
+		ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
+		ofPushStyle();
+		model.drawFaces();
+		ofPopStyle();
+//		model.draw();
+		ofPopMatrix();
+
+		
+////		mesh = model.getCurrentAnimatedMesh(0);
+//
+//		ofxAssimpMeshHelper & meshHelper = model.getMeshHelper(0);
+//
+//		ofMultMatrix(model.getModelMatrix());
+//		 ofMultMatrix(meshHelper.matrix);
+//
+//		 ofMaterial & material = meshHelper.material;
+//		 if(meshHelper.hasTexture()){
+//			 meshHelper.getTextureRef().bind();
+//		 }
+////		 material.begin();
+////		 mesh.drawWireframe();
+////		 material.end();
+//		 if(meshHelper.hasTexture()){
+//			 meshHelper.getTextureRef().unbind();
+//		 }
+		
+//		ofPushMatrix();
+//		model.drawFaces();
+//		ofPopMatrix();
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "model") {
+			if (*e.s != "") {
+				string file = ((ofxMicroUI::dirList*)&e)->getFileName();
+				if (loadedFile != file && ofFile::doesFileExist(file)) {
+					cout << file << endl;
+					model.loadModel(file, false);
+					model.setPosition(middle.x, middle.y , 0);
+					model.setLoopStateForAllAnimations(OF_LOOP_NORMAL);
+					model.playAllAnimations();
+				}
+			}
+		}
+	}
+};
+
+#endif
 
 
 
@@ -216,6 +296,12 @@ void setupScenesNova() {
 #ifdef USESVG
 	scenes.push_back(new sceneSvg(uiC, ui, fbo));
 	scenesMap["svg"] = scenes.back();
+#endif
+	
+
+#ifdef USEASSIMP
+	scenes.push_back(new sceneModel         (uiC, ui, fbo));
+	scenesMap["model"] = scenes.back();
 #endif
 
 	for (auto & s : scenesMap) {
