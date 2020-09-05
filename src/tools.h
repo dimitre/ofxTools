@@ -1,12 +1,12 @@
-void shortcutUIEvent(ofxMicroUI::element & e) {
-	if (ofIsStringInString(e.name, "_shortcut")) {
-		if (!e._settings->presetIsLoading && *e.s != "") {
-			vector <string> explode = ofSplitString(e.name, "_shortcut");
-			float val = ofToFloat(*e.s);
-			e._ui->getSlider(explode[0])->set(val);
-		}
-	}
-}
+//void shortcutUIEvent(ofxMicroUI::element & e) {
+//	if (ofIsStringInString(e.name, "_shortcut")) {
+//		if (!e._settings->presetIsLoading && *e.s != "") {
+//			vector <string> explode = ofSplitString(e.name, "_shortcut");
+//			float val = ofToFloat(*e.s);
+//			e._ui->getSlider(explode[0])->set(val);
+//		}
+//	}
+//}
 
 void fboToPng(ofFbo * fbo) {
 	ofPixels pixelsExport;
