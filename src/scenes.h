@@ -1,14 +1,3 @@
-#define SCENESALL 1
-//#define USEASSIMP 1
-
-
-static ofColor getColor(float n, ofxMicroUI * uiColors) {
-	if (uiColors->pBool["usePalette"]) {
-		return ((ofxMicroUI::colorPalette*)uiColors->getElement("colorPalette"))->getColor(n);
-	} else {
-		return uiColors->pColorEasy["color"];
-	}
-}
 
 
 static void calcNormals( ofMesh & mesh, bool bNormalize ){
@@ -89,8 +78,6 @@ public:
 	
 	ofColor getCor(float n) {
 		return getColor(n, uiColors);
-//		return ui->pColorEasy["color"];
-//		return ofColor(255);
 	}
 
 	sceneDmtr() { }
@@ -102,14 +89,6 @@ public:
 		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
 		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
 	}
-
-	// sceneDmtr(ofxMicroUI * _uiC, ofxMicroUI * _ui, ofFbo * _fbo) : uiC(_uiC), ui(_ui), fbo(_fbo) {
-	// 	// melhorar isso muitissimo
-	// 	// cout << "setup primitive constructor!" << endl;
-	// 	uiColors = &ui->_masterUI->uis["colors"];
-	// 	middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
-	// 	ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
-	// }
 
 	virtual void checkSetup() {
 		if (!isSetup) {
@@ -273,7 +252,6 @@ public:
 	using sceneDmtr::sceneDmtr;
 	
 	void setup() override {
-		
 	}
 	
 	void draw() override {

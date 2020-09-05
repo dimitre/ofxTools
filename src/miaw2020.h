@@ -33,55 +33,55 @@ ofxScenes scenes = ofxScenes(fbo, &u, ui->pString["scene"]);
 
 bool useCairo = false;
 
-void miawBg0() {
-	if (uiColors->pBool["useBg"]) {
-		if (uiColors->pBool["useBg2"]) {
-			ofMesh fundoMesh;
-			fundoMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-			fundoMesh.addVertex(glm::vec3(0, 0, 0));
-			fundoMesh.addColor(uiColors->pColorEasy["bg"]);
-			fundoMesh.addVertex(glm::vec3(fbo->getWidth(), 0, 0));
-			fundoMesh.addColor(uiColors->pColorEasy["bg"]);
-			fundoMesh.addVertex(glm::vec3(0, fbo->getHeight(), 0));
-			fundoMesh.addColor(uiColors->pColorEasy["bg2"]);
-			fundoMesh.addVertex(glm::vec3(fbo->getWidth(), fbo->getHeight(), 0));
-			fundoMesh.addColor(uiColors->pColorEasy["bg2"]);
-			fundoMesh.draw();
-		} else {
-			ofClear(uiColors->pColorEasy["bg"]);
-		}
-	} else {
-		ofClear(0,0);
-	}
-}
+//void miawBg0() {
+//	if (uiColors->pBool["useBg"]) {
+//		if (uiColors->pBool["useBg2"]) {
+//			ofMesh fundoMesh;
+//			fundoMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+//			fundoMesh.addVertex(glm::vec3(0, 0, 0));
+//			fundoMesh.addColor(uiColors->pColorEasy["bg"]);
+//			fundoMesh.addVertex(glm::vec3(fbo->getWidth(), 0, 0));
+//			fundoMesh.addColor(uiColors->pColorEasy["bg"]);
+//			fundoMesh.addVertex(glm::vec3(0, fbo->getHeight(), 0));
+//			fundoMesh.addColor(uiColors->pColorEasy["bg2"]);
+//			fundoMesh.addVertex(glm::vec3(fbo->getWidth(), fbo->getHeight(), 0));
+//			fundoMesh.addColor(uiColors->pColorEasy["bg2"]);
+//			fundoMesh.draw();
+//		} else {
+//			ofClear(uiColors->pColorEasy["bg"]);
+//		}
+//	} else {
+//		ofClear(0,0);
+//	}
+//}
 
 
-void beginMiaw0() {
-	ofPushMatrix();
-
-	useCairo = (ui->pBool["useCairo"] || savingCairo) && !uiC->pBool["is3d"];
-	if (useCairo) {
-		beginCairo();
-
-		if (uiColors->pBool["useBg"]) {
-			ofClear(uiColors->pColorEasy["bg"]);
-		} else {
-			ofClear(0,255);
-		}
-		startCairoBlendingMode();
-	} else {
-
-		if (uiColors->pBool["useBg"] && !uiColors->pBool["bgAfter"]) {
+//void beginMiaw0() {
+//	ofPushMatrix();
+//
+//	useCairo = (ui->pBool["useCairo"] || savingCairo) && !uiC->pBool["is3d"];
+//	if (useCairo) {
+//		beginCairo();
+//
 //		if (uiColors->pBool["useBg"]) {
-			ofClear(uiColors->pColorEasy["bg"]);
-		} else {
-			ofClear(0,0);
-		}
-		startBlendingMode();
-	}
-	ofSetColor(uiColors->pColorEasy["color"]);
-	ofSetLineWidth(ui->pEasy["lineWidth"]);
-}
+//			ofClear(uiColors->pColorEasy["bg"]);
+//		} else {
+//			ofClear(0,255);
+//		}
+//		startCairoBlendingMode();
+//	} else {
+//
+//		if (uiColors->pBool["useBg"] && !uiColors->pBool["bgAfter"]) {
+////		if (uiColors->pBool["useBg"]) {
+//			ofClear(uiColors->pColorEasy["bg"]);
+//		} else {
+//			ofClear(0,0);
+//		}
+//		startBlendingMode();
+//	}
+//	ofSetColor(uiColors->pColorEasy["color"]);
+//	ofSetLineWidth(ui->pEasy["lineWidth"]);
+//}
 
 
 void miawBg() {
@@ -136,15 +136,9 @@ void beginMiaw() {
 		if (!uiColors->pBool["bgAfter"]) {
 			miawBg();
 		}
-// 		if (uiColors->pBool["useBg"] && !uiColors->pBool["bgAfter"]) {
-// //		if (uiColors->pBool["useBg"]) {
-// 			ofClear(uiColors->pColorEasy["bg"]);
-// 		} else {
-// 			ofClear(0,0);
-// 		}
 		startBlendingMode();
 	}
-	ofSetColor(uiColors->pColorEasy["color"]);
+//	ofSetColor(uiColors->pColorEasy["color"]);
 	ofSetLineWidth(ui->pEasy["lineWidth"]);
 }
 
