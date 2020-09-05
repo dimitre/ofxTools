@@ -79,7 +79,7 @@ void endCairo() {
 
 
 void startCairoBlendingMode() {
-	string * s = &ui->pString["blend"];
+	string * s = &uiColors->pString["blend"];
 	//#CAIRO_OPERATOR_CLEAR
 	//#CAIRO_OPERATOR_SOURCE
 	//	; 	#CAIRO_OPERATOR_OVER

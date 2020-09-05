@@ -102,7 +102,7 @@ void autoPilot() {
 //}
 
 void startBlendingMode() {
-	string * s = &ui->pString["blend"];
+	string * s = &uiColors->pString["blend"];
 	if (*s == "alpha") {
 		ofEnableBlendMode(OF_BLENDMODE_ALPHA);
 	}

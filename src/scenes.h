@@ -1,20 +1,13 @@
-//#define SCENESALL 1
-#define USEASSIMP 1
+#define SCENESALL 1
+//#define USEASSIMP 1
 
-// #include "polar.h"
 
-static ofColor getColor(float n, ofxMicroUI * ui) {
-//	cout << n << endl;
-//	ofColor * c = &ui->pColorEasy["color"];
-	if (ui->pBool["usePalette"]) {
-		return ((ofxMicroUI::colorPalette*)ui->getElement("colorPalette"))->getColor(n);
-//		c = &ui->pColorEasy["colorPalette"];
+static ofColor getColor(float n, ofxMicroUI * uiColors) {
+	if (uiColors->pBool["usePalette"]) {
+		return ((ofxMicroUI::colorPalette*)uiColors->getElement("colorPalette"))->getColor(n);
 	} else {
-		return ui->pColorEasy["color"];
+		return uiColors->pColorEasy["color"];
 	}
-//	return ui->pColorEasy["color"];
-//	return *c;
-//		return ofColor(255);
 }
 
 
@@ -73,9 +66,15 @@ static void drawMeshStatic(ofVboMesh * m, ofxMicroUI * ui) {
 
 struct sceneDmtr {
 public:
+
+
+	#include "polar.h"
+	
 	bool isSetup = false;
+	ofxMicroUI * u = NULL;
 	ofxMicroUI * uiC = NULL;
 	ofxMicroUI * ui = NULL;
+	ofxMicroUI * uiColors = NULL;
 	ofFbo * fbo = NULL;
 	float updown = 0.0;
 	
@@ -89,17 +88,28 @@ public:
 	glm::vec2 middle;
 	
 	ofColor getCor(float n) {
-		return getColor(n, ui);
+		return getColor(n, uiColors);
 //		return ui->pColorEasy["color"];
 //		return ofColor(255);
 	}
 
 	sceneDmtr() { }
 
-	sceneDmtr(ofxMicroUI * _uiC, ofxMicroUI * _ui, ofFbo * _fbo) : uiC(_uiC), ui(_ui), fbo(_fbo) {
-		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
+	sceneDmtr(ofxMicroUI * _u, ofFbo * _fbo) : u(_u), fbo(_fbo) {
+		ui = &u->uis["ui"];
+		uiC = &u->uis["scene"];
+		uiColors = &u->uis["colors"];
 		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
+		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
 	}
+
+	// sceneDmtr(ofxMicroUI * _uiC, ofxMicroUI * _ui, ofFbo * _fbo) : uiC(_uiC), ui(_ui), fbo(_fbo) {
+	// 	// melhorar isso muitissimo
+	// 	// cout << "setup primitive constructor!" << endl;
+	// 	uiColors = &ui->_masterUI->uis["colors"];
+	// 	middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
+	// 	ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
+	// }
 
 	virtual void checkSetup() {
 		if (!isSetup) {
@@ -150,7 +160,7 @@ public:
 			// if (ofRandom(0,1) > .5) {
 				ofSetColor(ofMap(n, uiC->pEasy["drawLimite"], 1, 0, 255 ));
 				
-				ofSetColor(getColor(ofMap(n, uiC->pEasy["drawLimite"], 1, 0, 1 ), ui));
+				ofSetColor(getColor(ofMap(n, uiC->pEasy["drawLimite"], 1, 0, 1 ), uiColors));
 				p.draw();
 			}
 			i++;
@@ -274,52 +284,3 @@ public:
 	}
 };
 
-
-
-
-vector <sceneDmtr *> scenes;
-map <string, sceneDmtr*> scenesMap;
-
-bool scenesIsSetup = false;
-
-#ifdef SCENESALL
-#include "scenesAll.h"
-#endif
-
-void setupScenesNova() {
-#ifdef SCENESALL
-	setupScenesAll();
-	#endif
-
-
-	
-#ifdef USESVG
-	scenes.push_back(new sceneSvg(uiC, ui, fbo));
-	scenesMap["svg"] = scenes.back();
-#endif
-	
-
-#ifdef USEASSIMP
-	scenes.push_back(new sceneModel         (uiC, ui, fbo));
-	scenesMap["model"] = scenes.back();
-#endif
-
-	for (auto & s : scenesMap) {
-		s.second->setup();
-		s.second->isSetup = true;
-	}
-}
-
-
-void drawScenesNova() {
-	if (!scenesIsSetup) {
-		scenesIsSetup = true;
-		setupScenesNova();
-	}
-	
-	if ( scenesMap.find(scene) != scenesMap.end() ) {
-		scenesMap[scene]->draw();
-	} else {
-		cout << "scene not found " << scene << endl;
-	}
-}

@@ -1,4 +1,6 @@
-#include "polar.h"
+
+float r2x (float a, float m) { return m * cos(ofDegToRad(a)); }
+float r2y (float a, float m) { return m * sin(ofDegToRad(a)); }
 
 #ifndef	HASAUDIO
 float beat = 0.0;

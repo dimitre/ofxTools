@@ -13,7 +13,7 @@ public:
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
-		cout << "wow uievent here" << endl;
+//		cout << "wow uievent here" << endl;
 		if (e.name == "normals") {
 			if (*e.b) {
 				addNormals();
@@ -133,6 +133,7 @@ public:
 		ofPolyline poly;
 		float maxAngle = 15;
 
+		
 		worm(ofRectangle & _r, ofxMicroUI * _uiC) : _rectBounds(_r), ui(_uiC) {
 //			pos = glm::vec2(ofRandom(0,1000), ofRandom(0,500));
 			pos = glm::vec2(ofRandom(_rectBounds.x, _rectBounds.width),
@@ -178,11 +179,6 @@ public:
 			ofSetLineWidth(lineW);
 			
 			if (ui != NULL) {
-				float h = ui->pEasy["hueStart"] + rand * ui->pEasy["hueStep"];
-				if (ui->pBool["color"]) {
-					ofSetColor(ofColor::fromHsb(h, 255, 255));
-				} else {
-				}
 				for (int a=0; a<(60-lineW)/20; a++) {
 					ofPushMatrix();
 					ofTranslate(a*lineW*2, a*lineW*2);
@@ -198,7 +194,7 @@ public:
 	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
 
 	void setup() override {
-		for (int a=0; a<40; a++) {
+		for (int a=0; a<80; a++) {
 			// worms.emplace_back()
 			worms.push_back(worm(boundsRect, uiC));
 		}
@@ -211,6 +207,12 @@ public:
 
 		for (auto & w : worms) {
 			w.update();
+			if (ui->pBool["color"]) {
+				float h = ui->pEasy["hueStart"] + w.rand * ui->pEasy["hueStep"];
+				ofSetColor(ofColor::fromHsb(h, 255, 255));
+			} else {
+				ofSetColor(getCor(w.rand));
+			}
 			w.draw();
 		}
 	}
@@ -2049,12 +2051,14 @@ public:
 struct sceneSyntype : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+
+	string loadedFile = "";
+
 	//float scaleSyntype = 20.0;
-	float scaleSyntype = 0.03;
+//	float scaleSyntype = 0.03;
+	float scaleSyntype = 32;
 
 	vector <ofPolyline> polys;
-	ofxMicroUI * uiL = uiC;
 
 	// armazena um contorno de uma letra
 	struct letra {
@@ -2138,7 +2142,7 @@ public:
 						if (p.getVertices()[0] == p.getVertices()[p.getVertices().size()-1])
 						{
 							poly.close();
-							cout << "close" << endl;
+							// cout << "close" << endl;
 						}
 						polylines.push_back(poly);
 						//ildaFrame.addPoly(poly, ui->pColor["cor"]);
@@ -2183,6 +2187,7 @@ public:
 		void drawPolys() {
 			ofPushMatrix();
 			ofTranslate(-cursorX/2, -alturaTotalFrase/2);
+//			cout << polylines.size() << endl;
 			for (auto & p : polylines) {
 				p.draw();
 			}
@@ -2229,17 +2234,22 @@ public:
 		}
 	} frase1;
 
+	// float rand;
 	void setup() override {
-		frase1.scaleSyntype = &scaleSyntype;
+		// cout << "setup syntype" << endl;
+		// rand = ofRandom(0,1);
+//		frase1.scaleSyntype = &scaleSyntype;
 	}
 	
 	void loadLetter(string fileName) {
 		cout << "loadletter :: " << fileName << endl;
+		// cout << "rand :: " << rand << endl;
 		frase1.letrasMap = &letrasMap;
 		letrasMap.clear();
 		vector <string> linhas = ofxMicroUI::textToVector(fileName);
 		int contagem = 0;
 		for (auto & linha : linhas) {
+//			cout << linha << endl;
 			vector<string> dadosdalinha = ofSplitString(linha, ":");
 			if (linha != "" && dadosdalinha.size() && linha.substr(0,1) != "#") {
 				string letra = dadosdalinha[0];
@@ -2256,18 +2266,19 @@ public:
 					ofPolyline tempPolyline;
 					for (auto & v : tracocoords) {
 						vector <string> xy = ofSplitString(v, ",");
-						ofPoint coords =
-						ofPoint(
+						glm::vec2 coords =
+						glm::vec2(
 									ofToFloat(xy[0]) * 1.0,
 									1.0-ofToFloat(xy[1]) * 1.0);
 						largura = MAX(largura, coords.x);
-						float x = coords.x;
-						float y = coords.y;
-						tempPolyline.addVertex(ofPoint(x, y));
-						//cout << ofPoint(x, y) << endl;
-						maxx = MAX(maxx,x);
-						minx = MIN(minx,x);
+						tempPolyline.addVertex(ofPoint(coords.x, coords.y));
+						maxx = MAX(maxx,coords.x);
+						minx = MIN(minx,coords.x);
 					}
+					
+					// for (auto & v : tempPolyline.getVertices()) {
+					// 	cout << v << endl;
+					// }
 
 					letrasMap[letra].polylines.push_back(move(tempPolyline));
 				}
@@ -2281,34 +2292,33 @@ public:
 		ofTranslate(fbo->getWidth() * .5 , fbo->getHeight() * .5);
 
 		// temporario vamos ver
-		ofTranslate(uiL->pFloat["offsetX"], uiL->pFloat["offsetY"]);
-		if (uiL->pBool["palavra"]) {
-			float cursorX = uiL->pFloat["offX"] * 100.0;
-			float cursorY = uiL->pFloat["offY"] * 100.0;
-			string frase = uiL->pString["frase"];
+		ofTranslate(uiC->pFloat["offsetX"], uiC->pFloat["offsetY"]);
+		if (uiC->pBool["palavra"]) {
+			float cursorX = uiC->pFloat["offX"] * 100.0;
+			float cursorY = uiC->pFloat["offY"] * 100.0;
+			string frase = uiC->pString["frase"];
 			ofNoFill();
-			if (uiL->pBool["drawPolys"]) {
+			if (uiC->pBool["drawPolys"]) {
 				frase1.drawPolys();
 			}
-			if (uiL->pBool["drawRounds"]) {
-				frase1.drawRounds(uiL->pEasy["radius"]);
+			if (uiC->pBool["drawRounds"]) {
+				frase1.drawRounds(uiC->pEasy["radius"]);
 			}
-			if (uiL->pBool["drawResampled"]) {
-				frase1.drawResampled(uiL->pEasy["resampledSpace"], uiL->pEasy["radius"]);
-				if (uiL->pBool["radius2"]) {
-					frase1.drawResampled(uiL->pEasy["resampledSpace"], uiL->pEasy["radius2"]);
+			if (uiC->pBool["drawResampled"]) {
+				frase1.drawResampled(uiC->pEasy["resampledSpace"], uiC->pEasy["radius"]);
+				if (uiC->pBool["radius2"]) {
+					frase1.drawResampled(uiC->pEasy["resampledSpace"], uiC->pEasy["radius2"]);
 				}
 			}
 		}
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
+		// cout << "uiEvents rand :: " << rand << endl;
 
-//	void syntypeUIEvent(ofxMicroUI::element & e) {
-		//cout << e.name << endl;
 		if (e.name == "scale") {
 			frase1.scale = *e.f;
-			cout << frase1.scale << endl;
+			cout << "syn scale " << frase1.scale << endl;
 			frase1.reset();
 		}
 		else if (e.name == "entreletra") {
@@ -2318,7 +2328,9 @@ public:
 		}
 
 		else if (e.name == "frase") {
-			frase1.setText(*e.s);
+			if (*e.s != "") {
+				frase1.setText(*e.s);
+			}
 			// settext ja vem reset embutido
 		}
 		else if (e.name == "offX") {
@@ -2330,59 +2342,16 @@ public:
 			frase1.reset();
 		}
 
-		
 		else if (e.name == "letra") {
 			string f = ((ofxMicroUI::dirList*)&e)->getFileName();
-			
 			//string f = uiL->getFileFullPath(e.name);
-			if (f != "/" && f != "" && uiL->pString["loadedLetter"] != f) {
-				uiL->pString["loadedLetter"] = f;
+			if (f != "/" && f != "" && loadedFile != f) {
+				loadedFile = f;
 				loadLetter(f);
 				frase1.reset();
 			}
 		}
 	}
-
-
-
-	#ifdef DMTRUI
-	void syntypeUIEvent(uiEv e) {
-		//cout << e.name << endl;
-		if (e.name == "scale") {
-			frase1.scale = e.f;
-			cout << frase1.scale << endl;
-			frase1.reset();
-		}
-		else if (e.name == "entreletra") {
-			frase1.entreletra = e.f;
-			frase1.reset();
-			// settext ja vem reset embutido
-		}
-
-		else if (e.name == "frase") {
-			frase1.setText(e.s);
-			// settext ja vem reset embutido
-		}
-		else if (e.name == "offX") {
-			frase1.offX = e.f;
-			frase1.reset();
-		}
-		else if (e.name == "offY ") {
-			frase1.offY = e.f;
-			frase1.reset();
-		}
-
-		
-		else if (e.name == "letra") {
-			string f = uiL->getFileFullPath(e.name);
-			if (f != "" && uiL->pString["loadedLetter"] != f) {
-				uiL->pString["loadedLetter"] = f;
-				loadLetter(f);
-				frase1.reset();
-			}
-		}
-	}
-	#endif
 };
 
 
@@ -2458,8 +2427,6 @@ struct sceneGirinos : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	
-	#include "polar.h"
-
 	bool girinoChanged = false;
 	
 	void uiEvents(ofxMicroUI::element & e) override {
@@ -3331,56 +3298,52 @@ public:
 
 
 
-
-
-
-
 void setupScenesAll() {
 	
 	
-	scenes.push_back(new sceneOcean(uiC, ui, fbo));
+	scenes.push_back(new sceneOcean(u, fbo));
 	scenesMap["ocean"] = scenes.back();
 
-	scenes.push_back(new sceneWorms(uiC, ui, fbo));
+	scenes.push_back(new sceneWorms(u, fbo));
 	scenesMap["minhoca"] = scenes.back();
 	
-	scenes.push_back(new sceneGridbox(uiC, ui, fbo));
+	scenes.push_back(new sceneGridbox(u, fbo));
 	scenesMap["gridbox"] = scenes.back();
 	
-	scenes.push_back(new sceneSolidos(uiC, ui, fbo));
+	scenes.push_back(new sceneSolidos(u, fbo));
 	scenesMap["solidos"] = scenes.back();
 
-	scenes.push_back(new scenePunchcard(uiC, ui, fbo));
+	scenes.push_back(new scenePunchcard(u, fbo));
 	scenesMap["punchcard"] = scenes.back();
 
-	scenes.push_back(new sceneMicroscenes(uiC, ui, fbo));
+	scenes.push_back(new sceneMicroscenes(u, fbo));
 	scenesMap["microScenes"] = scenes.back();
 
-	scenes.push_back(new sceneWave(uiC, ui, fbo));
+	scenes.push_back(new sceneWave(u, fbo));
 	scenesMap["wave"] = scenes.back();
 	
-	scenes.push_back(new sceneBola2(uiC, ui, fbo));
+	scenes.push_back(new sceneBola2(u, fbo));
 	scenesMap["bola2"] = scenes.back();
 
-	scenes.push_back(new sceneOndas(uiC, ui, fbo));
+	scenes.push_back(new sceneOndas(u, fbo));
 	scenesMap["ondas"] = scenes.back();
 
-	scenes.push_back(new sceneLatquad(uiC, ui, fbo));
+	scenes.push_back(new sceneLatquad(u, fbo));
 	scenesMap["latquad"] = scenes.back();
 
-	scenes.push_back(new sceneLatquad2(uiC, ui, fbo));
+	scenes.push_back(new sceneLatquad2(u, fbo));
 	scenesMap["latquad2"] = scenes.back();
 
-	scenes.push_back(new sceneLatquad3(uiC, ui, fbo));
+	scenes.push_back(new sceneLatquad3(u, fbo));
 	scenesMap["latquad3"] = scenes.back();
 
-	scenes.push_back(new sceneMoire(uiC, ui, fbo));
+	scenes.push_back(new sceneMoire(u, fbo));
 	scenesMap["moire"] = scenes.back();
 
-	scenes.push_back(new scenePulsar(uiC, ui, fbo));
+	scenes.push_back(new scenePulsar(u, fbo));
 	scenesMap["pulsar"] = scenes.back();
 
-	scenes.push_back(new sceneLuan(uiC, ui, fbo));
+	scenes.push_back(new sceneLuan(u, fbo));
 	scenesMap["luan"] = scenes.back();
 	
 	
@@ -3388,48 +3351,48 @@ void setupScenesAll() {
 	
 	
 	
-	scenes.push_back(new sceneBox(uiC, ui, fbo));
+	scenes.push_back(new sceneBox(u, fbo));
 	scenesMap["box"] = scenes.back();
 
-	scenes.push_back(new sceneNovelo(uiC, ui, fbo));
+	scenes.push_back(new sceneNovelo(u, fbo));
 	scenesMap["novelo"] = scenes.back();
 
-	scenes.push_back(new sceneRede(uiC, ui, fbo));
+	scenes.push_back(new sceneRede(u, fbo));
 	scenesMap["redes"] = scenes.back();
 	
-	scenes.push_back(new scene3d(uiC, ui, fbo));
+	scenes.push_back(new scene3d(u, fbo));
 	scenesMap["3d"] = scenes.back();
 
-	scenes.push_back(new sceneLeparc(uiC, ui, fbo));
+	scenes.push_back(new sceneLeparc(u, fbo));
 	scenesMap["leparc"] = scenes.back();
 
-	scenes.push_back(new sceneRadial(uiC, ui, fbo));
+	scenes.push_back(new sceneRadial(u, fbo));
 	scenesMap["radial"] = scenes.back();
 
-	scenes.push_back(new sceneGalaxia(uiC, ui, fbo));
+	scenes.push_back(new sceneGalaxia(u, fbo));
 	scenesMap["galaxia"] = scenes.back();
 
-	scenes.push_back(new scenePoeira(uiC, ui, fbo));
+	scenes.push_back(new scenePoeira(u, fbo));
 	scenesMap["poeira"] = scenes.back();
 
-	scenes.push_back(new scenePlexus(uiC, ui, fbo));
+	scenes.push_back(new scenePlexus(u, fbo));
 	scenesMap["plexus"] = scenes.back();
 
-	scenes.push_back(new sceneRede0(uiC, ui, fbo));
+	scenes.push_back(new sceneRede0(u, fbo));
 	scenesMap["redes0"] = scenes.back();
 
-	scenes.push_back(new sceneSyntype(uiC, ui, fbo));
+	scenes.push_back(new sceneSyntype(u, fbo));
 	scenesMap["syntype"] = scenes.back();
 
-	scenes.push_back(new sceneGirinos(uiC, ui, fbo));
+	scenes.push_back(new sceneGirinos(u, fbo));
 	scenesMap["girinos"] = scenes.back();
 
-	scenes.push_back(new sceneGirinos3d(uiC, ui, fbo));
+	scenes.push_back(new sceneGirinos3d(u, fbo));
 	scenesMap["girinos3d"] = scenes.back();
 
-	scenes.push_back(new scenePirose(uiC, ui, fbo));
+	scenes.push_back(new scenePirose(u, fbo));
 	scenesMap["pirose"] = scenes.back();
 
-	scenes.push_back(new sceneLines(uiC, ui, fbo));
+	scenes.push_back(new sceneLines(u, fbo));
 	scenesMap["lines"] = scenes.back();
 }

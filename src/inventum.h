@@ -13,7 +13,7 @@ void uiEvents(ofxMicroUI::element & e);
 
 #include "shaders.h"
 #include "cam.h"
-#include "scenes.h"
+//#include "scenes.h"
 #include "tools.h"
 
 void preSetupInventum() {
