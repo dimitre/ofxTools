@@ -3,7 +3,7 @@ struct sceneOcean : public sceneDmtr {
 public:
 	
 	ofMesh mesh;
-	int width = 110;
+	int width = 130;
 	float multiplicador = 0.4;
 	
 	using sceneDmtr::sceneDmtr;
@@ -56,23 +56,11 @@ public:
 		float multY = uiC->pEasy["multY"] + uiC->pEasy["multYAudio"] * updown;
 		float multY2 = uiC->pEasy["multY2"] + uiC->pEasy["multY2Audio"] * updown;
 		
-		
-//		MODO ANTIGO
-//		float easy1 = ofGetElapsedTimef() * uiC->pEasy["multiVel1"];
-//		float easy2 = ofGetElapsedTimef() * uiC->pEasy["multiVel2"];
-//		float offXTime = ofGetElapsedTimef() * uiC->pEasy["offXTime"];
-//		float offYTime = ofGetElapsedTimef() * uiC->pEasy["offYTime"];
-
-
 		float easy1 = incrementa("multiVel1");
 		float easy2 = incrementa("multiVel2");
 		float offXTime = incrementa("offXTime");
 		float offYTime = incrementa("offYTime");
 		
-		
-		//ofSetColor(getCor(0));
-		//cout << multY << endl;
-		//cout << width << endl;
 		for (int y=0; y<width; y++) {
 			for (int x=0; x<width; x++) {
 				int index = x + y*width;
@@ -97,7 +85,7 @@ public:
 			if (!mesh.getNormals().size()) {
 				addNormals();
 			}
-			calcNormals(mesh, true);
+			calcNormals(mesh, uiC->pBool["normalize"], uiC->pBool["winding"]);
 		}
 
 		drawMeshStatic(&mesh, ui);
@@ -203,12 +191,12 @@ public:
 	void draw() override {
 		checkSetup();
 
-		ofSetColor(getColor(0, ui));
+		ofSetColor(getColor(0, uiColors));
 
 		for (auto & w : worms) {
 			w.update();
-			if (ui->pBool["color"]) {
-				float h = ui->pEasy["hueStart"] + w.rand * ui->pEasy["hueStep"];
+			if (uiC->pBool["color"]) {
+				float h = uiC->pEasy["hueStart"] + w.rand * uiC->pEasy["hueStep"];
 				ofSetColor(ofColor::fromHsb(h, 255, 255));
 			} else {
 				ofSetColor(getCor(w.rand));
@@ -375,14 +363,15 @@ public:
 	struct microScene {
 	public:
 		ofFbo fbo;
+		ofFbo * fboOut;
 		int s = 0;
 		glm::vec2 pos;
 		ofRectangle rect;
-		ofxMicroUI * ui;
+		ofxMicroUI * uiColors;
 		
 		ofImage images[15];
 		
-		microScene(ofxMicroUI * _ui) : ui(_ui) {
+		microScene(ofxMicroUI * _ui, ofFbo * _fboOut) : uiColors(_ui), fboOut(_fboOut) {
 			int w = int(ofRandom(1,3)) * 100;
 			int h = int(ofRandom(1,3)) * 100;
 			// cout << "begin " << w << " " << h << endl;
@@ -393,7 +382,12 @@ public:
 			ofClear(0,255);
 			fbo.end();
 			fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
-			pos = glm::vec2(int(ofRandom(0,136)) * 55, int(ofRandom(0,20)) * 55);
+			
+			// int x = ofRandom(0,fboOut->getWidth()/100) * 100;
+			int y = ofRandom(0,fboOut->getHeight()/100) * 100;
+			// pos = glm::vec2(x, y);
+
+			pos = glm::vec2(int(ofRandom(0,136)) * 55 * 55, y);
 			rect = ofRectangle(pos.x, pos.y, w, h);
 			s = ofRandom(0,4);
 			
@@ -415,7 +409,7 @@ public:
 			float tempo = ofGetElapsedTimef();
 			fbo.begin();
 //			ofClear(127,255);
-			ofClear(getColor(0, ui));
+			ofClear(getColor(0, uiColors));
 //			ofClear(getCor(0));
 //			ofClear(0,255,0,255);
 			if (s==0) {
@@ -471,7 +465,7 @@ public:
 
 	void setup() override {
 		for (int a=0; a<233; a++) {
-			scenes.push_back(microScene(ui));
+			scenes.push_back(microScene(uiColors, fbo));
 		}
 	}
 	
@@ -1595,10 +1589,13 @@ public:
 						ofTranslate(x*aa, y*aa, z*aa);
 						//sphere.drawWireframe();
 
-						drawMeshStatic(&m, ui);
-
 						if (uiC->pBool["bundinha"]) {
+							ofTranslate(-raio*0.65, 0);
+							drawMeshStatic(&m, ui);
 							ofTranslate(raio*1.3, 0);
+							drawMeshStatic(&m, ui);
+						}
+						else {
 							drawMeshStatic(&m, ui);
 						}
 						ofPopMatrix();
@@ -1792,11 +1789,25 @@ public:
 
 struct sceneBox : public sceneDmtr {
 public:
+
+	ofPlanePrimitive plane;
 	using sceneDmtr::sceneDmtr;
+
+	void setup() override {
+		plane.set(20, 10);   ///dimensions for width and height in pixels
+		plane.setPosition(0, 0, 0); /// position in x y z
+		plane.setResolution(20, 10); /// this resolution (as columns and rows) is enough
+	}
+
 	void draw() override {
 		checkSetup();
 		float aresta = uiC->pEasy["aresta"] + updown * uiC->pEasy["arestaAudio"];
-		ofDrawBox(aresta);
+		if (uiC->pBool["plane"]) {
+			plane.drawWireframe();
+		}
+		if (uiC->pBool["box"]) {
+			ofDrawBox(aresta);
+		}
 	}
 };
 
@@ -2075,6 +2086,10 @@ public:
 	struct fraseSyntype {
 	public:
 		fraseSyntype() {}
+		
+		// 2020
+		ofxMicroUI * uiColors = NULL;
+		
 		vector <ofPolyline> polylines;
 		vector <ofVboMesh> meshes;
 
@@ -2211,6 +2226,7 @@ public:
 			for (auto & p : polylines) {
 				ofPolyline pp = p.getResampledBySpacing(space);
 				for (auto & v : pp.getVertices()) {
+					ofSetColor(getColor(ofRandom(0,1), uiColors));
 					ofDrawCircle(v.x, v.y, radius);
 				}
 			}
@@ -2236,6 +2252,7 @@ public:
 
 	// float rand;
 	void setup() override {
+		frase1.uiColors = uiColors;
 		// cout << "setup syntype" << endl;
 		// rand = ofRandom(0,1);
 //		frase1.scaleSyntype = &scaleSyntype;

@@ -1,15 +1,14 @@
 
 
-static void calcNormals( ofMesh & mesh, bool bNormalize ){
+static void calcNormals( ofMesh & mesh, bool bNormalize, bool mode){
     for( int i=0; i < mesh.getIndices().size(); i+=3 ){
         const int ia = mesh.getIndices()[i];
         const int ib = mesh.getIndices()[i+1];
         const int ic = mesh.getIndices()[i+2];
 		glm::vec3 e1 = mesh.getVertices()[ia] - mesh.getVertices()[ib];
 		glm::vec3 e2 = mesh.getVertices()[ic] - mesh.getVertices()[ib];
-//		glm::vec3 no = glm::cross(e2, e1);
-		glm::vec3 no = glm::cross(e1, e2);
-        // depending on your clockwise / winding order, you might want to reverse the e2 / e1 above if your normals are flipped.
+		// depending on your clockwise / winding order, you might want to reverse the e2 / e1 above if your normals are flipped.
+		glm::vec3 no = mode ? glm::cross(e2, e1) : glm::cross(e1, e2);
         mesh.getNormals()[ia] = no;
         mesh.getNormals()[ib] = no;
         mesh.getNormals()[ic] = no;
@@ -129,9 +128,11 @@ public:
 		if (uiC->pBool["middle"]) {
 			ofTranslate(middle);
 		}
-		// ofSetColor(getColor(ofRandom(0,1),ui));
+		// ofSetColor(getColor(ofRandom(0,1),uiColors));
 		// svg.draw();
-
+		float scale = uiC->pEasy["scaleSvg"];
+		ofScale(scale, scale);
+		// cout << scale << endl;
 		int i = 0;
 		for (auto & p : outlines) {
 			float n = ofNoise(ofGetElapsedTimef() * uiC->pFloat["tempoNoise"], i * uiC->pFloat["pathNoise"]);
@@ -144,6 +145,7 @@ public:
 			}
 			i++;
 		}
+		ofScale(1.0, 1.0);
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
@@ -247,6 +249,34 @@ public:
 
 
 
+struct sceneImage : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+
+	ofTexture * tex;
+	void setup() override {
+		tex = &uiC->pImage["image"].getTexture();
+	}
+	
+	void draw() override {
+		checkSetup();
+		ofSetColor(getColor(0, uiColors));
+		ofSetColor(255);
+
+		tex->bind();
+		ofDrawRectangle(0, 0, fbo->getWidth(), fbo->getHeight());
+		tex->unbind();
+//		uiC->pImage["image"].getTexture().draw(0,0,fbo->getWidth(), fbo->getHeight());
+		// uiC->pImage["image"].draw(0,0);
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+
+	}
+};
+
+
+
 struct sceneBasic : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
@@ -261,4 +291,5 @@ public:
 	void uiEvents(ofxMicroUI::element & e) override {
 	}
 };
+
 

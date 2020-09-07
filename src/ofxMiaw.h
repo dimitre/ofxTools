@@ -24,9 +24,9 @@ public:
 	
 	static ofColor getColor(float n, ofxMicroUI * uiColors) {
 		if (uiColors->pBool["usePalette"]) {
-			uiColors->pColor["colorPalette"] = ((ofxMicroUI::colorPalette*)uiColors->getElement("colorPalette"))->getColor(n);
-			return uiColors->pColorEasy["colorPalette"];
-//			return ((ofxMicroUI::colorPalette*)uiColors->getElement("colorPalette"))->getColor(n);
+			// uiColors->pColor["colorPalette"] = ((ofxMicroUI::colorPalette*)uiColors->getElement("colorPalette"))->getColor(n);
+			// return uiColors->pColorEasy["colorPalette"];
+			return ((ofxMicroUI::colorPalette*)uiColors->getElement("colorPalette"))->getColor(n);
 		} else {
 			return uiColors->pColorEasy["color"];
 		}
@@ -58,6 +58,10 @@ public:
 		scenesMap["model"] = scenes.back();
 #endif
 
+		scenes.push_back(new sceneImage(u, fbo));
+		scenesMap["image"] = scenes.back();
+
+
 		for (auto & s : scenesMap) {
 			s.second->setup();
 			s.second->isSetup = true;
@@ -67,11 +71,13 @@ public:
 	
 	
 	void draw() {
-		ofSetColor(getColor(0, uiColors));
-		if ( scenesMap.find(scene) != scenesMap.end() ) {
-			scenesMap[scene]->draw();
-		} else {
-			cout << "scene not found " << scene << endl;
+		if (scene != "") {
+			ofSetColor(getColor(0, uiColors));
+			if ( scenesMap.find(scene) != scenesMap.end() ) {
+				scenesMap[scene]->draw();
+			} else {
+				cout << "scene not found " << scene << endl;
+			}
 		}
 	}
 };

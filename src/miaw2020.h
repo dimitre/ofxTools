@@ -17,8 +17,6 @@ ofxSyphonServer syphonOut;
 
 ofxMicroUIRemote uiRemote;
 
-
-
 void remoteMessage(string & e) {
 	cout << "remote message !" << endl;
 	if (ofIsStringInString(e, "/p/")) {
@@ -33,74 +31,33 @@ ofxScenes scenes = ofxScenes(fbo, &u, ui->pString["scene"]);
 
 bool useCairo = false;
 
-//void miawBg0() {
-//	if (uiColors->pBool["useBg"]) {
-//		if (uiColors->pBool["useBg2"]) {
-//			ofMesh fundoMesh;
-//			fundoMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-//			fundoMesh.addVertex(glm::vec3(0, 0, 0));
-//			fundoMesh.addColor(uiColors->pColorEasy["bg"]);
-//			fundoMesh.addVertex(glm::vec3(fbo->getWidth(), 0, 0));
-//			fundoMesh.addColor(uiColors->pColorEasy["bg"]);
-//			fundoMesh.addVertex(glm::vec3(0, fbo->getHeight(), 0));
-//			fundoMesh.addColor(uiColors->pColorEasy["bg2"]);
-//			fundoMesh.addVertex(glm::vec3(fbo->getWidth(), fbo->getHeight(), 0));
-//			fundoMesh.addColor(uiColors->pColorEasy["bg2"]);
-//			fundoMesh.draw();
-//		} else {
-//			ofClear(uiColors->pColorEasy["bg"]);
-//		}
-//	} else {
-//		ofClear(0,0);
-//	}
-//}
-
-
-//void beginMiaw0() {
-//	ofPushMatrix();
-//
-//	useCairo = (ui->pBool["useCairo"] || savingCairo) && !uiC->pBool["is3d"];
-//	if (useCairo) {
-//		beginCairo();
-//
-//		if (uiColors->pBool["useBg"]) {
-//			ofClear(uiColors->pColorEasy["bg"]);
-//		} else {
-//			ofClear(0,255);
-//		}
-//		startCairoBlendingMode();
-//	} else {
-//
-//		if (uiColors->pBool["useBg"] && !uiColors->pBool["bgAfter"]) {
-////		if (uiColors->pBool["useBg"]) {
-//			ofClear(uiColors->pColorEasy["bg"]);
-//		} else {
-//			ofClear(0,0);
-//		}
-//		startBlendingMode();
-//	}
-//	ofSetColor(uiColors->pColorEasy["color"]);
-//	ofSetLineWidth(ui->pEasy["lineWidth"]);
-//}
-
-
 void miawBg() {
 	if (uiColors->pString["background"] == "solid") {
 		ofClear(uiColors->pColorEasy["bg"]);
 	}
 	else if (uiColors->pString["background"] == "gradient") {
-		ofClear(0,0);
-		ofMesh fundoMesh;
-		fundoMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-		fundoMesh.addVertex(glm::vec3(0, 0, 0));
-		fundoMesh.addColor(uiColors->pColorEasy["bg"]);
-		fundoMesh.addVertex(glm::vec3(fbo->getWidth(), 0, 0));
-		fundoMesh.addColor(uiColors->pColorEasy["bg"]);
-		fundoMesh.addVertex(glm::vec3(0, fbo->getHeight(), 0));
-		fundoMesh.addColor(uiColors->pColorEasy["bg2"]);
-		fundoMesh.addVertex(glm::vec3(fbo->getWidth(), fbo->getHeight(), 0));
-		fundoMesh.addColor(uiColors->pColorEasy["bg2"]);
-		fundoMesh.draw();		
+		
+		if (!useCairo) {
+			ofClear(0,0);
+			ofMesh fundoMesh;
+			fundoMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+			fundoMesh.addVertex(glm::vec3(0, 0, 0));
+			fundoMesh.addColor(uiColors->pColorEasy["bg"]);
+			fundoMesh.addVertex(glm::vec3(fbo->getWidth(), 0, 0));
+			fundoMesh.addColor(uiColors->pColorEasy["bg"]);
+			fundoMesh.addVertex(glm::vec3(0, fbo->getHeight(), 0));
+			fundoMesh.addColor(uiColors->pColorEasy["bg2"]);
+			fundoMesh.addVertex(glm::vec3(fbo->getWidth(), fbo->getHeight(), 0));
+			fundoMesh.addColor(uiColors->pColorEasy["bg2"]);
+			fundoMesh.draw();
+		} else {
+			
+		}
+	}
+	else if (uiColors->pString["background"] == "black") {
+		uiColors->pColor["bg"] = ofColor(0);
+		ofClear(uiColors->pColorEasy["bg"]);
+		// ofClear(0,255);
 	}
 	else if (uiColors->pString["background"] == "no" || uiColors->pString["background"] == "") {
 		ofClear(0,0);
@@ -116,7 +73,6 @@ void miawBg() {
 }
 
 
-
 void beginMiaw() {
 	ofPushMatrix();
 
@@ -124,12 +80,13 @@ void beginMiaw() {
 	if (useCairo) {
 		beginCairo();
 
-		if (uiColors->pString["background"] == "no") {
-			ofClear(0,0);
-		}
-		else if (uiColors->pString["background"] == "solid") {
-			ofClear(uiColors->pColorEasy["bg"]);
-		}
+//		if (uiColors->pString["background"] == "no") {
+//			ofClear(0,0);
+//		}
+//		else if (uiColors->pString["background"] == "solid") {
+//			ofClear(uiColors->pColorEasy["bg"]);
+//		}
+		miawBg();
 		startCairoBlendingMode();
 	} else {
 
@@ -218,18 +175,32 @@ ofFbo * fbo2 = &soft.fbo2;
 //#include "scenes.h"
 #include "tools.h"
 
-void preSetupInventum() {
+void preSetupMiaw() {
+	
+	ofxMicroUI::expires(1598719562, 30);
+	ofSetEscapeQuitsApp(false);
+	scenes.setup();
+
 	setupCam_3d();
 //	u._settings->useFixedLabel = true;
 	shadersSetup();
 }
 
-void setupInventum() {
+void setupMiaw() {
 	soft.fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 	soft.fbo2.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
-//	soft.fbo3.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 	soft.fboFinal = &soft.fbo2;
 	soft.setUI(&u);
+	
+	uiRemote.loadConfig("_osc.txt");
+	uiRemote.oscInfo = ((ofxMicroUI::inspector*)u.getElement("oscInfo"));//()
+	uiRemote.oscInfoReceive = ((ofxMicroUI::inspector*)u.getElement("oscInfoReceive"));//()
+	ofAddListener(uiRemote.eventMessage, this, &ofApp::remoteMessage);
+	uiRemote.setupServer();
+	uiRemote.addUI(&u);
+	for (auto & u : u.allUIs) {
+		uiRemote.addUI(u);
+	}
 }
 
 
