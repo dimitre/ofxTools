@@ -10,11 +10,13 @@ ofLight luzinha3d;
 ofMaterial material3d;
 
 //	float pointsPerMeter = 100.0;
-const float pointsPerMeter = 1.0;
+// const float pointsPerMeter = 1.0;
+float pointsPerMeter = 100.0;
 //ofCamera camera3d;
 ofEasyCam camera3d;
 glm::vec3 cameraLook3d;
-glm::vec3 cameraLookUp = { 0.f, 1.0f, 0.0f };
+glm::vec3 cameraLookUp = { 0.f, -1.0f, 0.0f };
+glm::vec3 cameraLookUp2 = { 0.f, 1.0f, 0.0f };
 
 
 ofNode lookNode;
@@ -39,12 +41,64 @@ void setupCam_3d() {
 }
 
 
+void beginGl() {
+	if (!useCairo) {
+		if (ui->pBool["rebind"]) {
+			fbo2->draw(0,0,200,200);
+			fbo2->getTexture().bind();
+		}
+
+		if (uiTex->pBool["useTexture"]) {
+			uiTex->pImage["tex"].getTexture().bind();
+		}
+	
+		if (uiTex->pBool["usePointSprite"]) {
+			ofEnablePointSprites();
+			ofDisableDepthTest();
+			uiTex->pImage["pointSprite"].getTexture().bind();
+		}
+		glPointSize(uiTex->pEasy["pointSpriteSize"]);
+
+		if (uiLuz->pBool["shadeFlat"]) {
+			glShadeModel(GL_FLAT);
+			glMatrixMode(GL_MODELVIEW);
+		}
+	}
+}
+
+void endGl() {
+	glShadeModel(GL_SMOOTH);
+	glMatrixMode(GL_MODELVIEW);
+
+	if (!useCairo) {
+		if (uiTex->pBool["usePointSprite"]) {
+			ofDisablePointSprites();
+			uiTex->pImage["pointSprite"].getTexture().unbind();
+		}
+	
+		if (uiTex->pBool["useTexture"]) {
+			uiTex->pImage["tex"].getTexture().unbind();
+		}
+
+		if (uiTex->pBool["rebind"]) {
+			fbo2->getTexture().unbind();
+		}
+	}
+}
+
+
+
+
+
+
 void begin3d() {
 //	glShadeModel(uiLuz->pBool["shadeFlat"] ? GL_FLAT : GL_SMOOTH);
+	pointsPerMeter = uiCam->pFloat["pointsPerMeter"];
 	if (uiC->pBool["is3d"]) {
 		beginCam_3d();
 		beginMaterial_3d();
 		beginIlumina_3d();
+		beginGl();
 		beginShader("shaders3d");
 	}
 }
@@ -52,13 +106,12 @@ void begin3d() {
 void end3d() {
 	if (uiC->pBool["is3d"]) {
 		endShader("shaders3d");
+		endGl();
 		endIlumina_3d();
 		endMaterial_3d();
 		endCam_3d();
 	}
 }
-
-
 
 
 
@@ -68,7 +121,9 @@ public:
 	ofxMicroUI * uiLuz = NULL;
 	ofLight luz;
 	glm::vec3 pos;
-	
+	// float pointsPerMeter = 100;
+	float pointsPerMeter = 1;
+
 	luzUI(ofxMicroUI * _ui, ofxMicroUI * _uiLuz) : ui(_ui), uiLuz(_uiLuz) {
 //		luz.setAreaLight(100, 100);
 		luz.setPointLight();
@@ -77,9 +132,9 @@ public:
 		if (ui->pBool["on"]) {
 			
 			pos = glm::vec3(
-				ui->pEasy["luzX"],
-				ui->pEasy["luzY"],
-				ui->pEasy["luzZ"]
+				ui->pEasy["luzX"] * pointsPerMeter,
+				ui->pEasy["luzY"] * pointsPerMeter,
+				ui->pEasy["luzZ"] * pointsPerMeter
 			);
 			
 //			ofSetColor(ui->pColorEasy["diffuseColorLuz"]);
@@ -114,6 +169,7 @@ luzUI luzes[3] = {
 
 void beginLuzes() {
 	for (auto & l : luzes) {
+		l.pointsPerMeter = pointsPerMeter;
 		l.begin();
 	}
 }
@@ -195,13 +251,13 @@ void beginCam_3d(float eyeDistance = 0) {
 	float cameraZ = uiCam->pEasy["cameraZ"];
 	
 	camera3d.setNearClip(0.01);
-	camera3d.setFarClip(1600);
+	camera3d.setFarClip(160 * pointsPerMeter);
 
 	// 1.70, a altura de um adulto em p�
 
 	if (uiCam->pBool["cameraPolar"]) {
 		float a = uiCam->pEasy["cameraAngle"] + 90.0;
-		float d = uiCam->pEasy["cameraDist"];
+		float d = uiCam->pEasy["cameraDist"] * pointsPerMeter;
 		cameraX = r2x(a, d);
 		cameraZ = r2y(a, d);
 		cameraX += lookNode.getPosition().x;
@@ -212,12 +268,12 @@ void beginCam_3d(float eyeDistance = 0) {
 	
 	if (!u.pBool["mouseCamera"]) {
 		camera3d.setPosition(cameraX,
-						   uiCam->pEasy["cameraY"],
+						   uiCam->pEasy["cameraY"] * pointsPerMeter,
 						   cameraZ);
 		
-		cameraLook3d = glm::vec3(uiCam->pEasy["lookX"],
-							   uiCam->pEasy["lookY"],
-							   uiCam->pEasy["lookZ"]);
+		cameraLook3d = glm::vec3(uiCam->pEasy["lookX"] * pointsPerMeter,
+							   uiCam->pEasy["lookY"] * pointsPerMeter,
+							   uiCam->pEasy["lookZ"] * pointsPerMeter);
 		
 		lookNode.setPosition(cameraLook3d);
 		
@@ -225,7 +281,9 @@ void beginCam_3d(float eyeDistance = 0) {
 //									   (uiCam->pEasy["lookY"]+100),
 //									   uiCam->pEasy["lookZ"]);
 		
-		camera3d.lookAt(lookNode, cameraLookUp);
+
+		// camera3d.lookAt(lookNode, cameraLookUp);
+		camera3d.lookAt(lookNode, uiCam->pBool["up"] ? cameraLookUp : cameraLookUp2);
 		//camera3d.lookAt( cameraLook3d, cameraLookPosition3d );
 	}
 
@@ -263,7 +321,7 @@ void beginCamPos_3d(glm::vec3 camPos, glm::vec3 lookAtPos) {
 	float cameraZ = uiCam->pEasy["cameraZ"];
 	
 	camera3d.setNearClip(1.0);
-	camera3d.setFarClip(160);
+	camera3d.setFarClip(160* pointsPerMeter);
 	
 	// 1.70, a altura de um adulto em p�
 	
@@ -290,30 +348,18 @@ void endCam_3d() {
 	ofDisableDepthTest();
 }
 
-////--------------------------------------------------------------
-//void beginCamera3d() {
-//	ofEnableDepthTest();
-//	beginCam_3d();
-//}
-//
-////--------------------------------------------------------------
-//void endCamera3d() {
-//	endCam_3d();
-//	ofDisableDepthTest();
-//}
-
 //--------------------------------------------------------------
 void luzUIEvent(ofxMicroUI::element & e) {
 	if (e.name == "shadeFlat") {
-		if (*e.b) {
-//			cout << e.name << *e.b << endl;
-			glShadeModel(GL_FLAT);
-			glMatrixMode(GL_MODELVIEW);
-			
-		} else {
-			glShadeModel(GL_SMOOTH);
-			glMatrixMode(GL_MODELVIEW);
-		}
+//		if (*e.b) {
+////			cout << e.name << *e.b << endl;
+//			glShadeModel(GL_FLAT);
+//			glMatrixMode(GL_MODELVIEW);
+//			
+//		} else {
+//			glShadeModel(GL_SMOOTH);
+//			glMatrixMode(GL_MODELVIEW);
+//		}
 	}
 	
 	if (uiCam->pBool["enableSeparatapaecularLight"]) {

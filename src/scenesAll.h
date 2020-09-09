@@ -3,8 +3,9 @@ struct sceneOcean : public sceneDmtr {
 public:
 	
 	ofMesh mesh;
-	int width = 130;
+	int width = 105;
 	float multiplicador = 0.4;
+	// float multiplicador = 40.0;
 	
 	using sceneDmtr::sceneDmtr;
 	
@@ -103,9 +104,9 @@ public:
 		#define NWORMS 40
 
 		glm::vec2 pos;
+		ofRectangle & _rectBounds;
 		ofxMicroUI * ui = NULL;
 //		glm::vec2 * _bounds = NULL;
-		ofRectangle & _rectBounds;
 		float angulo;
 		float mag = 2.0;
 		glm::vec2 corpo[NWORMS];
@@ -279,7 +280,7 @@ public:
 										 ofRandom(-40,40),
 										 ofRandom(-40,40)
 										 );
-			int corIndice = 0;
+			// int corIndice = 0;
 		}
 //		for (auto & o : objetos) {
 //		}
@@ -362,12 +363,12 @@ public:
 		
 	struct microScene {
 	public:
+		ofxMicroUI * uiColors;
 		ofFbo fbo;
 		ofFbo * fboOut;
 		int s = 0;
 		glm::vec2 pos;
 		ofRectangle rect;
-		ofxMicroUI * uiColors;
 		
 		ofImage images[15];
 		
@@ -630,6 +631,10 @@ public:
 		checkSetup();
 		
 		ofTranslate(middle);
+
+		float scale = uiC->pEasy["scale"];
+		ofScale(scale, scale);
+
 		ofNoFill();
 		for (int b=0; b<2; b++) {
 			ofPushMatrix();
@@ -638,6 +643,16 @@ public:
 
 			float transY = uiC->pFloat["centroY" + ofToString(b)] + updown*
 			uiC->pFloat["centroY" + ofToString(b) + "Audio"];
+
+			float s = ofNoise(ofGetFrameNum() / 100.0, b * 10);
+			float ss = ofNoise(ofGetFrameNum() / 75.0, b * 10);
+			// float s = sin(ofGetFrameNum() / 100.0);
+			// float ss = sin(ofGetFrameNum() / 75.0);
+
+			transX += uiC->pEasy["offXAuto"] * s;
+			transY += uiC->pEasy["offYAuto"] * ss;
+
+
 
 			ofTranslate(transX, transY);
 			float mult = uiC->pFloat["mult"] + updown * uiC->pFloat["multAudio"];
@@ -688,6 +703,9 @@ public:
 				}
 			}
 		}
+
+		ofScale(1, 1);
+
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
@@ -710,6 +728,10 @@ public:
 		
 		ofTranslate(middle);
 		ofSetColor(getCor(0));
+
+		float scale = uiC->pEasy["scale"];
+		ofScale(scale, scale);
+
 		float raio = uiC->pEasy["raio"] + updown*uiC->pEasy["raioAudio"];
 		float dist = uiC->pEasy["dist"] ;
 		float variAngle = uiC->pEasy["variAngle"];
@@ -784,6 +806,7 @@ public:
 //				}
 			}
 		}
+		ofScale(1.0, 1.0);
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
@@ -965,6 +988,10 @@ public:
 	void draw() override {
 		checkSetup();
 		ofTranslate(middle);
+
+		float scale = uiC->pEasy["scale"];
+		ofScale(scale, scale);
+
 		float raio = uiC->pEasy["raio"] ;
 		float dist = uiC->pEasy["dist"] ;
 		float variAngle = uiC->pEasy["variAngle"];
@@ -983,12 +1010,15 @@ public:
 				float xx = x + r2x(a, mm) * variAngle;
 				float yy = y + r2y(a, mm) * variAngle;
 
-				float finalmag = c2m(xx,yy);
+				// unused
+				// float finalmag = c2m(xx,yy);
 //				if (finalmag < ui->pFloat["raioCirculo"]) {
 					ofDrawCircle(xx, yy, raio);
 //				}
 			}
 		}
+
+		ofScale(1.0, 1.0);
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
@@ -1075,16 +1105,16 @@ public:
 				int index = x + y*width;
 				ofVec3f tmpVec = meshEq.getVertex(index);
 				
-				float z;
+				float z = 0;
 				if (!ui->pBool["pulsarEq"]) {
 					z = ofNoise(ofGetFrameNum() * uiC->pEasy["frameDiv"], x * uiC->pEasy["xDiv"]) * multY * 30.0;
 				}
 				
-				else {
+				// else {
 					// xaxa todo, implementar pointer pro fft.
 //					int i = x * fft.FFTanalyzer.nAverages / width;
 //					z = fft.FFTanalyzer.peaks[i] * multY;
-				}
+				// }
 				
 				tmpVec.z = z;
 				meshEq.setVertex(index, tmpVec);
@@ -1440,7 +1470,8 @@ public:
 	void draw() override {
 		checkSetup();
 
-		int numero = uiC->pInt["numero"];
+		//unused
+		// int numero = uiC->pInt["numero"];
 		
 		int index = 0;
 		for (auto & r : redes) {
@@ -2190,7 +2221,7 @@ public:
 			float largura = maxx - minx;
 			float ratio = 0.9 / largura;
 			for (auto & p : polylines) {
-				int c = 0;
+				// int c = 0;
 				for (auto & v : p.getVertices()) {
 					v = v*ratio;
 					v.x -= (minx - 0.05);//ofMap(v.x, minx, maxx, 0.05, 0.95);
@@ -2311,8 +2342,10 @@ public:
 		// temporario vamos ver
 		ofTranslate(uiC->pFloat["offsetX"], uiC->pFloat["offsetY"]);
 		if (uiC->pBool["palavra"]) {
-			float cursorX = uiC->pFloat["offX"] * 100.0;
-			float cursorY = uiC->pFloat["offY"] * 100.0;
+
+			// unused
+			// float cursorX = uiC->pFloat["offX"] * 100.0;
+			// float cursorY = uiC->pFloat["offY"] * 100.0;
 			string frase = uiC->pString["frase"];
 			ofNoFill();
 			if (uiC->pBool["drawPolys"]) {
@@ -3312,6 +3345,90 @@ public:
 
 
 
+#ifdef USEASSIMP
+struct sceneModel : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	string loadedFile = "";
+	ofxAssimpModelLoader model;
+	ofMesh mesh;
+
+	
+	void setup() override {
+		model.drawFaces();
+	}
+	
+	void draw() override {
+		checkSetup();
+		ofSetColor(255);
+		model.update();
+
+		vector <ofMesh> meshes;
+		for (int a=0; a<model.getMeshCount(); a++) {
+			meshes.push_back(model.getMesh(a));
+		}
+
+		ofSetColor(getColor(0, uiColors));
+		ofPushMatrix();
+
+		if (uiC->pBool["drawModel"]) {
+			model.drawFaces();
+		}	
+		
+
+		for (auto & m : meshes) {
+			m.draw();
+		}
+		ofPopMatrix();
+
+		
+////		mesh = model.getCurrentAnimatedMesh(0);
+//
+//		ofxAssimpMeshHelper & meshHelper = model.getMeshHelper(0);
+//
+//		ofMultMatrix(model.getModelMatrix());
+//		 ofMultMatrix(meshHelper.matrix);
+//
+//		 ofMaterial & material = meshHelper.material;
+//		 if(meshHelper.hasTexture()){
+//			 meshHelper.getTextureRef().bind();
+//		 }
+////		 material.begin();
+////		 mesh.drawWireframe();
+////		 material.end();
+//		 if(meshHelper.hasTexture()){
+//			 meshHelper.getTextureRef().unbind();
+//		 }
+		
+//		ofPushMatrix();
+//		model.drawFaces();
+//		ofPopMatrix();
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "model") {
+			if (*e.s != "") {
+				string file = ((ofxMicroUI::dirList*)&e)->getFileName();
+				if (loadedFile != file && ofFile::doesFileExist(file)) {
+					cout << file << endl;
+					model.loadModel(file, false);
+					// model.setPosition(middle.x, middle.y , 0);
+					model.setLoopStateForAllAnimations(OF_LOOP_NORMAL);
+					model.playAllAnimations();
+
+					// model.setPositionForAllAnimations(ofRandom(0,1));
+
+					model.disableColors();
+					model.disableMaterials();
+				}
+			}
+		}
+	}
+};
+
+#endif
+
+
 
 
 
@@ -3412,4 +3529,10 @@ void setupScenesAll() {
 
 	scenes.push_back(new sceneLines(u, fbo));
 	scenesMap["lines"] = scenes.back();
+
+#ifdef USEASSIMP
+	scenes.push_back(new sceneModel(u, fbo));
+	scenesMap["model"] = scenes.back();
+#endif
+
 }

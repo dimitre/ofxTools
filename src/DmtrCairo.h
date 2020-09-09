@@ -12,15 +12,14 @@ void setupCairo(int w, int h) {
 	opengl = ofGetGLRenderer();
 	cairo = make_shared<ofCairoRenderer>();
 	cairoOut = make_shared<ofCairoRenderer>();
-	ofRectangle rect = ofRectangle(0,0, w, h);
+	ofRectangle rect = ofRectangle(0, 0, w, h);
 	cairo->setupMemoryOnly(ofCairoRenderer::IMAGE, false, false, rect);
+	cairoIsSetup = true;
 }
 
 string savingCairoFilename = "";
 void beginCairo() {
-	//if (!cairoIsSetup) {
-		//setupCairo(2880, )
-	//}
+	if (cairoIsSetup) {
 	if (savingCairo) {
 		cout << "SAVINGCAIRO!" << endl;
 #ifdef SVGCAIRO
@@ -57,84 +56,87 @@ void beginCairo() {
 		cairo->clearAlpha();
 	}
 	ofPushMatrix();
+	}
 }
 
 void endCairo() {
-	ofPopMatrix();
-	ofSetCurrentRenderer(opengl, true);
-	
-	if (savingCairo) {
-		render.loadData(cairoOut->getImageSurfacePixels());
-		cairoOut->close();
-		savingCairo = false;
-		string resultado = ofSystem("open " + ofToDataPath(savingCairoFilename));
+	if (cairoIsSetup) {
+		ofPopMatrix();
+		ofSetCurrentRenderer(opengl, true);
+		
+		if (savingCairo) {
+			render.loadData(cairoOut->getImageSurfacePixels());
+			cairoOut->close();
+			savingCairo = false;
+			string resultado = ofSystem("open " + ofToDataPath(savingCairoFilename));
 
-	} else {
-		render.loadData(cairo->getImageSurfacePixels());
-		ofSetColor(255);
-		render.draw(0,0);
+		} else {
+			render.loadData(cairo->getImageSurfacePixels());
+			ofSetColor(255);
+			render.draw(0,0);
+		}
 	}
-
 }
 
 
 void startCairoBlendingMode() {
-	string * s = &uiColors->pString["blend"];
-	//#CAIRO_OPERATOR_CLEAR
-	//#CAIRO_OPERATOR_SOURCE
-	//	; 	#CAIRO_OPERATOR_OVER
-	//	; 	#CAIRO_OPERATOR_IN
-	//	; 	#CAIRO_OPERATOR_OUT
-	//	; 	#CAIRO_OPERATOR_ATOP
-	//	; 	#CAIRO_OPERATOR_DEST
-	//	; 	#CAIRO_OPERATOR_DEST_OVER
-	//	; 	#CAIRO_OPERATOR_DEST_IN
-	//	; 	#CAIRO_OPERATOR_DEST_OUT
-	//	; 	#CAIRO_OPERATOR_DEST_ATOP
-	//	; 	#CAIRO_OPERATOR_XOR
-	//	; 	#CAIRO_OPERATOR_ADD
-	//	; 	#CAIRO_OPERATOR_SATURATE
-	//	; 	#CAIRO_OPERATOR_MULTIPLY
-	//	; 	#CAIRO_OPERATOR_SCREEN
-	//	; 	#CAIRO_OPERATOR_OVERLAY
-	//	; 	#CAIRO_OPERATOR_DARKEN
-	//	; 	#CAIRO_OPERATOR_LIGHTEN
-	//	; 	#CAIRO_OPERATOR_COLOR_DODGE
-	//	; 	#CAIRO_OPERATOR_COLOR_BURN
-	//	; 	#CAIRO_OPERATOR_HARD_LIGHT
-	//	; 	#CAIRO_OPERATOR_SOFT_LIGHT
-	//	; 	#CAIRO_OPERATOR_DIFFERENCE
-	//	; 	#CAIRO_OPERATOR_EXCLUSION
-	//	; 	#CAIRO_OPERATOR_HSL_HUE
-	//	; 	#CAIRO_OPERATOR_HSL_SATURATION
-	//	; 	#CAIRO_OPERATOR_HSL_COLOR
-	//	; 	#CAIRO_OPERATOR_HSL_LUMINOSITY
-	
-	
-	//CAIRO_OPERATOR_MULTIPLY //CAIRO_OPERATOR_SCREEN
-	if (*s == "add") {
-		cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_ADD);
-	}
-	
-	else if (*s == "screen") {
-		cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_SCREEN);
-	}
-	else if (*s == "multiply") {
-		cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_MULTIPLY);
-	}
-	else if (*s == "subtract") {
-		//cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_SCREEN);
-	}
-	
-	else if (*s == "darken") {
-		cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_DARKEN);
-	}
-	
-	else if (*s == "lighten") {
-		cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_LIGHTEN);
+	if (cairoIsSetup) {
+		string * s = &uiColors->pString["blend"];
+		//#CAIRO_OPERATOR_CLEAR
+		//#CAIRO_OPERATOR_SOURCE
+		//	; 	#CAIRO_OPERATOR_OVER
+		//	; 	#CAIRO_OPERATOR_IN
+		//	; 	#CAIRO_OPERATOR_OUT
+		//	; 	#CAIRO_OPERATOR_ATOP
+		//	; 	#CAIRO_OPERATOR_DEST
+		//	; 	#CAIRO_OPERATOR_DEST_OVER
+		//	; 	#CAIRO_OPERATOR_DEST_IN
+		//	; 	#CAIRO_OPERATOR_DEST_OUT
+		//	; 	#CAIRO_OPERATOR_DEST_ATOP
+		//	; 	#CAIRO_OPERATOR_XOR
+		//	; 	#CAIRO_OPERATOR_ADD
+		//	; 	#CAIRO_OPERATOR_SATURATE
+		//	; 	#CAIRO_OPERATOR_MULTIPLY
+		//	; 	#CAIRO_OPERATOR_SCREEN
+		//	; 	#CAIRO_OPERATOR_OVERLAY
+		//	; 	#CAIRO_OPERATOR_DARKEN
+		//	; 	#CAIRO_OPERATOR_LIGHTEN
+		//	; 	#CAIRO_OPERATOR_COLOR_DODGE
+		//	; 	#CAIRO_OPERATOR_COLOR_BURN
+		//	; 	#CAIRO_OPERATOR_HARD_LIGHT
+		//	; 	#CAIRO_OPERATOR_SOFT_LIGHT
+		//	; 	#CAIRO_OPERATOR_DIFFERENCE
+		//	; 	#CAIRO_OPERATOR_EXCLUSION
+		//	; 	#CAIRO_OPERATOR_HSL_HUE
+		//	; 	#CAIRO_OPERATOR_HSL_SATURATION
+		//	; 	#CAIRO_OPERATOR_HSL_COLOR
+		//	; 	#CAIRO_OPERATOR_HSL_LUMINOSITY
+		
+		
+		//CAIRO_OPERATOR_MULTIPLY //CAIRO_OPERATOR_SCREEN
+		if (*s == "add") {
+			cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_ADD);
+		}
+		
+		else if (*s == "screen") {
+			cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_SCREEN);
+		}
+		else if (*s == "multiply") {
+			cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_MULTIPLY);
+		}
+		else if (*s == "subtract") {
+			//cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_SCREEN);
+		}
+		
+		else if (*s == "darken") {
+			cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_DARKEN);
+		}
+		
+		else if (*s == "lighten") {
+			cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_LIGHTEN);
+		}
 	}
 }
-
 
 
 

@@ -5,7 +5,7 @@
 #include "ofxSvg.h"
 #endif
 
-//#define USEASSIMP 1
+#define USEASSIMP 1
 #ifdef USEASSIMP
 #include "ofxAssimpModelLoader.h"
 #endif
@@ -13,8 +13,10 @@
 class ofxScenes : public ofBaseApp {
 public:
 
-	ofxMicroUI * u = NULL;
+	#include "scenes.h"
+
 	ofFbo * fbo = NULL;
+	ofxMicroUI * u = NULL;
 	ofxMicroUI * uiColors = NULL;
 	string & scene;
 	
@@ -32,9 +34,8 @@ public:
 		}
 	}
 	
-	#define SCENESALL 1
 
-	#include "scenes.h"
+	#define SCENESALL 1
 	#ifdef SCENESALL
 	#include "scenesAll.h"
 	#endif
@@ -60,6 +61,12 @@ public:
 
 		scenes.push_back(new sceneImage(u, fbo));
 		scenesMap["image"] = scenes.back();
+
+		scenes.push_back(new sceneVideo(u, fbo));
+		scenesMap["video"] = scenes.back();
+
+		scenes.push_back(new sceneToma(u, fbo));
+		scenesMap["toma"] = scenes.back();
 
 
 		for (auto & s : scenesMap) {

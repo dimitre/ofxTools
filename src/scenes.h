@@ -54,8 +54,6 @@ static void drawMeshStatic(ofVboMesh * m, ofxMicroUI * ui) {
 
 struct sceneDmtr {
 public:
-
-
 	#include "polar.h"
 	
 	bool isSetup = false;
@@ -65,15 +63,21 @@ public:
 	ofxMicroUI * uiColors = NULL;
 	ofFbo * fbo = NULL;
 	float updown = 0.0;
-	
+	glm::vec2 middle;
 	map <string, float> incrementadorTemporal;
+
 	float incrementa(string qual) {
 		string uniqueId = uiC->uiName + qual;
-		incrementadorTemporal[uniqueId] += uiC->pFloat[qual];
+//		incrementadorTemporal[uniqueId] += uiC->pFloat[qual];
+		// 07/09/2020
+		incrementadorTemporal[uniqueId] += uiC->pEasy[qual];
 		return incrementadorTemporal[uniqueId];
 	}
-	
-	glm::vec2 middle;
+
+	void resetIncrementa(string qual) {
+		string uniqueId = uiC->uiName + qual;
+		incrementadorTemporal[uniqueId] = 0;
+	}
 	
 	ofColor getCor(float n) {
 		return getColor(n, uiColors);
@@ -120,6 +124,7 @@ public:
 	vector<ofPolyline> outlines;
 
 	void setup() override {
+
 	}
 	
 	
@@ -131,8 +136,11 @@ public:
 		// ofSetColor(getColor(ofRandom(0,1),uiColors));
 		// svg.draw();
 		float scale = uiC->pEasy["scaleSvg"];
-		ofScale(scale, scale);
-		// cout << scale << endl;
+		if (scale > 0) {
+			ofScale(scale, scale);
+		}
+//		 cout << scale << endl;
+		
 		int i = 0;
 		for (auto & p : outlines) {
 			float n = ofNoise(ofGetElapsedTimef() * uiC->pFloat["tempoNoise"], i * uiC->pFloat["pathNoise"]);
@@ -145,10 +153,11 @@ public:
 			}
 			i++;
 		}
-		ofScale(1.0, 1.0);
+//		ofScale(1.0, 1.0);
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
+		cout << e.name << endl;
 		if (e.name == "svg") {
 			if (*e.s != "") {
 				string file = ((ofxMicroUI::dirList*)&e)->getFileName();
@@ -176,104 +185,161 @@ public:
 
 
 
-#ifdef USEASSIMP
-struct sceneModel : public sceneDmtr {
-public:
-	using sceneDmtr::sceneDmtr;
-	string loadedFile = "";
-	ofxAssimpModelLoader model;
-	ofMesh mesh;
-
-	
-	void setup() override {
-		model.drawFaces();
-	}
-	
-	void draw() override {
-		checkSetup();
-		ofSetColor(255);
-		model.update();
-		
-		ofPushMatrix();
-		ofTranslate(model.getPosition().x+100, model.getPosition().y, 0);
-		ofRotateDeg(-0, 0, 1, 0);
-		ofTranslate(-model.getPosition().x, -model.getPosition().y, 0);
-		ofPushStyle();
-		model.drawFaces();
-		ofPopStyle();
-//		model.draw();
-		ofPopMatrix();
-
-		
-////		mesh = model.getCurrentAnimatedMesh(0);
-//
-//		ofxAssimpMeshHelper & meshHelper = model.getMeshHelper(0);
-//
-//		ofMultMatrix(model.getModelMatrix());
-//		 ofMultMatrix(meshHelper.matrix);
-//
-//		 ofMaterial & material = meshHelper.material;
-//		 if(meshHelper.hasTexture()){
-//			 meshHelper.getTextureRef().bind();
-//		 }
-////		 material.begin();
-////		 mesh.drawWireframe();
-////		 material.end();
-//		 if(meshHelper.hasTexture()){
-//			 meshHelper.getTextureRef().unbind();
-//		 }
-		
-//		ofPushMatrix();
-//		model.drawFaces();
-//		ofPopMatrix();
-	}
-	
-	void uiEvents(ofxMicroUI::element & e) override {
-		if (e.name == "model") {
-			if (*e.s != "") {
-				string file = ((ofxMicroUI::dirList*)&e)->getFileName();
-				if (loadedFile != file && ofFile::doesFileExist(file)) {
-					cout << file << endl;
-					model.loadModel(file, false);
-					model.setPosition(middle.x, middle.y , 0);
-					model.setLoopStateForAllAnimations(OF_LOOP_NORMAL);
-					model.playAllAnimations();
-				}
-			}
-		}
-	}
-};
-
-#endif
-
-
 
 
 struct sceneImage : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	ofImage * i;
 
+	// TabNine::Config
 	ofTexture * tex;
 	void setup() override {
 		tex = &uiC->pImage["image"].getTexture();
+		i = &uiC->pImage["image"];
+	}
+	
+	void draw() override {
+		if (i->isAllocated()) {
+			checkSetup();
+			ofSetColor(255);
+			if (uiC->pBool["useTexture"]) {
+				tex->bind();
+				//GL_MIRRORED_REPEAT GL_CLAMP_TO_EDGE GL_CLAMP_TO_BORDER
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+				ofMesh mesh;
+				glm::vec3 vertices[4] = {
+					glm::vec3(0, 0, 0),
+					glm::vec3(fbo->getWidth(), 0, 0),
+					glm::vec3(0, fbo->getHeight(), 0),
+					glm::vec3(fbo->getWidth(), fbo->getHeight(), 0)
+				};
+
+				float tw = uiC->pFloat["tw"];
+				float th = uiC->pFloat["th"];
+				mesh.addIndices( {0,1,2,1,2,3} );
+
+				glm::vec3 texCoords[4] = {
+					glm::vec3(0, 0, 0),
+					glm::vec3(tw, 0, 0),
+					glm::vec3(0, th, 0),
+					glm::vec3(tw, th, 0)
+				};
+
+				for (auto & v : vertices) {
+					mesh.addVertex(v);
+				}
+				for (auto & t : texCoords) {
+					mesh.addTexCoord(t);
+				}
+				for (int a=0; a<4; a++) {
+					mesh.addVertex(vertices[a]);
+				}
+
+				mesh.draw();
+				tex->unbind();
+			}
+
+			else {
+
+				float scale = uiC->pEasy["scale"];
+				float iw = i->getWidth() * scale;
+				float ih = i->getHeight() * scale;
+				int vx = fbo->getWidth() / iw;
+				int vy = fbo->getHeight() / ih;
+				int total = vx * vy;
+				int index = 0;
+				float rot = uiC->pFloat["rot"] + incrementa("rotTime");
+				for (int x =0; x<=vx; x++) {
+					for (int y =0; y<=vy; y++) {
+						ofSetColor(getColor(index/(float)total, uiColors));
+						ofPushMatrix();
+						ofTranslate(x * iw + iw*.5, y * ih + ih * .5);
+						ofRotateDeg(rot);
+						uiC->pImage["image"].draw(-iw*.5, -ih * .5, iw, ih);
+						ofPopMatrix();
+						index++;
+					}
+				}
+			}
+		}
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "resetRot") {
+			resetIncrementa("rotTime");
+		}
+	}
+};
+
+
+struct sceneVideo : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	int vw, vh;
+	int vx, vy, total;
+	
+	ofVideoPlayer video;
+	string loadedFile = "";
+
+	
+	void setup() override {
 	}
 	
 	void draw() override {
 		checkSetup();
-		ofSetColor(getColor(0, uiColors));
-		ofSetColor(255);
+		video.update();
+		// video.draw();
 
-		tex->bind();
-		ofDrawRectangle(0, 0, fbo->getWidth(), fbo->getHeight());
-		tex->unbind();
-//		uiC->pImage["image"].getTexture().draw(0,0,fbo->getWidth(), fbo->getHeight());
-		// uiC->pImage["image"].draw(0,0);
+		float rot = uiC->pFloat["rot"] + incrementa("rotTime");
+
+		vw = video.getWidth() * uiC->pEasy["cropX"];
+		vh = video.getHeight()* uiC->pEasy["cropY"];
+		// cout << vw << endl;
+
+		vx = fbo->getWidth() / vw;
+		vy = fbo->getHeight() / vh;
+		total = vx * vy;
+
+		int index = 0;
+		for (int x =0; x<=vx; x++) {
+			for (int y =0; y<=vy; y++) {
+				ofSetColor(getColor(index/(float)total, uiColors));
+				ofPushMatrix();
+				ofTranslate(x * vw + vw*.5, y * vh + vh * .5);
+				ofRotateDeg(rot);
+				video.draw(-vw*.5, -vh * .5);
+				ofPopMatrix();
+				index++;
+			}
+		}
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "resetRot") {
+			resetIncrementa("rotTime");
+		}
+		if (e.name == "video") {
+			string f = ((ofxMicroUI::dirList*)&e)->getFileName();
+			//string f = uiL->getFileFullPath(e.name);
+			if (f != "" && loadedFile != f) {
+				loadedFile = f;
+				video.load(f);
+				video.play();
+				vw = video.getWidth();
+				vh = video.getHeight();
 
+				vx = fbo->getWidth() / vw;
+				vy = fbo->getHeight() / vh;
+				total = vx * vy;
+			}
+		}
 	}
 };
+
+
 
 
 
@@ -286,6 +352,88 @@ public:
 	
 	void draw() override {
 		checkSetup();
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+	}
+};
+
+
+
+struct sceneToma : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+
+	struct coisa {
+		public:
+			//ofConePrimitive::ofConePrimitive(float radius, float height, int radiusSegments, int heightSegments, int capSegments=2, ofPrimitiveMode mode=OF_PRIMITIVE_TRIANGLE_STRIP)
+			ofConePrimitive cone = ofConePrimitive(12, 10, 24, 2);
+
+			// ofBoxPrimitive::ofBoxPrimitive(float width, float height, float depth, int resWidth=2, int resHeight=2, int resDepth=2)
+			ofBoxPrimitive box = ofBoxPrimitive(10, 10, 10);
+
+			//ofSpherePrimitive::ofSpherePrimitive(float radius, int res, ofPrimitiveMode mode=OF_PRIMITIVE_TRIANGLE_STRIP)
+			ofSpherePrimitive sphere = ofSpherePrimitive(5, 48);
+
+			// ofCylinderPrimitive::ofCylinderPrimitive(float radius, float height, int radiusSegments, int heightSegments, int capSegments=2, bool bCapped=true, ofPrimitiveMode mode=OF_PRIMITIVE_TRIANGLE_STRIP)
+			ofCylinderPrimitive cylinder = ofCylinderPrimitive(10, 10, 24, 2);
+
+			int tipo;
+			ofColor cor;
+			glm::vec3 pos;
+			glm::vec3 rot;
+			void draw() {
+				ofSetColor(cor);
+				ofPushMatrix();
+				ofTranslate(pos);
+				ofRotateXDeg(rot.x);
+				ofRotateYDeg(rot.y);
+				ofRotateZDeg(rot.z);
+				if (tipo == 0) {
+					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*1.5)), 0, 1, 5, 0);
+					rot.y += 3;
+					cone.draw();
+				}
+				else if (tipo == 1) {	
+					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*2)), 0, 1, 5, 0);
+					// rot.y = ofMap(sin(ofGetElapsedTimef()*.2),0, 1, 0, 90);
+
+					rot.x += .3;
+					rot.y += .4;
+					rot.z += .5;
+					box.draw();
+				}
+				else if (tipo == 2) {
+					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*4)), 0, 1, 5, 0);
+					sphere.draw();
+				}
+				else if (tipo == 3) {
+					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*6)), 0, 1, 5, 0);
+
+					cylinder.draw();
+				}
+				ofPopMatrix();
+			}
+
+			coisa(int t, ofColor c, glm::vec3 p) : tipo(t), cor(c), pos(p) {};
+	};
+
+	float dist = 30;
+	vector <coisa> coisas = { 
+		coisa(0, ofxMicroUI::stringHexToColor("#fedc61"), glm::vec3(0, 0, 0)),
+		coisa(1, ofxMicroUI::stringHexToColor("#ae3fac"), glm::vec3(dist, 0, 0)),
+		coisa(2, ofxMicroUI::stringHexToColor("#453fb0"), glm::vec3(-dist, 0, 0)),
+		coisa(3, ofxMicroUI::stringHexToColor("#008d54"), glm::vec3(0, 0, -dist)) 
+	};
+
+	void setup() override {
+	}
+	
+	void draw() override {
+		checkSetup();
+		for (auto & c : coisas) {
+			c.draw();
+		}
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {

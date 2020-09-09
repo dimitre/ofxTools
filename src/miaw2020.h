@@ -2,7 +2,10 @@ ofxMicroUI u;
 ofxMicroUI *ui = &u.uis["ui"];
 ofxMicroUI *uiC  = &u.uis["scene"];
 ofxMicroUI *uiColors  = &u.uis["colors"];
+
+ofxMicroUI *uiTex  = &u.uis["texture"];
 string & scene = ui->pString["scene"];
+//string scene = ui->pString["scene"];
 
 ofxMicroUISoftware soft;
 ofFbo * fbo = &soft.fbo;//
@@ -17,12 +20,35 @@ ofxSyphonServer syphonOut;
 
 ofxMicroUIRemote uiRemote;
 
+int contagemRandomPreset = 0;
+
 void remoteMessage(string & e) {
 	cout << "remote message !" << endl;
-	if (ofIsStringInString(e, "/p/")) {
-		vector <string> partes = ofSplitString(e, "/");
-		string p = partes[2];
-		u.presetElement->set(p);
+	vector <string> partes = ofSplitString(e, "/");
+	if (partes.size() > 2) {
+		string v = partes[2];
+		if (partes[1] == "p") {
+			if (v == "r") {
+				string randomPresetString = ofToString(contagemRandomPreset);
+				contagemRandomPreset = (contagemRandomPreset+1)%10;
+				u.presetElement->set(randomPresetString);
+			} else {
+				u.presetElement->set(v);
+			}
+		}
+		else if (partes[1] == "f") {
+			u.set("presetsFolder", v);
+		}
+
+		else if (partes[1] == "r") {
+			if (v == "c") {
+				float v = ofRandom(0,50);
+				cout << v << endl;
+				uiCam->getSlider("cameraDist")->set(v);
+				v = ofRandom(-180, 180);
+				uiCam->getSlider("cameraAngle")->set(v);
+			}
+		}
 	}
 }
 
@@ -73,30 +99,23 @@ void miawBg() {
 }
 
 
-void beginMiaw() {
+void beginMiaw(bool background = true) {
 	ofPushMatrix();
 
 	useCairo = (ui->pBool["useCairo"] || savingCairo) && !uiC->pBool["is3d"];
-	if (useCairo) {
-		beginCairo();
-
-//		if (uiColors->pString["background"] == "no") {
-//			ofClear(0,0);
-//		}
-//		else if (uiColors->pString["background"] == "solid") {
-//			ofClear(uiColors->pColorEasy["bg"]);
-//		}
-		miawBg();
-		startCairoBlendingMode();
-	} else {
-
-		if (!uiColors->pBool["bgAfter"]) {
+	if (background) {
+		if (useCairo) {
+			beginCairo();
 			miawBg();
+			startCairoBlendingMode();
+		} else {
+			if (!uiColors->pBool["bgAfter"]) {
+				miawBg();
+			}
+			startBlendingMode();
 		}
-		startBlendingMode();
+		ofSetLineWidth(ui->pEasy["lineWidth"]);
 	}
-//	ofSetColor(uiColors->pColorEasy["color"]);
-	ofSetLineWidth(ui->pEasy["lineWidth"]);
 }
 
 void endMiaw() {
@@ -108,43 +127,6 @@ void endMiaw() {
 		
 	}
 	ofPopMatrix();
-}
-
-void beginGl() {
-	if (!useCairo) {
-		if (ui->pBool["rebind"]) {
-			fbo2->draw(0,0,200,200);
-			fbo2->getTexture().bind();
-		}
-
-		if (ui->pBool["useTexture"]) {
-			ui->pImage["tex"].getTexture().bind();
-		}
-	
-		if (ui->pBool["usePointSprite"]) {
-			ofEnablePointSprites();
-			ofDisableDepthTest();
-			ui->pImage["pointSprite"].getTexture().bind();
-		}
-		glPointSize(ui->pEasy["pointSpriteSize"]);
-	}
-}
-
-void endGl() {
-	if (!useCairo) {
-		if (ui->pBool["usePointSprite"]) {
-			ofDisablePointSprites();
-			ui->pImage["pointSprite"].getTexture().unbind();
-		}
-	
-		if (ui->pBool["useTexture"]) {
-			ui->pImage["tex"].getTexture().unbind();
-		}
-
-		if (ui->pBool["rebind"]) {
-			fbo2->getTexture().unbind();
-		}
-	}
 }
 
 
@@ -214,11 +196,9 @@ void setupMiaw() {
 	ofxNDISendVideo video_;
 #endif
 
-
-
 	// WINDOW
 	void drawWindow(int pos=0) {
-		ofBackground(0);
+		ofBackground(50);
 		ofSetColor(255);
 		
 		// xaxa tem como otimizar
