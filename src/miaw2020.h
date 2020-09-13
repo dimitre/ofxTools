@@ -9,6 +9,10 @@ string & scene = ui->pString["scene"];
 
 ofxMicroUISoftware soft;
 ofFbo * fbo = &soft.fbo;//
+ofFbo * fbo2 = &soft.fbo2;
+ofFbo * fbo3 = &soft.fbo3;
+
+
 
 #ifdef USESYPHON
 ofxSyphonServer syphonOut;
@@ -88,6 +92,10 @@ void miawBg() {
 	else if (uiColors->pString["background"] == "no" || uiColors->pString["background"] == "") {
 		ofClear(0,0);
 	}
+	else if (uiColors->pString["background"] == "palette") {
+		ofClear(uiColors->pColorEasy["bgPalette"]);
+	}
+
 
 	// 	if (uiColors->pBool["useBg2"]) {
 
@@ -148,9 +156,6 @@ void endMiaw() {
 	}
 #endif
 
-ofFbo * fbo2 = &soft.fbo2;
-//ofFbo * fbo3 = &soft.fbo3;
-
 
 #include "shaders.h"
 #include "cam.h"
@@ -171,7 +176,9 @@ void preSetupMiaw() {
 void setupMiaw() {
 	soft.fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 	soft.fbo2.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
-	soft.fboFinal = &soft.fbo2;
+	soft.fbo3.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+	
+	soft.fboFinal = &soft.fbo3;
 	soft.setUI(&u);
 	
 	uiRemote.loadConfig("_osc.txt");
@@ -185,9 +192,6 @@ void setupMiaw() {
 	}
 }
 
-
-
-	
 #ifdef USENDI
 	private:
 	ofPixels videoPixels;

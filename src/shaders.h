@@ -18,7 +18,12 @@ void shadersReload(string s = "") {
 
 void shadersUIEvent(ofxMicroUI::element & e) {
 //	cout << "shadersUIEvent " << e.name << endl;
-	if (e.name == "shaders2d" || e.name == "shaders3d" || e.name == "shadersGen") {
+	if (
+		e.name == "shaders2d" ||
+		e.name == "shaders3d" ||
+		e.name == "shadersgen" ||
+		e.name == "shadersGen" ||
+		e.name == "shaders2d2") {
 		if (ofxMicroUI::dirList * r = dynamic_cast<ofxMicroUI::dirList*>(&e)) {
 			string f = r->getFileName();
 			if (f != "" & f != shadersMapLoaded[e.name]) {
@@ -36,6 +41,8 @@ void shadersUIEvent(ofxMicroUI::element & e) {
 void beginShader(string name) {
 	if (uiShader->pBool[name + "_on"] && shadersMap[name].isLoaded()) {
 		ofShader *s = &shadersMap[name];
+		
+//		cout << name << endl;
 		s->begin();
 		s->setUniform1f("time", ofGetElapsedTimef());
 //		cout << fbo->getWidth() << "x" << fbo->getHeight() << endl;
@@ -56,7 +63,8 @@ void beginShader(string name) {
 		}
 
 		for (auto & p : ui->pColor) {
-			ofFloatColor c = p.second;
+			ofFloatColor c = ui->pColorEasy[p.first];
+			// ofFloatColor c = p.second;
 			s->setUniform4f(p.first, c.r, c.g, c.b, c.a);
 		}
 		

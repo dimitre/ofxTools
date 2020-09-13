@@ -157,7 +157,7 @@ public:
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
-		cout << e.name << endl;
+//		cout << e.name << endl;
 		if (e.name == "svg") {
 			if (*e.s != "") {
 				string file = ((ofxMicroUI::dirList*)&e)->getFileName();
@@ -341,6 +341,121 @@ public:
 
 
 
+struct sceneConfetti : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	
+	struct confetti {
+		public:
+			int index;
+			ofRectangle * rect = NULL;
+			float * vel = NULL;
+			float * velX = NULL;
+			glm::vec2 pos;
+			float mult;
+			ofRectangle objeto;
+			glm::vec3 rot, rotVel;
+
+			ofVboMesh mesh;
+			ofPlanePrimitive plane;
+
+		confetti(int i, ofRectangle * r, float * v, float * vx) : index(i), rect(r), vel(v), velX(vx) {
+			mult = ofRandom(.1, 2.0);
+			pos = glm::vec2(ofRandom(rect->x, rect->width), ofRandom(rect->y, rect->height));
+			// float raio = mult*11.0;
+			// objeto = ofRectangle(-raio, -raio, raio*2.0, raio*2.0);
+			float raio = mult*11.0;
+			float raio2 = raio * ofRandom(.2, .8);
+			objeto = ofRectangle(-raio*.5, -raio2*.5, raio*2, raio2*2.0);
+
+
+			plane.set(raio*2, raio2*2);
+			plane.setResolution(5, 5);
+			mesh = plane.getMesh();
+
+			rot = glm::vec3(
+				ofRandom(0,180),
+				ofRandom(0,180),
+				ofRandom(0,180)
+			);
+
+			rotVel = glm::vec3(
+				ofRandom(0, 3),
+				ofRandom(0, 3),
+				ofRandom(0, 3)
+			);
+		}
+
+		void draw() {
+			rot += rotVel;
+			float soma = *vel * mult;
+			float somaX = *velX * mult;
+			pos.y += soma;
+			pos.x += somaX;
+			if (pos.y > rect->height) {
+				pos.y = rect->y;
+			}
+			else if (pos.y < rect->y) {
+				pos.y = rect->height;
+			}
+
+			if (pos.x > rect->width) {
+				pos.x = rect->x;
+			}
+			else if (pos.x < rect->x) {
+				pos.x = rect->width;
+			}
+
+			ofPushMatrix();
+			ofTranslate(pos);
+			ofRotateXDeg(rot.x);
+			ofRotateYDeg(rot.y);
+			ofRotateZDeg(rot.z);
+
+			// if (uiC->pBool["mesh"]) {
+				mesh.draw();
+			// } else {
+				// ofDrawRectangle(objeto);
+			// }
+
+			ofPopMatrix();
+		}
+	};
+
+	vector <confetti> confettis;
+
+	int margem = 100;
+	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
+	void setup() override {
+		for (auto a=0; a<2600; a++) {
+			confettis.push_back(confetti(a, &boundsRect, &vel, &velX));
+		}
+	}
+	
+	float vel = 0;
+	float velX = 0;
+
+	void draw() override {
+		checkSetup();
+		vel = uiC->pEasy["vel"];
+		velX = uiC->pEasy["velX"];
+		ofSetColor(255);
+		for (auto & c : confettis) {
+			if (uiC->pInt["colorMode"] == 0) {
+				ofSetColor(getColor(c.mult, uiColors));
+			} else if (uiC->pInt["colorMode"] == 1) {
+				ofSetColor(getColor(ofRandom(0,1), uiColors));
+			} else if (uiC->pInt["colorMode"] == 2) {
+				float n = ofNoise(incrementa("tempoColor"), c.mult, c.pos.x * .1);
+				ofSetColor(getColor(n, uiColors));
+			}
+			c.draw();
+		}
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+	}
+};
 
 
 struct sceneBasic : public sceneDmtr {
@@ -352,11 +467,14 @@ public:
 	
 	void draw() override {
 		checkSetup();
+		ofSetColor(getColor(0, uiColors));
+		ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
 	}
 };
+
 
 
 

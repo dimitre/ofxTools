@@ -68,7 +68,16 @@ public:
 		scenes.push_back(new sceneToma(u, fbo));
 		scenesMap["toma"] = scenes.back();
 
+		
+		scenes.push_back(new sceneConfetti(u, fbo));
+		scenesMap["confetti"] = scenes.back();
+		
+		scenes.push_back(new sceneBasic(u, fbo));
+		scenesMap["basic"] = scenes.back();
 
+
+		
+		
 		for (auto & s : scenesMap) {
 			s.second->setup();
 			s.second->isSetup = true;

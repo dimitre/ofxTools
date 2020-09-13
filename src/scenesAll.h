@@ -1,12 +1,10 @@
 
 struct sceneOcean : public sceneDmtr {
 public:
-	
-	ofMesh mesh;
+	ofVboMesh mesh;
 	int width = 105;
 	float multiplicador = 0.4;
-	// float multiplicador = 40.0;
-	
+
 	using sceneDmtr::sceneDmtr;
 	
 	void addNormals() {
@@ -15,6 +13,24 @@ public:
 	
 	void uiEvents(ofxMicroUI::element & e) override {
 //		cout << "wow uievent here" << endl;
+		
+		if (e.name == "invert") {
+			if (!e._settings->presetIsLoading) {
+				float noiseMult1 = uiC->pFloat["noiseMult1"];
+				float multY = uiC->pFloat["multY"];
+				float multiVel1 = uiC->pFloat["multiVel1"];
+				
+				uiC->set("noiseMult1", uiC->pFloat["noiseMult2"]);
+				uiC->set("multY", uiC->pFloat["multY2"]);
+				uiC->set("multiVel1", uiC->pFloat["multiVel2"]);
+
+				uiC->set("noiseMult2", noiseMult1);
+				uiC->set("multY2", multY);
+				uiC->set("multiVel2", multiVel1);
+			}
+
+
+		}
 		if (e.name == "normals") {
 			if (*e.b) {
 				addNormals();
@@ -47,31 +63,60 @@ public:
 //		for( int i=0; i < mesh.getVertices().size(); i++ ) mesh.addNormal(glm::vec3(0,0,0));
 	}
 	
+	struct param {
+	public:
+		float noiseMult;
+		float multY;
+		float easy;
+		float ny;
+		float my;
+		string i;
+//		param();
+	};
+	
+	
+	param params[3];
+	float hashValuesX[200];
+	float updown = 0;
+
 	void draw() override {
 		checkSetup();
 		
-		float updown = 0;
-		float noiseMult1 = uiC->pEasy["noiseMult1"] + uiC->pEasy["noiseMult1Audio"] * updown;
-		float noiseMult2 = uiC->pEasy["noiseMult2"] + uiC->pEasy["noiseMult2Audio"] * updown;
+		for (int a=0; a<3; a++) {
+			string i = ofToString(a+1);
+			params[a].i = i;
+			params[a].noiseMult = uiC->pEasy["noiseMult" + i]; // + uiC->pEasy["noiseMult" + i + "Audio"] * updown;
+			params[a].multY = uiC->pEasy["multY" + i]; // + uiC->pEasy["multY" +i+ "Audio"] * updown;
+			params[a].easy = incrementa("multiVel"+i);
+		}
 		
-		float multY = uiC->pEasy["multY"] + uiC->pEasy["multYAudio"] * updown;
-		float multY2 = uiC->pEasy["multY2"] + uiC->pEasy["multY2Audio"] * updown;
-		
-		float easy1 = incrementa("multiVel1");
-		float easy2 = incrementa("multiVel2");
 		float offXTime = incrementa("offXTime");
 		float offYTime = incrementa("offYTime");
 		
+		for (int x=0; x<width; x++) {
+			hashValuesX[x] = 0;
+			for (auto & p : params) {
+				hashValuesX[x]  += x * p.noiseMult + offXTime;
+			}
+		}
+		
+		
 		for (int y=0; y<width; y++) {
+			for (auto & p : params) {
+				p.ny = y * p.noiseMult + offYTime;
+				p.my = multiplicador * p.multY;
+			}
+
 			for (int x=0; x<width; x++) {
 				int index = x + y*width;
 				glm::vec3 tmpVec = mesh.getVertex(index);
 				
-				tmpVec.y = (ofNoise(x * noiseMult1 + offXTime, y * noiseMult1 + offYTime, easy1)-.5)
-				* multiplicador * multY;
-				
-				tmpVec.y += (ofNoise(x * noiseMult2 + offXTime, y * noiseMult2 + offYTime, easy2)-.5)
-				* multiplicador * multY2;
+				// mesmo no X fazer hashtable se quiser.
+				tmpVec.y = 0;
+				for (auto & p : params) {
+					tmpVec.y += (ofNoise(x * p.noiseMult + offXTime, p.ny, p.easy)-.5) * p.my;
+//					tmpVec.y += (ofNoise(hashValuesX[x], p.ny, p.easy)-.5) * p.my;
+				}
 				
 				if (uiC->pBool["esferas"]) {
 					//objeto3d(tmpVec, uiC->pFloat["raio"]);
@@ -121,15 +166,16 @@ public:
 		int cursor = 0;
 		ofPolyline poly;
 		float maxAngle = 15;
+		int index = 0;
 
 		
-		worm(ofRectangle & _r, ofxMicroUI * _uiC) : _rectBounds(_r), ui(_uiC) {
+		worm(ofRectangle & _r, ofxMicroUI * _uiC, int i) : _rectBounds(_r), ui(_uiC), index(i) {
 //			pos = glm::vec2(ofRandom(0,1000), ofRandom(0,500));
 			pos = glm::vec2(ofRandom(_rectBounds.x, _rectBounds.width),
 							ofRandom(_rectBounds.y, _rectBounds.height));
 			angulo = ofRandom(0,360);
 			lineW = ofRandom(1,80);
-			mag = ofRandom(1,9);
+			mag = ofRandom(1,9) * 3.0;
 			cor = cores[int(ofRandom(0,3))];
 			cor = ofColor::fromHsb(ofRandom(0,100), 255, 255);
 			rand = ofRandom(0,1);
@@ -161,7 +207,7 @@ public:
 		void draw() {
 //			ofDrawRectangle(pos, 100, 100);
 			poly.clear();
-			for (int a=0; a<NWORMS; a+=4) {
+			for (int a=0; a<NWORMS; a+=1) {
 				int index = (a + cursor) % NWORMS;
 				poly.addVertex(ofPoint(corpo[index]));
 			}
@@ -183,9 +229,9 @@ public:
 	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
 
 	void setup() override {
-		for (int a=0; a<80; a++) {
+		for (int a=0; a<400; a++) {
 			// worms.emplace_back()
-			worms.push_back(worm(boundsRect, uiC));
+			worms.push_back(worm(boundsRect, uiC, a));
 		}
 	}
 
@@ -195,14 +241,16 @@ public:
 		ofSetColor(getColor(0, uiColors));
 
 		for (auto & w : worms) {
-			w.update();
-			if (uiC->pBool["color"]) {
-				float h = uiC->pEasy["hueStart"] + w.rand * uiC->pEasy["hueStep"];
-				ofSetColor(ofColor::fromHsb(h, 255, 255));
-			} else {
-				ofSetColor(getCor(w.rand));
+			if (w.index < uiC->pInt["numero"]) {
+				w.update();
+				if (uiC->pBool["color"]) {
+					float h = uiC->pEasy["hueStart"] + w.rand * uiC->pEasy["hueStep"];
+					ofSetColor(ofColor::fromHsb(h, 255, 255));
+				} else {
+					ofSetColor(getCor(w.rand));
+				}
+				w.draw();
 			}
-			w.draw();
 		}
 	}
 };
@@ -230,6 +278,8 @@ public:
 			ofFill();
 		}
 		
+		float total = uiC->pInt["nx"] * uiC->pInt["ny"];
+		
 		for (int a=0; a<uiC->pInt["nx"]; a++) {
 			for (int b=0; b<uiC->pInt["ny"]; b++) {
 				float x = ofMap(a, 0, uiC->pInt["nx"], -limite, limite);
@@ -237,6 +287,10 @@ public:
 				if (uiC->pBool["color"]) {
 					float hue = fmod(numero*uiC->pEasy["hueMult"] + uiC->pEasy["hue"], 255);
 					ofSetColor(ofColor::fromHsb(hue, uiC->pEasy["sat"], 255));
+				} else {
+					float n = (float)numero / total;
+					cout << n << endl;
+					ofSetColor(getColor(n, uiColors));
 				}
 				ofDrawBox(x, 0, y, w, h, d);
 				numero ++;
@@ -3352,34 +3406,45 @@ public:
 	string loadedFile = "";
 	ofxAssimpModelLoader model;
 	ofMesh mesh;
+	vector <ofVboMesh> meshes;
 
 	
 	void setup() override {
-		model.drawFaces();
 	}
 	
+	void updateMeshes() {
+		meshes.clear();
+		for (int a=0; a<model.getMeshCount(); a++) {
+			meshes.push_back(model.getMesh(a));
+		}
+	}
+
 	void draw() override {
 		checkSetup();
 		ofSetColor(255);
 		model.update();
 
-		vector <ofMesh> meshes;
-		for (int a=0; a<model.getMeshCount(); a++) {
-			meshes.push_back(model.getMesh(a));
+		if (uiC->pBool["meshesEveryFrame"]) {
+			updateMeshes();
 		}
 
-		ofSetColor(getColor(0, uiColors));
-		ofPushMatrix();
+		for (int a=0; a<10; a++) {
+			ofSetColor(getColor(0, uiColors));
+			ofPushMatrix();
+			float x = ofMap(a, 0, 10, -1100, 1100);
+			ofTranslate(x, 0);
+			
 
-		if (uiC->pBool["drawModel"]) {
-			model.drawFaces();
-		}	
-		
-
-		for (auto & m : meshes) {
-			m.draw();
+			if (uiC->pBool["drawModel"]) {
+				model.drawFaces();
+			}	
+			else {
+				for (auto & m : meshes) {
+					m.draw();
+				}
+			}
+			ofPopMatrix();
 		}
-		ofPopMatrix();
 
 		
 ////		mesh = model.getCurrentAnimatedMesh(0);
@@ -3420,6 +3485,8 @@ public:
 
 					model.disableColors();
 					model.disableMaterials();
+
+					updateMeshes();
 				}
 			}
 		}

@@ -91,28 +91,6 @@ void endGl() {
 
 
 
-void begin3d() {
-//	glShadeModel(uiLuz->pBool["shadeFlat"] ? GL_FLAT : GL_SMOOTH);
-	pointsPerMeter = uiCam->pFloat["pointsPerMeter"];
-	if (uiC->pBool["is3d"]) {
-		beginCam_3d();
-		beginMaterial_3d();
-		beginIlumina_3d();
-		beginGl();
-		beginShader("shaders3d");
-	}
-}
-
-void end3d() {
-	if (uiC->pBool["is3d"]) {
-		endShader("shaders3d");
-		endGl();
-		endIlumina_3d();
-		endMaterial_3d();
-		endCam_3d();
-	}
-}
-
 
 
 struct luzUI {
@@ -411,3 +389,69 @@ void dmtrCamUIEvent_3d(ofxMicroUI::element & e) {
 	
 
 }
+
+
+
+
+
+
+
+
+
+
+void begin3d0() {
+//	glShadeModel(uiLuz->pBool["shadeFlat"] ? GL_FLAT : GL_SMOOTH);
+	pointsPerMeter = uiCam->pFloat["pointsPerMeter"];
+	if (uiC->pBool["is3d"]) {
+		beginCam_3d();
+		beginMaterial_3d();
+		beginIlumina_3d();
+		beginGl();
+		beginShader("shaders3d");
+	}
+}
+
+void end3d0() {
+	if (uiC->pBool["is3d"]) {
+		endShader("shaders3d");
+		endGl();
+		endIlumina_3d();
+		endMaterial_3d();
+		endCam_3d();
+	}
+}
+
+
+
+
+
+void begin3d() {
+//	glShadeModel(uiLuz->pBool["shadeFlat"] ? GL_FLAT : GL_SMOOTH);
+	pointsPerMeter = uiCam->pFloat["pointsPerMeter"];
+	if (uiC->pBool["is3d"]) {
+		beginCam_3d();
+	}
+	
+	beginMaterial_3d();
+	beginIlumina_3d();
+	beginGl();
+	
+	if (!useCairo) {
+		beginShader("shaders3d");
+	}
+}
+
+void end3d() {
+	if (!useCairo) {
+		endShader("shaders3d");
+	}
+
+	endGl();
+	endIlumina_3d();
+	endMaterial_3d();
+
+	if (uiC->pBool["is3d"]) {
+		endCam_3d();
+	}
+}
+
