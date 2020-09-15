@@ -74,10 +74,10 @@ public:
 		
 		scenes.push_back(new sceneBasic(u, fbo));
 		scenesMap["basic"] = scenes.back();
-
-
 		
-		
+		scenes.push_back(new sceneSvank(u, fbo));
+		scenesMap["svank"] = scenes.back();
+
 		for (auto & s : scenesMap) {
 			s.second->setup();
 			s.second->isSetup = true;

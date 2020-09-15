@@ -432,11 +432,11 @@ void begin3d() {
 		beginCam_3d();
 	}
 	
-	beginMaterial_3d();
-	beginIlumina_3d();
-	beginGl();
 	
 	if (!useCairo) {
+		beginMaterial_3d();
+		beginIlumina_3d();
+		beginGl();
 		beginShader("shaders3d");
 	}
 }
@@ -444,11 +444,11 @@ void begin3d() {
 void end3d() {
 	if (!useCairo) {
 		endShader("shaders3d");
+		endGl();
+		endIlumina_3d();
+		endMaterial_3d();
 	}
 
-	endGl();
-	endIlumina_3d();
-	endMaterial_3d();
 
 	if (uiC->pBool["is3d"]) {
 		endCam_3d();

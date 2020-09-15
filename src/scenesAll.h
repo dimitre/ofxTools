@@ -3408,7 +3408,9 @@ public:
 	ofMesh mesh;
 	vector <ofVboMesh> meshes;
 
-	
+	int margem = 200;
+	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
+
 	void setup() override {
 	}
 	
@@ -3419,58 +3421,100 @@ public:
 		}
 	}
 
+	void drawModel() {
+
+		if (uiC->pBool["drawModel"]) {
+			model.drawFaces();
+		}	
+		else {
+			if (uiC->pBool["meshesEveryFrame"]) {
+				updateMeshes();
+			}
+			for (auto & m : meshes) {
+				m.draw();
+			}
+		}
+	}
+
 	void draw() override {
 		checkSetup();
 		ofSetColor(255);
+		ofEnableDepthTest();
+		float scale = uiC->pEasy["scale"];
+		model.setScale(scale, scale, scale);
 		model.update();
 
-		if (uiC->pBool["meshesEveryFrame"]) {
-			updateMeshes();
+		if (!uiC->pEasy["spaceX"]) {
+			uiC->pEasy["spaceX"] = uiC->pFloat["spaceX"];
 		}
-
-		for (int a=0; a<10; a++) {
-			ofSetColor(getColor(0, uiColors));
-			ofPushMatrix();
-			float x = ofMap(a, 0, 10, -1100, 1100);
-			ofTranslate(x, 0);
+		if (!uiC->pEasy["spaceY"]) {
+			uiC->pEasy["spaceY"] = uiC->pFloat["spaceY"];
+		}
+		float spaceX = uiC->pEasy["spaceX"] ? uiC->pEasy["spaceX"] : uiC->pFloat["spaceX"];
+		float spaceY = uiC->pEasy["spaceY"] ? uiC->pEasy["spaceY"] : uiC->pFloat["spaceY"];
+		
+		if (uiC->pBool["rapport"]) {
 			
-
-			if (uiC->pBool["drawModel"]) {
-				model.drawFaces();
-			}	
-			else {
-				for (auto & m : meshes) {
-					m.draw();
+//			for (int x=0; x<)
+//			for (float x=boundsRect.x; x<=boundsRect.width; x+= spaceX) {
+//				for (float y=boundsRect.y; y<=boundsRect.height; y+= spaceY) {
+////					if (!uiC->pBool["impar"] || (x+y))
+//					ofPushMatrix();
+//					ofTranslate(x,y);
+//					ofRotateXDeg(incrementa("rotXTime"));
+//					ofRotateYDeg(incrementa("rotYTime"));
+//					ofRotateZDeg(incrementa("rotZTime"));
+//
+//					drawModel();
+//					ofPopMatrix();
+//				}
+//			}
+			
+			
+			float nx = (boundsRect.width - boundsRect.x) / spaceX;
+			float ny = (boundsRect.height - boundsRect.y) / spaceY;
+			
+			for (float x=0; x<nx; x++) {
+				for (float y=0; y<ny; y++) {
+					if (!uiC->pBool["impar"] || (int(x+y)%2)) {
+						ofPushMatrix();
+						ofTranslate(x * spaceX,y * spaceY);
+						ofRotateXDeg(incrementa("rotXTime") + uiC->pEasy["rX"] * (float)x);
+						ofRotateYDeg(incrementa("rotYTime"));
+						ofRotateZDeg(incrementa("rotZTime") + uiC->pEasy["rY"] * (float)y);
+						ofTranslate(uiC->pEasy["transX"], uiC->pEasy["transY"]);
+						drawModel();
+						ofPopMatrix();
+					}
 				}
 			}
-			ofPopMatrix();
-		}
+		} else {
+			for (int a=0; a<3; a++) {
+				ofSetColor(getColor(0, uiColors));
+				ofPushMatrix();
+				float x = ofMap(a, 0, 10, -1100, 1100);
+				ofTranslate(x, 0);
+				
 
-		
-////		mesh = model.getCurrentAnimatedMesh(0);
-//
-//		ofxAssimpMeshHelper & meshHelper = model.getMeshHelper(0);
-//
-//		ofMultMatrix(model.getModelMatrix());
-//		 ofMultMatrix(meshHelper.matrix);
-//
-//		 ofMaterial & material = meshHelper.material;
-//		 if(meshHelper.hasTexture()){
-//			 meshHelper.getTextureRef().bind();
-//		 }
-////		 material.begin();
-////		 mesh.drawWireframe();
-////		 material.end();
-//		 if(meshHelper.hasTexture()){
-//			 meshHelper.getTextureRef().unbind();
-//		 }
-		
-//		ofPushMatrix();
-//		model.drawFaces();
-//		ofPopMatrix();
+				drawModel();
+				ofPopMatrix();
+			}
+		}
+		ofDisableDepthTest();
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "resetTime" && !e._settings->presetIsLoading) {
+			uiC->set("rotXTime", float(0.0));
+			uiC->set("rotYTime", float(0.0));
+			uiC->set("rotZTime", float(0.0));
+			resetIncrementa("rotXTime");
+			resetIncrementa("rotYTime");
+			resetIncrementa("rotZTime");
+			
+			
+			
+		}
 		if (e.name == "model") {
 			if (*e.s != "") {
 				string file = ((ofxMicroUI::dirList*)&e)->getFileName();
@@ -3482,7 +3526,6 @@ public:
 					model.playAllAnimations();
 
 					// model.setPositionForAllAnimations(ofRandom(0,1));
-
 					model.disableColors();
 					model.disableMaterials();
 

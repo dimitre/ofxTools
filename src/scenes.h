@@ -198,69 +198,78 @@ public:
 		tex = &uiC->pImage["image"].getTexture();
 		i = &uiC->pImage["image"];
 	}
+
+	void drawTexture() {
+		tex->bind();
+		//GL_MIRRORED_REPEAT GL_CLAMP_TO_EDGE GL_CLAMP_TO_BORDER
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		ofMesh mesh;
+		glm::vec3 vertices[4] = {
+			glm::vec3(0, 0, 0),
+			glm::vec3(fbo->getWidth(), 0, 0),
+			glm::vec3(0, fbo->getHeight(), 0),
+			glm::vec3(fbo->getWidth(), fbo->getHeight(), 0)
+		};
+
+		float tw = uiC->pFloat["tw"];
+		float th = uiC->pFloat["th"];
+		mesh.addIndices( {0,1,2,1,2,3} );
+
+		glm::vec3 texCoords[4] = {
+			glm::vec3(0, 0, 0),
+			glm::vec3(tw, 0, 0),
+			glm::vec3(0, th, 0),
+			glm::vec3(tw, th, 0)
+		};
+
+		for (auto & v : vertices) {
+			mesh.addVertex(v);
+		}
+		for (auto & t : texCoords) {
+			mesh.addTexCoord(t);
+		}
+		for (int a=0; a<4; a++) {
+			mesh.addVertex(vertices[a]);
+		}
+
+		mesh.draw();
+		tex->unbind();
+	}
+	
+	vector <string> indices = { "", "2" };
+
 	
 	void draw() override {
+		checkSetup();
 		if (i->isAllocated()) {
-			checkSetup();
 			ofSetColor(255);
 			if (uiC->pBool["useTexture"]) {
-				tex->bind();
-				//GL_MIRRORED_REPEAT GL_CLAMP_TO_EDGE GL_CLAMP_TO_BORDER
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-				ofMesh mesh;
-				glm::vec3 vertices[4] = {
-					glm::vec3(0, 0, 0),
-					glm::vec3(fbo->getWidth(), 0, 0),
-					glm::vec3(0, fbo->getHeight(), 0),
-					glm::vec3(fbo->getWidth(), fbo->getHeight(), 0)
-				};
-
-				float tw = uiC->pFloat["tw"];
-				float th = uiC->pFloat["th"];
-				mesh.addIndices( {0,1,2,1,2,3} );
-
-				glm::vec3 texCoords[4] = {
-					glm::vec3(0, 0, 0),
-					glm::vec3(tw, 0, 0),
-					glm::vec3(0, th, 0),
-					glm::vec3(tw, th, 0)
-				};
-
-				for (auto & v : vertices) {
-					mesh.addVertex(v);
-				}
-				for (auto & t : texCoords) {
-					mesh.addTexCoord(t);
-				}
-				for (int a=0; a<4; a++) {
-					mesh.addVertex(vertices[a]);
-				}
-
-				mesh.draw();
-				tex->unbind();
+				drawTexture();
 			}
-
 			else {
-
-				float scale = uiC->pEasy["scale"];
-				float iw = i->getWidth() * scale;
-				float ih = i->getHeight() * scale;
-				int vx = fbo->getWidth() / iw;
-				int vy = fbo->getHeight() / ih;
-				int total = vx * vy;
-				int index = 0;
-				float rot = uiC->pFloat["rot"] + incrementa("rotTime");
-				for (int x =0; x<=vx; x++) {
-					for (int y =0; y<=vy; y++) {
-						ofSetColor(getColor(index/(float)total, uiColors));
-						ofPushMatrix();
-						ofTranslate(x * iw + iw*.5, y * ih + ih * .5);
-						ofRotateDeg(rot);
-						uiC->pImage["image"].draw(-iw*.5, -ih * .5, iw, ih);
-						ofPopMatrix();
-						index++;
+				for (string & index : indices) {
+					i = index == "" ? &uiC->pImage["image"] : &uiC->pImage["image2"];
+					// string index = "";
+					float scale = uiC->pEasy["scale" + index];
+					float iw = i->getWidth() * scale;
+					float ih = i->getHeight() * scale;
+					int vx = fbo->getWidth() / iw;
+					int vy = fbo->getHeight() / ih;
+					int total = vx * vy;
+					int i = 0;
+					float rot = uiC->pEasy["rot"+ index] + incrementa("rotTime"+ index);
+					for (int x =0; x<=vx; x++) {
+						for (int y =0; y<=vy; y++) {
+							ofSetColor(getColor(i/(float)total, uiColors));
+							ofPushMatrix();
+							ofTranslate(x * iw + iw*.5, y * ih + ih * .5);
+							ofRotateDeg(rot);
+							uiC->pImage["image"+ index].draw(-iw*.5, -ih * .5, iw, ih);
+							ofPopMatrix();
+							i++;
+						}
 					}
 				}
 			}
@@ -270,6 +279,9 @@ public:
 	void uiEvents(ofxMicroUI::element & e) override {
 		if (e.name == "resetRot") {
 			resetIncrementa("rotTime");
+		}
+		else if (e.name == "resetRot2") {
+			resetIncrementa("rotTime2");
 		}
 	}
 };
@@ -458,24 +470,6 @@ public:
 };
 
 
-struct sceneBasic : public sceneDmtr {
-public:
-	using sceneDmtr::sceneDmtr;
-	
-	void setup() override {
-	}
-	
-	void draw() override {
-		checkSetup();
-		ofSetColor(getColor(0, uiColors));
-		ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
-	}
-	
-	void uiEvents(ofxMicroUI::element & e) override {
-	}
-};
-
-
 
 
 struct sceneToma : public sceneDmtr {
@@ -552,6 +546,47 @@ public:
 		for (auto & c : coisas) {
 			c.draw();
 		}
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+	}
+};
+
+
+
+
+struct sceneBasic : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	
+	void setup() override {
+	}
+	
+	void draw() override {
+		checkSetup();
+		ofSetColor(getColor(0, uiColors));
+		ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+	}
+};
+
+
+
+
+
+struct sceneSvank : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	
+	void setup() override {
+	}
+	
+	void draw() override {
+		checkSetup();
+		ofSetColor(getColor(0, uiColors));
+		ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
