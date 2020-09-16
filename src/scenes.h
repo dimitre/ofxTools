@@ -255,16 +255,27 @@ public:
 					float scale = uiC->pEasy["scale" + index];
 					float iw = i->getWidth() * scale;
 					float ih = i->getHeight() * scale;
-					int vx = fbo->getWidth() / iw;
-					int vy = fbo->getHeight() / ih;
+					float iwMargin = iw * uiC->pEasy["margin" + index];
+					float ihMargin = ih * uiC->pEasy["margin" + index];
+
+					// TODO UPDATE
+					int vx = fbo->getWidth() / iwMargin;
+					int vy = fbo->getHeight() / ihMargin;
 					int total = vx * vy;
 					int i = 0;
 					float rot = uiC->pEasy["rot"+ index] + incrementa("rotTime"+ index);
-					for (int x =0; x<=vx; x++) {
-						for (int y =0; y<=vy; y++) {
+
+					float offX = fmod(incrementa("velX" + index), iwMargin) - iwMargin *.5;
+					float offY = fmod(incrementa("velY" + index), ihMargin) - ihMargin *.5;
+
+					for (int x = -1; x<= (vx+1); x++) {
+						for (int y = -1; y<= (vy+1); y++) {
 							ofSetColor(getColor(i/(float)total, uiColors));
 							ofPushMatrix();
-							ofTranslate(x * iw + iw*.5, y * ih + ih * .5);
+							ofTranslate(
+								x * iwMargin + iwMargin * .5 + offX, 
+								y * ihMargin + ihMargin * .5 + offY
+							);
 							ofRotateDeg(rot);
 							uiC->pImage["image"+ index].draw(-iw*.5, -ih * .5, iw, ih);
 							ofPopMatrix();
@@ -569,6 +580,43 @@ public:
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
+	}
+};
+
+
+struct sceneClaquete : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	
+	ofFbo fboText;
+
+	void setup() override {
+		fboText.allocate(100,100, GL_RGBA);
+
+		fboText.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+	}
+	
+	void draw() override {
+		checkSetup();
+//		ofBackground(255,0,0);
+		
+		fboText.begin();
+		ofClear(0,0);
+		ofSetColor(getColor(0, uiColors));
+//		cout <<  << endl;
+		ofDrawBitmapString("OK Dmtr.org\n" + uiC->pString["text"], 4, 18);
+		fboText.end();
+		
+		int vezes = uiC->pInt["vezes"];
+		fboText.draw(0,0,fboText.getWidth() * vezes,fboText.getHeight() * vezes);
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+//		cout << "text " << e.name << endl;
+		if (e.name == "text") {
+
+		}
+
 	}
 };
 

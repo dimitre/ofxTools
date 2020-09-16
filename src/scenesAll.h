@@ -3408,7 +3408,7 @@ public:
 	ofMesh mesh;
 	vector <ofVboMesh> meshes;
 
-	int margem = 200;
+	int margem = 400;
 	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
 
 	void setup() override {
@@ -3474,14 +3474,19 @@ public:
 			float nx = (boundsRect.width - boundsRect.x) / spaceX;
 			float ny = (boundsRect.height - boundsRect.y) / spaceY;
 			
+			float offX = fmod(incrementa("velX"), spaceX) - spaceX *.5;
+			float offY = fmod(incrementa("velY"), spaceY) - spaceY *.5;
+
 			for (float x=0; x<nx; x++) {
 				for (float y=0; y<ny; y++) {
 					if (!uiC->pBool["impar"] || (int(x+y)%2)) {
 						ofPushMatrix();
-						ofTranslate(x * spaceX,y * spaceY);
-						ofRotateXDeg(incrementa("rotXTime") + uiC->pEasy["rX"] * (float)x);
-						ofRotateYDeg(incrementa("rotYTime"));
-						ofRotateZDeg(incrementa("rotZTime") + uiC->pEasy["rY"] * (float)y);
+						float xx = x * spaceX + offX;
+						float yy = y * spaceY + offY;
+						ofTranslate(xx, yy);
+						ofRotateXDeg(incrementa("rotXTime") + uiC->pEasy["rX"] * (float)xx);
+						ofRotateYDeg(incrementa("rotYTime") + uiC->pEasy["rY"] * (float)yy);
+						ofRotateZDeg(incrementa("rotZTime") + uiC->pEasy["rYZ"] * (float)yy);
 						ofTranslate(uiC->pEasy["transX"], uiC->pEasy["transY"]);
 						drawModel();
 						ofPopMatrix();

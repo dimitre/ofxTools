@@ -78,6 +78,9 @@ public:
 		scenes.push_back(new sceneSvank(u, fbo));
 		scenesMap["svank"] = scenes.back();
 
+		scenes.push_back(new sceneClaquete(u, fbo));
+		scenesMap["claquete"] = scenes.back();
+
 		for (auto & s : scenesMap) {
 			s.second->setup();
 			s.second->isSetup = true;
