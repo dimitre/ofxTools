@@ -263,7 +263,7 @@ public:
 	using sceneDmtr::sceneDmtr;
 	void draw() override {
 		ofSetColor(255);
-		ofSetLineWidth(uiC->pEasy["linewidth"]);
+		// ofSetLineWidth(uiC->pEasy["linewidth"]);
 		int numero = 0;
 		float aresta = uiC->pEasy["aresta"];
 		float limite = uiC->pInt["nx"] * aresta * .5;
@@ -289,7 +289,7 @@ public:
 					ofSetColor(ofColor::fromHsb(hue, uiC->pEasy["sat"], 255));
 				} else {
 					float n = (float)numero / total;
-					cout << n << endl;
+//					cout << n << endl;
 					ofSetColor(getColor(n, uiColors));
 				}
 				ofDrawBox(x, 0, y, w, h, d);
@@ -298,6 +298,11 @@ public:
 		}
 	}
 };
+
+
+
+
+
 
 
 
@@ -3402,6 +3407,14 @@ public:
 #ifdef USEASSIMP
 struct sceneModel : public sceneDmtr {
 public:
+
+	// neue
+
+	
+//	shared_ptr<ofShader>	mShdInstanced;
+//	ofTexture	mTexDepth;
+
+
 	using sceneDmtr::sceneDmtr;
 	string loadedFile = "";
 	ofxAssimpModelLoader model;
@@ -3412,6 +3425,10 @@ public:
 	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
 
 	void setup() override {
+
+//		mShdInstanced = shared_ptr<ofShader>(new ofShader());
+//		mShdInstanced->load("_instanced/instanced_120.vert", "_instanced/instanced_120.frag");
+
 	}
 	
 	void updateMeshes() {
@@ -3436,6 +3453,28 @@ public:
 		}
 	}
 
+
+//	void drawInstanced() {
+//		mShdInstanced->begin();
+//		// give the shader access to our texture
+//		mShdInstanced->setUniformTexture("tex0", mTexDepth, 0);
+//		// feed the shader a normalized float value that changes over time, to animate things a little
+//		mShdInstanced->setUniform1f("timeValue", (ofGetElapsedTimeMillis() % 30000) / 30000.0f);
+//		// we only want to see triangles facing the camera.
+//		glEnable(GL_CULL_FACE);
+//		glCullFace(GL_BACK);
+//
+//		// let's draw 128 * 128 == 16384 boxes !
+////		mVboBox.drawInstanced(OF_MESH_FILL, 128*128);
+//		for (auto & m : meshes) {
+//			m.drawInstanced(OF_MESH_FILL, 128*128);
+//		}
+//
+//
+//		glDisable(GL_CULL_FACE);
+//		mShdInstanced->end();
+//	}
+
 	void draw() override {
 		checkSetup();
 		ofSetColor(255);
@@ -3454,23 +3493,6 @@ public:
 		float spaceY = uiC->pEasy["spaceY"] ? uiC->pEasy["spaceY"] : uiC->pFloat["spaceY"];
 		
 		if (uiC->pBool["rapport"]) {
-			
-//			for (int x=0; x<)
-//			for (float x=boundsRect.x; x<=boundsRect.width; x+= spaceX) {
-//				for (float y=boundsRect.y; y<=boundsRect.height; y+= spaceY) {
-////					if (!uiC->pBool["impar"] || (x+y))
-//					ofPushMatrix();
-//					ofTranslate(x,y);
-//					ofRotateXDeg(incrementa("rotXTime"));
-//					ofRotateYDeg(incrementa("rotYTime"));
-//					ofRotateZDeg(incrementa("rotZTime"));
-//
-//					drawModel();
-//					ofPopMatrix();
-//				}
-//			}
-			
-			
 			float nx = (boundsRect.width - boundsRect.x) / spaceX;
 			float ny = (boundsRect.height - boundsRect.y) / spaceY;
 			
@@ -3516,15 +3538,14 @@ public:
 			resetIncrementa("rotXTime");
 			resetIncrementa("rotYTime");
 			resetIncrementa("rotZTime");
-			
-			
-			
 		}
+
 		if (e.name == "model") {
 			if (*e.s != "") {
 				string file = ((ofxMicroUI::dirList*)&e)->getFileName();
 				if (loadedFile != file && ofFile::doesFileExist(file)) {
-					cout << file << endl;
+					loadedFile = file;
+					
 					model.loadModel(file, false);
 					// model.setPosition(middle.x, middle.y , 0);
 					model.setLoopStateForAllAnimations(OF_LOOP_NORMAL);
@@ -3533,13 +3554,59 @@ public:
 					// model.setPositionForAllAnimations(ofRandom(0,1));
 					model.disableColors();
 					model.disableMaterials();
-
 					updateMeshes();
 				}
 			}
 		}
 	}
 };
+
+
+
+
+struct scenePrison : public sceneModel {
+public:
+	using sceneModel::sceneModel;
+
+	void draw() override {
+		ofSetColor(255);
+		ofSetLineWidth(uiC->pEasy["linewidth"]);
+		int numero = 0;
+		float aresta = uiC->pEasy["aresta"];
+		float limite = uiC->pInt["nx"] * aresta * .5;
+		
+		float w = uiC->pEasy["w"] * aresta;
+		float h = uiC->pEasy["h"] * aresta;
+		float d = uiC->pEasy["d"] * aresta;
+		
+		if (ui->pString["draw"] == "wire") {
+			ofNoFill();
+		} else {
+			ofFill();
+		}
+		
+		float total = uiC->pInt["nx"] * uiC->pInt["ny"];
+		
+		for (int a=0; a<uiC->pInt["nx"]; a++) {
+			for (int b=0; b<uiC->pInt["ny"]; b++) {
+				float x = ofMap(a, 0, uiC->pInt["nx"], -limite, limite);
+				float y = ofMap(b, 0, uiC->pInt["ny"], -limite, limite);
+				if (uiC->pBool["color"]) {
+					float hue = fmod(numero*uiC->pEasy["hueMult"] + uiC->pEasy["hue"], 255);
+					ofSetColor(ofColor::fromHsb(hue, uiC->pEasy["sat"], 255));
+				} else {
+					float n = (float)numero / total;
+					cout << n << endl;
+					ofSetColor(getColor(n, uiColors));
+				}
+				ofDrawBox(x, 0, y, w, h, d);
+				numero ++;
+			}
+		}
+	}
+};
+
+
 
 #endif
 
@@ -3648,6 +3715,10 @@ void setupScenesAll() {
 #ifdef USEASSIMP
 	scenes.push_back(new sceneModel(u, fbo));
 	scenesMap["model"] = scenes.back();
+
+	scenes.push_back(new scenePrison(u, fbo));
+	scenesMap["prison"] = scenes.back();
+
 #endif
 
 }

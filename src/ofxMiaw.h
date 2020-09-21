@@ -57,6 +57,9 @@ public:
 #ifdef USEASSIMP
 		scenes.push_back(new sceneModel(u, fbo));
 		scenesMap["model"] = scenes.back();
+		
+		scenes.push_back(new sceneModel(u, fbo));
+		scenesMap["model2"] = scenes.back();
 #endif
 
 		scenes.push_back(new sceneImage(u, fbo));
@@ -80,6 +83,18 @@ public:
 
 		scenes.push_back(new sceneClaquete(u, fbo));
 		scenesMap["claquete"] = scenes.back();
+
+		scenes.push_back(new sceneNo(u, fbo));
+		scenesMap["no"] = scenes.back();
+
+		scenes.push_back(new sceneGrad(u, fbo));
+		scenesMap["grad"] = scenes.back();
+		
+		scenes.push_back(new sceneRibbon(u, fbo));
+		scenesMap["ribbon"] = scenes.back();
+
+		scenes.push_back(new sceneText(u, fbo));
+		scenesMap["text"] = scenes.back();
 
 		for (auto & s : scenesMap) {
 			s.second->setup();

@@ -2,27 +2,20 @@ ofxMicroUI u;
 ofxMicroUI *ui = &u.uis["ui"];
 ofxMicroUI *uiC  = &u.uis["scene"];
 ofxMicroUI *uiColors  = &u.uis["colors"];
-
-ofxMicroUI *uiTex  = &u.uis["texture"];
-string & scene = ui->pString["scene"];
-//string scene = ui->pString["scene"];
-
 ofxMicroUISoftware soft;
 ofFbo * fbo = &soft.fbo;//
 ofFbo * fbo2 = &soft.fbo2;
 ofFbo * fbo3 = &soft.fbo3;
 
-
+ofxMicroUI *uiTex  = &u.uis["texture"];
+string & scene = ui->pString["scene"];
+ofxMicroUIRemote uiRemote;
 
 #ifdef USESYPHON
 ofxSyphonServer syphonOut;
 #endif
 
-// #include "polar.h"
 #include "DmtrCairo.h"
-// #include "tools.h"
-
-ofxMicroUIRemote uiRemote;
 
 int contagemRandomPreset = 0;
 
@@ -35,9 +28,13 @@ void remoteMessage(string & e) {
 			if (v == "r") {
 				string randomPresetString = ofToString(contagemRandomPreset);
 				contagemRandomPreset = (contagemRandomPreset+1)%10;
+//				u._settings->presetIsLoading = true;
 				u.presetElement->set(randomPresetString);
+//				u._settings->presetIsLoading = false;
 			} else {
+//				u._settings->presetIsLoading = true;
 				u.presetElement->set(v);
+//				u._settings->presetIsLoading = false;
 			}
 		}
 		else if (partes[1] == "f") {
@@ -85,9 +82,9 @@ void miawBg() {
 		}
 	}
 	else if (uiColors->pString["background"] == "black") {
-		uiColors->pColor["bg"] = ofColor(0);
-		ofClear(uiColors->pColorEasy["bg"]);
-		// ofClear(0,255);
+//		uiColors->pColor["bg"] = ofColor(0);
+//		ofClear(uiColors->pColorEasy["bg"]);
+		ofClear(0,255);
 	}
 	else if (uiColors->pString["background"] == "no" || uiColors->pString["background"] == "") {
 		ofClear(0,0);
@@ -96,6 +93,24 @@ void miawBg() {
 		ofClear(uiColors->pColorEasy["bgPalette"]);
 	}
 
+	else if (uiColors->pString["background"] == "gradpal") {
+		if (!useCairo) {
+			ofClear(0,0);
+			ofMesh fundoMesh;
+			fundoMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+			fundoMesh.addVertex(glm::vec3(0, 0, 0));
+			fundoMesh.addColor(uiColors->pColorEasy["bgPalette"]);
+			fundoMesh.addVertex(glm::vec3(fbo->getWidth(), 0, 0));
+			fundoMesh.addColor(uiColors->pColorEasy["bgPalette"]);
+			fundoMesh.addVertex(glm::vec3(0, fbo->getHeight(), 0));
+			fundoMesh.addColor(uiColors->pColorEasy["bgPalette2"]);
+			fundoMesh.addVertex(glm::vec3(fbo->getWidth(), fbo->getHeight(), 0));
+			fundoMesh.addColor(uiColors->pColorEasy["bgPalette2"]);
+			fundoMesh.draw();
+		} else {
+			
+		}
+	}
 
 	// 	if (uiColors->pBool["useBg2"]) {
 
@@ -114,6 +129,7 @@ void beginMiaw(bool background = true) {
 	if (background) {
 		if (useCairo) {
 			beginCairo();
+//			ofGetCurrentRenderer()->clearAlpha();
 			miawBg();
 			startCairoBlendingMode();
 		} else {
@@ -122,8 +138,8 @@ void beginMiaw(bool background = true) {
 			}
 			startBlendingMode();
 		}
-		ofSetLineWidth(ui->pEasy["lineWidth"]);
 	}
+	ofSetLineWidth(ui->pEasy["lineWidth"]);
 }
 
 void endMiaw() {

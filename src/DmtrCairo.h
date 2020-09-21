@@ -20,42 +20,43 @@ void setupCairo(int w, int h) {
 string savingCairoFilename = "";
 void beginCairo() {
 	if (cairoIsSetup) {
-	if (savingCairo) {
-		cout << "SAVINGCAIRO!" << endl;
-#ifdef SVGCAIRO
-		ofRectangle rect = ofRectangle(0,0,fbo->getWidth(), fbo->getHeight());
-		savingCairoFilename = "_output/syntype_"+ofGetTimestampString()+".svg";
-		cout << "SAVING " << savingCairoFilename << endl;
-		cairoOut->setup(savingCairoFilename, ofCairoRenderer::SVG, false, false, rect);
-		ofSetCurrentRenderer(cairoOut);
-		ofGetCurrentRenderer()->setupGraphicDefaults();
-#endif
-	} else {
-		
-		ofSetCurrentRenderer(cairo);
-		ofGetCurrentRenderer()->setupGraphicDefaults();
-		ofStyle style = ofGetCurrentRenderer()->getStyle();
-		ofGetCurrentRenderer()->setStyle(style);
-		cairo_set_miter_limit(cairo->getCairoContext(), 2);
-		cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
-		cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_ROUND); /* default */  // ROUND SQUARE
-		
-		if (ui->pBool["cairoStroked"]) {
-			static const double dashes[] = { 100.0,  /* ink */
-				40.0,  /* skip */
-				20.0,  /* ink */
-				40.0   /* skip*/
-			};
-			int    ndash  = sizeof (dashes)/sizeof(dashes[0]);
-			double offset = -50.0;
-			cairo_set_dash(cairo->getCairoContext(), dashes, ndash, offset);
+		if (savingCairo) {
+			cout << "SAVINGCAIRO!" << endl;
+	#ifdef SVGCAIRO
+			ofRectangle rect = ofRectangle(0,0,fbo->getWidth(), fbo->getHeight());
+			savingCairoFilename = "_output/syntype_"+ofGetTimestampString()+".svg";
+			cout << "SAVING " << savingCairoFilename << endl;
+			cairoOut->setup(savingCairoFilename, ofCairoRenderer::SVG, false, false, rect);
+			ofSetCurrentRenderer(cairoOut);
+			ofGetCurrentRenderer()->setupGraphicDefaults();
+	#endif
 		} else {
-			static const double nodash[] = { 0.0 };
-			cairo_set_dash(cairo->getCairoContext(), nodash, 0, 0);
+			
+			ofSetCurrentRenderer(cairo);
+			ofGetCurrentRenderer()->setupGraphicDefaults();
+			ofStyle style = ofGetCurrentRenderer()->getStyle();
+			ofGetCurrentRenderer()->setStyle(style);
+			cairo_set_miter_limit(cairo->getCairoContext(), 2);
+			cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+			cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_ROUND); /* default */  // ROUND SQUARE
+			
+			if (ui->pBool["cairoStroked"]) {
+				static const double dashes[] = { 100.0,  /* ink */
+					40.0,  /* skip */
+					20.0,  /* ink */
+					40.0   /* skip*/
+				};
+				int    ndash  = sizeof (dashes)/sizeof(dashes[0]);
+				double offset = -50.0;
+				cairo_set_dash(cairo->getCairoContext(), dashes, ndash, offset);
+			} else {
+				static const double nodash[] = { 0.0 };
+				cairo_set_dash(cairo->getCairoContext(), nodash, 0, 0);
+			}
+
+			cairo->clearAlpha();
 		}
-		cairo->clearAlpha();
-	}
-	ofPushMatrix();
+		ofPushMatrix();
 	}
 }
 

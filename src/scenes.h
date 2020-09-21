@@ -122,11 +122,14 @@ public:
 	ofxSVG svg;
 	string loadedFile = "";
 	vector<ofPolyline> outlines;
-
-	void setup() override {
-
-	}
 	
+	glm::vec2 positions[9] = { glm::vec2(0,0) };
+	ofFbo fboSvg;
+
+//#include "DmtrCairo.h"
+	
+	void setup() override {
+	}
 	
 	void draw() override {
 		checkSetup();
@@ -137,23 +140,78 @@ public:
 		// svg.draw();
 		float scale = uiC->pEasy["scaleSvg"];
 		if (scale > 0) {
-			ofScale(scale, scale);
+		} else {
+			scale = uiC->pEasy["scaleSvg"] = uiC->pFloat["scaleSvg"];
 		}
+		ofScale(scale, scale);
 //		 cout << scale << endl;
-		
+
+		ofRotateDeg(uiC->pEasy["rot"]);
+		float offX = fmod(incrementa("velX"), svg.getWidth());
+		float offY = fmod(incrementa("velY"), svg.getHeight());
+
+		ofTranslate(uiC->pEasy["offX"] + offX, uiC->pEasy["offY"] + offY);
+
+		if (uiC->pBool["pattern"]) {
+			
+//			if (fboSvg.isAllocated()) {
+//				cout << "allocated" << endl;
+//			} else {
+//				cout << "not allocated" << endl;
+//			}
+//			fboSvg.begin();
+//			ofClear(ofColor(0,0));
+//			ofClear(255, 0, 0);
+			
+//			beginCairo();
+//			svgDraw();
+//			ofDrawLine(0,0,300,300);
+//			endCairo();
+//			fboSvg.end();
+			
+//			ofSetColor(255);
+			
+//			float spaceX = uiC->pEasy["spaceX"];
+//			float spaceY = uiC->pEasy["spaceY"];
+
+//			ofRectangle rect = ofRectangle(0,0, fboSvg.getWidth() * scale, fboSvg.getHeight() * scale);
+
+			for (int x=-1; x<1; x++) {
+				for (int y=-1; y<1; y++) {
+					float xx = x * fboSvg.getWidth() * scale;
+					float yy = y * fboSvg.getHeight() * scale;
+//					cout << xx << endl;
+//					cout << yy << endl;
+//					cout << "-----" << endl;
+//					void ofTexture::drawSubsection(const ofRectangle &drawBounds, const ofRectangle &subsectionBounds)
+//					fboSvg.getTexture().drawSubsection(rect, rect);
+					
+//					fboSvg.draw(xx, yy);
+					ofPushMatrix();
+					ofTranslate((x) * svg.getWidth(), (y) * svg.getHeight());
+//					fbo.draw(0,0);
+					svgDraw();
+					ofPopMatrix();
+				}
+			}
+		} else {
+			svgDraw();
+		}
+//		ofScale(1.0, 1.0);
+	}
+
+	void svgDraw() {
 		int i = 0;
+
 		for (auto & p : outlines) {
 			float n = ofNoise(ofGetElapsedTimef() * uiC->pFloat["tempoNoise"], i * uiC->pFloat["pathNoise"]);
 			if (n > uiC->pEasy["drawLimite"]) {
-			// if (ofRandom(0,1) > .5) {
 				ofSetColor(ofMap(n, uiC->pEasy["drawLimite"], 1, 0, 255 ));
-				
 				ofSetColor(getColor(ofMap(n, uiC->pEasy["drawLimite"], 1, 0, 1 ), uiColors));
 				p.draw();
 			}
 			i++;
 		}
-//		ofScale(1.0, 1.0);
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
@@ -161,9 +219,13 @@ public:
 		if (e.name == "svg") {
 			if (*e.s != "") {
 				string file = ((ofxMicroUI::dirList*)&e)->getFileName();
-				cout << file << endl;
 				if (loadedFile != file && ofFile::doesFileExist(file)) {
+					cout << "SVG LOADED!" << file << endl;
+
 					svg.load(file);
+					fboSvg.allocate(svg.getWidth(), svg.getHeight(), GL_RGBA);
+//					setupCairo(svg.getWidth(), svg.getHeight());
+					
 					loadedFile = file;
 					outlines.clear();
 					for (ofPath p: svg.getPaths()){
@@ -243,14 +305,15 @@ public:
 	
 	void draw() override {
 		checkSetup();
-		if (i->isAllocated()) {
-			ofSetColor(255);
-			if (uiC->pBool["useTexture"]) {
-				drawTexture();
-			}
-			else {
-				for (string & index : indices) {
-					i = index == "" ? &uiC->pImage["image"] : &uiC->pImage["image2"];
+
+		ofSetColor(255);
+		if (uiC->pBool["useTexture"]) {
+			drawTexture();
+		}
+		else {
+			for (string & index : indices) {
+				i = index == "" ? &uiC->pImage["image"] : &uiC->pImage["image2"];
+				if (uiC->pBool["ok" + index] && i->isAllocated()) {
 					// string index = "";
 					float scale = uiC->pEasy["scale" + index];
 					float iw = i->getWidth() * scale;
@@ -262,7 +325,7 @@ public:
 					int vx = fbo->getWidth() / iwMargin;
 					int vy = fbo->getHeight() / ihMargin;
 					int total = vx * vy;
-					int i = 0;
+					int imageNumber = 0;
 					float rot = uiC->pEasy["rot"+ index] + incrementa("rotTime"+ index);
 
 					float offX = fmod(incrementa("velX" + index), iwMargin) - iwMargin *.5;
@@ -270,21 +333,24 @@ public:
 
 					for (int x = -1; x<= (vx+1); x++) {
 						for (int y = -1; y<= (vy+1); y++) {
-							ofSetColor(getColor(i/(float)total, uiColors));
-							ofPushMatrix();
-							ofTranslate(
-								x * iwMargin + iwMargin * .5 + offX, 
-								y * ihMargin + ihMargin * .5 + offY
-							);
-							ofRotateDeg(rot);
-							uiC->pImage["image"+ index].draw(-iw*.5, -ih * .5, iw, ih);
-							ofPopMatrix();
-							i++;
+							if ((x+y)%2 || !uiC->pBool["impar"]) {
+								ofSetColor(getColor(imageNumber/(float)total, uiColors));
+								ofPushMatrix();
+								ofTranslate(
+									x * iwMargin + iwMargin * .5 + offX, 
+									y * ihMargin + ihMargin * .5 + offY
+								);
+								ofRotateDeg(rot);
+								uiC->pImage["image"+ index].draw(-iw*.5, -ih * .5, iw, ih);
+								ofPopMatrix();
+								imageNumber++;
+							}
 						}
 					}
 				}
 			}
 		}
+
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
@@ -381,14 +447,17 @@ public:
 
 			ofVboMesh mesh;
 			ofPlanePrimitive plane;
+		
+		float raio, raio2;
 
 		confetti(int i, ofRectangle * r, float * v, float * vx) : index(i), rect(r), vel(v), velX(vx) {
 			mult = ofRandom(.1, 2.0);
 			pos = glm::vec2(ofRandom(rect->x, rect->width), ofRandom(rect->y, rect->height));
 			// float raio = mult*11.0;
 			// objeto = ofRectangle(-raio, -raio, raio*2.0, raio*2.0);
-			float raio = mult*11.0;
-			float raio2 = raio * ofRandom(.2, .8);
+			raio = mult*11.0;
+//			raio2 = raio * ofRandom(.2, .8);
+			raio2 = raio * .33;
 			objeto = ofRectangle(-raio*.5, -raio2*.5, raio*2, raio2*2.0);
 
 
@@ -429,19 +498,7 @@ public:
 				pos.x = rect->width;
 			}
 
-			ofPushMatrix();
-			ofTranslate(pos);
-			ofRotateXDeg(rot.x);
-			ofRotateYDeg(rot.y);
-			ofRotateZDeg(rot.z);
 
-			// if (uiC->pBool["mesh"]) {
-				mesh.draw();
-			// } else {
-				// ofDrawRectangle(objeto);
-			// }
-
-			ofPopMatrix();
 		}
 	};
 
@@ -450,7 +507,7 @@ public:
 	int margem = 100;
 	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
 	void setup() override {
-		for (auto a=0; a<2600; a++) {
+		for (auto a=0; a<3600; a++) {
 			confettis.push_back(confetti(a, &boundsRect, &vel, &velX));
 		}
 	}
@@ -463,16 +520,34 @@ public:
 		vel = uiC->pEasy["vel"];
 		velX = uiC->pEasy["velX"];
 		ofSetColor(255);
+		float scale = uiC->pEasy["scale"];
 		for (auto & c : confettis) {
-			if (uiC->pInt["colorMode"] == 0) {
-				ofSetColor(getColor(c.mult, uiColors));
-			} else if (uiC->pInt["colorMode"] == 1) {
-				ofSetColor(getColor(ofRandom(0,1), uiColors));
-			} else if (uiC->pInt["colorMode"] == 2) {
-				float n = ofNoise(incrementa("tempoColor"), c.mult, c.pos.x * .1);
-				ofSetColor(getColor(n, uiColors));
+			if (c.index < uiC->pEasy["numero"]) {
+				if (uiC->pInt["colorMode"] == 0) {
+					ofSetColor(getColor(c.mult, uiColors));
+				} else if (uiC->pInt["colorMode"] == 1) {
+					ofSetColor(getColor(ofRandom(0,1), uiColors));
+				} else if (uiC->pInt["colorMode"] == 2) {
+					float n = ofNoise(incrementa("tempoColor"), c.mult, c.pos.x * .1);
+					ofSetColor(getColor(n, uiColors));
+				}
+				
+				c.draw();
+				
+				ofPushMatrix();
+				ofTranslate(c.pos);
+				ofRotateXDeg(c.rot.x);
+				ofRotateYDeg(c.rot.y);
+				ofRotateZDeg(c.rot.z);
+
+				 if (uiC->pBool["circle"]) {
+					ofDrawCircle(0, 0, c.raio*scale, c.raio*scale);
+				 } else {
+					c.mesh.draw();
+				 }
+
+				ofPopMatrix();
 			}
-			c.draw();
 		}
 	}
 	
@@ -513,14 +588,13 @@ public:
 				ofRotateYDeg(rot.y);
 				ofRotateZDeg(rot.z);
 				if (tipo == 0) {
-					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*1.5)), 0, 1, 5, 0);
-					rot.y += 3;
+					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*3)), 0, 1, 5, 0);
+					rot.y += 2.5;
 					cone.draw();
 				}
 				else if (tipo == 1) {	
-					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*2)), 0, 1, 5, 0);
+					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*5)), 0, 1, 5, 0);
 					// rot.y = ofMap(sin(ofGetElapsedTimef()*.2),0, 1, 0, 90);
-
 					rot.x += .3;
 					rot.y += .4;
 					rot.z += .5;
@@ -584,6 +658,209 @@ public:
 };
 
 
+struct sceneText : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	
+	ofTrueTypeFont font;
+	ofFbo fboText;
+
+	void setup() override {
+		fboText.allocate(200,600, GL_RGBA);
+		fboText.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+		font.load("_ui/mono08_55.ttf", 8);
+	}
+	
+	void draw() override {
+		checkSetup();
+		ofSetColor(getColor(0, uiColors));
+		// ofDrawBitmapString(uiC->pText["text"], 20, 20);
+		fboText.begin();
+		ofClear(0,0);
+		font.drawString(uiC->pText["text"], 4, 16);
+		fboText.end();
+
+		int vezes = uiC->pInt["vezes"];
+		fboText.draw(0,0,fboText.getWidth() * vezes, fboText.getHeight() * vezes);
+
+		// cout << uiC->pText["text"] << endl;
+		// ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+	}
+};
+
+
+
+struct sceneNo : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	
+	void setup() override {
+	}
+	
+	void draw() override {
+		checkSetup();
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+	}
+};
+
+
+
+// TENTEI PORTAR mas nao funciona ainda nao sei porque
+struct sceneRibbon : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+
+	ofImage * ribbon1;
+	ofImage * ribbon2;
+	
+	void setup() override {
+		ofDisableArbTex();
+		//	ribbon1.loadImage("ribbon.jpg");
+		// ribbon1.loadImage("ribbon_texture1.tiff");
+		// ribbon2.loadImage("ribbon_texture2.tiff");
+	}
+	
+	void draw() override {
+		checkSetup();
+
+		ribbon1 = &uiC->pImage["tex1"];
+		ribbon2 = &uiC->pImage["tex2"];
+		ribbon1->getTexture().setTextureWrap( GL_REPEAT, GL_REPEAT );
+		ribbon2->getTexture().setTextureWrap( GL_REPEAT, GL_REPEAT );
+
+		ofMesh mesh2;
+//		mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+		
+		int ww = uiC->pEasy["maxX"];
+		int hh = uiC->pEasy["maxY"];
+		for (int y=0; y<hh; y++) {
+			for (int x=0; x<ww; x++) {
+
+				ofVec3f ponto = ofVec3f(x, y, 0);
+
+				// cout << ponto << endl;
+				ofVec3f ponto2 = ponto.getRotated(y * uiC->pEasy["multZ"], ofVec3f(0,0,1));
+				ofVec3f ponto3 = ponto2.getRotated(y * uiC->pEasy["multY"], ofVec3f(0,1,0));
+				ofVec3f ponto4 = ponto3.getRotated(y * uiC->pEasy["multX"], ofVec3f(1,0,0));
+
+				mesh2.addVertex(ponto4 * uiC->pEasy["multiplicador"]);
+				mesh2.addTexCoord(ofVec2f(y, x / (float)ww));
+
+				mesh2.addIndex(x+y*ww);				// 0
+				if (x<ww-1)
+					mesh2.addIndex((x+1)+y*ww);			// 1
+				if (y<hh-1)
+					mesh2.addIndex(x+(y+1)*ww);			// 10
+
+				if (x<ww-1)
+					mesh2.addIndex((x+1)+y*ww);			// 1
+				if (x<ww-1 && y<hh-1)
+					mesh2.addIndex((x+1)+(y+1)*ww);		// 11
+				if (y<hh-1)
+					mesh2.addIndex(x+(y+1)*ww);			// 10
+				
+
+
+			}
+		}
+		
+		mesh2.enableTextures();
+
+		glCullFace(GL_FRONT);
+		glEnable(GL_CULL_FACE);
+
+		if (uiC->pBool["useTex"]) {
+			ribbon1->getTexture().bind();
+		}
+		if (uiC->pString["draw"] == "wire") {
+			mesh2.drawWireframe();
+		}
+		if (uiC->pString["draw"] == "faces") {
+			mesh2.drawFaces();
+		}
+		if (uiC->pString["draw"] == "points") {
+			mesh2.draw(OF_MESH_POINTS);
+		}
+		if (uiC->pBool["useTex"]) {
+			ribbon1->getTexture().unbind();
+		}
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_CULL_FACE);
+		
+		
+		glCullFace(GL_BACK);
+		glEnable(GL_CULL_FACE);
+		if (uiC->pBool["useTex"]) {
+			ribbon2->getTexture().bind();
+		}
+
+		if (uiC->pString["draw"] == "wire") {
+			mesh2.drawWireframe();
+		}
+		if (uiC->pString["draw"] == "faces") {
+			mesh2.drawFaces();
+		}
+		if (uiC->pString["draw"] == "points") {
+			mesh2.draw(OF_MESH_POINTS);
+		}
+
+		if (uiC->pBool["useTex"]) {
+			ribbon2->getTexture().bind();
+		}
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_CULL_FACE);		
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+	}
+};
+
+
+
+
+struct sceneGrad : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	
+	ofMesh fundoMesh;
+
+	void setup() override {
+		fundoMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+	}
+	
+	void draw() override {
+		checkSetup();
+		int paletteSize = ((ofxMicroUI::colorPalette*)uiColors->getElement("colorPalette"))->getPaletteSize();
+		fundoMesh.clear();
+		for (int p=0; p<=paletteSize; p++) {
+			float y = ofMap(p, 0, paletteSize, 0, fbo->getHeight());
+			ofColor color = ((ofxMicroUI::colorPalette*)uiColors->getElement("colorPalette"))->getColorByIndex(p);
+			// cout << y << endl;
+			fundoMesh.addVertex(glm::vec3(0, y, 0));
+			fundoMesh.addColor(color);
+			fundoMesh.addVertex(glm::vec3(fbo->getWidth(), y, 0));
+			fundoMesh.addColor(color);
+		}
+		// fundoMesh.addVertex(glm::vec3(0, 0, 0));
+		// fundoMesh.addColor(uiColors->pColorEasy["bg"]);
+		// fundoMesh.addVertex(glm::vec3(fbo->getWidth(), 0, 0));
+		// fundoMesh.addColor(uiColors->pColorEasy["bg"]);
+		// fundoMesh.addVertex(glm::vec3(0, fbo->getHeight(), 0));
+		// fundoMesh.addColor(uiColors->pColorEasy["bg2"]);
+		// fundoMesh.addVertex(glm::vec3(fbo->getWidth(), fbo->getHeight(), 0));
+		// fundoMesh.addColor(uiColors->pColorEasy["bg2"]);
+		fundoMesh.draw();
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+	}
+};
+
 struct sceneClaquete : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
@@ -602,6 +879,7 @@ public:
 		
 		fboText.begin();
 		ofClear(0,0);
+		ofSetColor(getColor(ofRandom(0,1), uiColors));
 		ofSetColor(getColor(0, uiColors));
 //		cout <<  << endl;
 		ofDrawBitmapString("OK Dmtr.org\n" + uiC->pString["text"], 4, 18);
