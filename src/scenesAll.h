@@ -3407,10 +3407,7 @@ public:
 #ifdef USEASSIMP
 struct sceneModel : public sceneDmtr {
 public:
-
 	// neue
-
-	
 //	shared_ptr<ofShader>	mShdInstanced;
 //	ofTexture	mTexDepth;
 
@@ -3418,6 +3415,13 @@ public:
 	using sceneDmtr::sceneDmtr;
 	string loadedFile = "";
 	ofxAssimpModelLoader model;
+	ofxAssimpModelLoader * _model = NULL;
+
+
+	// vector <ofxAssimpModelLoader *> models;
+	// map <string, ofxAssimpModelLoader*> modelMap;
+	map <string, ofxAssimpModelLoader> modelMap;
+
 	ofMesh mesh;
 	vector <ofVboMesh> meshes;
 
@@ -3425,10 +3429,23 @@ public:
 	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
 
 	void setup() override {
-
+		ofDirectory dir;
+		dir.allowExt("dae");
+		dir.listDir("_model");
+		dir.sort();
+		cout << "SETUP SCENEMODEL =============" << endl;
+		for (auto & d : dir) {
+			// cout << d.getBaseName() << endl;
+			string name = d.getFileName();
+			cout << name << endl;
+			modelMap[name].loadModel("_model/" + d.getFileName(), false);
+			modelMap[name].setLoopStateForAllAnimations(OF_LOOP_NORMAL);
+			modelMap[name].playAllAnimations();
+			modelMap[name].disableColors();
+			modelMap[name].disableMaterials();
+		}
 //		mShdInstanced = shared_ptr<ofShader>(new ofShader());
 //		mShdInstanced->load("_instanced/instanced_120.vert", "_instanced/instanced_120.frag");
-
 	}
 	
 	void updateMeshes() {
@@ -3439,9 +3456,10 @@ public:
 	}
 
 	void drawModel() {
-
 		if (uiC->pBool["drawModel"]) {
-			model.drawFaces();
+			_model->drawFaces();
+			// modelMap[uiC->pString["model"]].drawFaces();
+			// model.drawFaces();
 		}	
 		else {
 			if (uiC->pBool["meshesEveryFrame"]) {
@@ -3480,8 +3498,12 @@ public:
 		ofSetColor(255);
 		ofEnableDepthTest();
 		float scale = uiC->pEasy["scale"];
-		model.setScale(scale, scale, scale);
-		model.update();
+		// model.setScale(scale, scale, scale);
+		// model.update();
+		_model->setScale(scale, scale, scale);
+		_model->update();
+
+
 
 		if (!uiC->pEasy["spaceX"]) {
 			uiC->pEasy["spaceX"] = uiC->pFloat["spaceX"];
@@ -3541,23 +3563,26 @@ public:
 		}
 
 		if (e.name == "model") {
-			if (*e.s != "") {
-				string file = ((ofxMicroUI::dirList*)&e)->getFileName();
-				if (loadedFile != file && ofFile::doesFileExist(file)) {
-					loadedFile = file;
-					
-					model.loadModel(file, false);
-					// model.setPosition(middle.x, middle.y , 0);
-					model.setLoopStateForAllAnimations(OF_LOOP_NORMAL);
-					model.playAllAnimations();
-
-					// model.setPositionForAllAnimations(ofRandom(0,1));
-					model.disableColors();
-					model.disableMaterials();
-					updateMeshes();
-				}
-			}
+			_model = &modelMap[*e.s];
 		}
+		// if (e.name == "model") {
+		// 	if (*e.s != "") {
+		// 		string file = ((ofxMicroUI::dirList*)&e)->getFileName();
+		// 		if (loadedFile != file && ofFile::doesFileExist(file)) {
+		// 			loadedFile = file;
+					
+		// 			model.loadModel(file, false);
+		// 			// model.setPosition(middle.x, middle.y , 0);
+		// 			model.setLoopStateForAllAnimations(OF_LOOP_NORMAL);
+		// 			model.playAllAnimations();
+
+		// 			// model.setPositionForAllAnimations(ofRandom(0,1));
+		// 			model.disableColors();
+		// 			model.disableMaterials();
+		// 			updateMeshes();
+		// 		}
+		// 	}
+		// }
 	}
 };
 

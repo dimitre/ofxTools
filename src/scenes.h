@@ -658,56 +658,6 @@ public:
 };
 
 
-struct sceneText : public sceneDmtr {
-public:
-	using sceneDmtr::sceneDmtr;
-	
-	ofTrueTypeFont font;
-	ofFbo fboText;
-
-	void setup() override {
-		fboText.allocate(200,600, GL_RGBA);
-		fboText.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
-		font.load("_ui/mono08_55.ttf", 8);
-	}
-	
-	void draw() override {
-		checkSetup();
-		ofSetColor(getColor(0, uiColors));
-		// ofDrawBitmapString(uiC->pText["text"], 20, 20);
-		fboText.begin();
-		ofClear(0,0);
-		font.drawString(uiC->pText["text"], 4, 16);
-		fboText.end();
-
-		int vezes = uiC->pInt["vezes"];
-		fboText.draw(0,0,fboText.getWidth() * vezes, fboText.getHeight() * vezes);
-
-		// cout << uiC->pText["text"] << endl;
-		// ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
-	}
-	
-	void uiEvents(ofxMicroUI::element & e) override {
-	}
-};
-
-
-
-struct sceneNo : public sceneDmtr {
-public:
-	using sceneDmtr::sceneDmtr;
-	
-	void setup() override {
-	}
-	
-	void draw() override {
-		checkSetup();
-	}
-	
-	void uiEvents(ofxMicroUI::element & e) override {
-	}
-};
-
 
 
 // TENTEI PORTAR mas nao funciona ainda nao sei porque
@@ -819,6 +769,173 @@ public:
 	void uiEvents(ofxMicroUI::element & e) override {
 	}
 };
+
+
+
+
+//struct sceneNav : public sceneDmtr {
+//public:
+//	using sceneDmtr::sceneDmtr;
+//	
+//
+//	struct nav {
+//		public:
+//
+//		glm::vec3 pos = glm::vec3(0,0,0);
+//		glm::vec3 vertices[20] = { glm::vec3(0,0,0) };
+//		
+////		ofMesh mesh;
+//		nav() {
+////			mesh.setMode(OF_PRIMITIVE_LINES);
+////			mesh.disableColors();
+//		}
+//
+//		int cursor = 0;
+//
+////		ofPolyline poly;
+//		
+//		void draw() {
+////	        glm::vec4 Position = glm::vec4(pos, 1.0f);
+////			float angle = ofDegToRad(ofRandom(-3, 3));
+////			glm::mat4 Rot = glm::rotate(glm::mat4(1.0f), (angle), glm::vec3(0.0, 1.0, 0.0));
+////        	glm::mat4 Model = glm::translate(
+////            		    glm::mat4(1.0f), glm::vec3(0, 1.0f, 1.0f));
+////			glm::vec4 Transformed = Model * Rot * Position;
+////			pos = glm::vec3(Transformed) / Transformed[3];
+////			pos = glm::vec3(0.0f);
+////			vertices[cursor%20] = pos;
+//////			cout << pos << endl;
+////
+////			poly.clear();
+//////			mesh.clear();
+////			for (int a=0; a<20; a++) {
+////				int index = (a + cursor) % 20;
+////				poly.addVertex(vertices[index]);
+////			}
+//////			if (cursor > 20)
+////			{
+//////				mesh.drawWireframe();
+////				poly.draw();
+////			}
+////			cursor ++;
+//		}
+//	};
+//
+//	nav navs[5] = { nav() };
+//
+//	void setup() override {
+//	}
+//	
+//	void draw() override {
+//		checkSetup();
+//
+//		ofSetColor(getColor(0, uiColors));
+//		for (auto & n : navs) {
+//			n.draw();
+//		}
+//		// ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
+//	}
+//	
+//	void uiEvents(ofxMicroUI::element & e) override {
+//	}
+//};
+//
+
+
+
+
+struct sceneRandom : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	
+	void setup() override {
+	}
+	
+	void draw() override {
+		checkSetup();
+		for (int a=0; a<uiC->pInt["numero"]; a++) {
+			float x = ofRandom(0,fbo->getWidth());
+			float y = ofRandom(0,fbo->getHeight());
+			float w = ofRandom(0,fbo->getWidth()*.5);
+			float h = ofRandom(0,fbo->getHeight()*.5);
+			ofSetColor(getColor(ofRandom(0,1), uiColors));
+			ofDrawRectangle(x, y, w, h);
+
+		}
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+	}
+};
+
+
+
+
+struct sceneText : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	
+	ofTrueTypeFont font;
+	ofFbo fboText;
+
+	void setup() override {
+		fboText.allocate(300,600, GL_RGBA);
+		fboText.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+		font.load("_ui/mono08_55.ttf", 7);
+	}
+	
+	void draw() override {
+		checkSetup();
+		ofSetColor(getColor(0, uiColors));
+		// ofDrawBitmapString(uiC->pText["text"], 20, 20);
+		fboText.begin();
+		ofClear(0,0);
+		
+		string s = uiC->pBool["upper"] ? ofToUpper(uiC->pText["text"]) : uiC->pText["text"];
+		uiC->pFont["font"].drawString(s, 4, 16);
+//		font.drawString(uiC->pText["text"], 4, 16);
+		fboText.end();
+
+		int vezes = uiC->pInt["vezes"];
+		fboText.draw(0,0,fboText.getWidth() * vezes, fboText.getHeight() * vezes);
+
+
+		// cout << uiC->pText["text"] << endl;
+		// ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "fontSize") {
+			ofxMicroUI::fontList * _f = ((ofxMicroUI::fontList*)uiC->getElement("font"));
+			if (_f != NULL) {
+				((ofxMicroUI::fontList*)uiC->getElement("font"))->size = *e.i;
+				((ofxMicroUI::fontList*)uiC->getElement("font"))->reload();
+			}
+			// font.load("_ui/mono08_55.ttf", *e.i);
+		}
+	}
+};
+
+
+
+struct sceneNo : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	
+	void setup() override {
+	}
+	
+	void draw() override {
+		checkSetup();
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+	}
+};
+
+
+
+
 
 
 

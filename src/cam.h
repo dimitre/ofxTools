@@ -423,8 +423,6 @@ void end3d0() {
 
 
 
-
-
 void begin3d() {
 //	glShadeModel(uiLuz->pBool["shadeFlat"] ? GL_FLAT : GL_SMOOTH);
 	pointsPerMeter = uiCam->pFloat["pointsPerMeter"];

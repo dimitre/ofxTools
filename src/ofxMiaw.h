@@ -58,8 +58,8 @@ public:
 		scenes.push_back(new sceneModel(u, fbo));
 		scenesMap["model"] = scenes.back();
 		
-		scenes.push_back(new sceneModel(u, fbo));
-		scenesMap["model2"] = scenes.back();
+		// scenes.push_back(new sceneModel(u, fbo));
+		// scenesMap["model2"] = scenes.back();
 #endif
 
 		scenes.push_back(new sceneImage(u, fbo));
@@ -95,6 +95,12 @@ public:
 
 		scenes.push_back(new sceneText(u, fbo));
 		scenesMap["text"] = scenes.back();
+
+		scenes.push_back(new sceneRandom(u, fbo));
+		scenesMap["random"] = scenes.back();
+
+		scenes.push_back(new sceneNav(u, fbo));
+		scenesMap["nav"] = scenes.back();
 
 		for (auto & s : scenesMap) {
 			s.second->setup();
