@@ -180,7 +180,7 @@ void endMiaw() {
 
 void preSetupMiaw() {
 	
-	ofxMicroUI::expires(1598719562, 30);
+	ofxMicroUI::expires(1598719562, 60);
 	ofSetEscapeQuitsApp(false);
 	scenes.setup();
 

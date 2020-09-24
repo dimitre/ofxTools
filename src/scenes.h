@@ -119,16 +119,60 @@ public:
 struct sceneSvg : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	ofxSVG svg;
 	string loadedFile = "";
-	vector<ofPolyline> outlines;
+
+	// ofxSVG svg;
+	// vector<ofPolyline> outlines;
+	// ofFbo fboSvg;
 	
 	glm::vec2 positions[9] = { glm::vec2(0,0) };
-	ofFbo fboSvg;
+
+	struct svgPoly {
+		public:
+		ofxSVG svg;
+		vector<ofPolyline> outlines;
+		float offX = 0;
+		float offY = 0;
+
+		void load(string fileName) {
+			svg.load(fileName);
+			outlines.clear();
+			for (ofPath p: svg.getPaths()){
+				// svg defaults to non zero winding which doesn't look so good as contours
+				p.setPolyWindingMode(OF_POLY_WINDING_ODD);
+				const vector<ofPolyline>& lines = p.getOutline();
+				for(const ofPolyline & line: lines){
+					outlines.push_back(line.getResampledBySpacing(1));
+				}
+			}
+		}
+
+		int getWidth() {
+			return svg.getWidth();
+		}
+
+		int getHeight() {
+			return svg.getHeight();
+		}
+	};
+
+	svgPoly * _svg = NULL;
+	map <string, svgPoly> svgMap;
+
 
 //#include "DmtrCairo.h"
 	
 	void setup() override {
+
+		ofDirectory dir;
+		dir.allowExt("svg");
+		dir.listDir("_svg");
+		dir.sort();
+		cout << "SETUP SCENESVG =============" << endl;
+		for (auto & d : dir) {
+			string name = d.getFileName();
+			svgMap[name].load("_svg/" + d.getFileName());
+		}
 	}
 	
 	void draw() override {
@@ -147,10 +191,18 @@ public:
 //		 cout << scale << endl;
 
 		ofRotateDeg(uiC->pEasy["rot"]);
-		float offX = fmod(incrementa("velX"), svg.getWidth());
-		float offY = fmod(incrementa("velY"), svg.getHeight());
+		// float offX = fmod(incrementa("velX"), svg.getWidth());
+		// float offY = fmod(incrementa("velY"), svg.getHeight());
+//		_svg->offX = fmod(incrementa("velX"), _svg->getWidth());
+//		_svg->offY = fmod(incrementa("velY"), _svg->getHeight());
 
-		ofTranslate(uiC->pEasy["offX"] + offX, uiC->pEasy["offY"] + offY);
+		
+		_svg->offX = fmod(_svg->offX + uiC->pEasy["velX"], _svg->getWidth());
+		_svg->offY = fmod(_svg->offY + uiC->pEasy["velY"], _svg->getHeight());
+
+		
+
+		ofTranslate(uiC->pEasy["offX"] + _svg->offX, uiC->pEasy["offY"] + _svg->offY);
 
 		if (uiC->pBool["pattern"]) {
 			
@@ -178,8 +230,8 @@ public:
 
 			for (int x=-1; x<1; x++) {
 				for (int y=-1; y<1; y++) {
-					float xx = x * fboSvg.getWidth() * scale;
-					float yy = y * fboSvg.getHeight() * scale;
+					float xx = x * _svg->getWidth() * scale;
+					float yy = y * _svg->getHeight() * scale;
 //					cout << xx << endl;
 //					cout << yy << endl;
 //					cout << "-----" << endl;
@@ -188,7 +240,7 @@ public:
 					
 //					fboSvg.draw(xx, yy);
 					ofPushMatrix();
-					ofTranslate((x) * svg.getWidth(), (y) * svg.getHeight());
+					ofTranslate((x) * _svg->getWidth(), (y) * _svg->getHeight());
 //					fbo.draw(0,0);
 					svgDraw();
 					ofPopMatrix();
@@ -203,7 +255,7 @@ public:
 	void svgDraw() {
 		int i = 0;
 
-		for (auto & p : outlines) {
+		for (auto & p : _svg->outlines) {
 			float n = ofNoise(ofGetElapsedTimef() * uiC->pFloat["tempoNoise"], i * uiC->pFloat["pathNoise"]);
 			if (n > uiC->pEasy["drawLimite"]) {
 				ofSetColor(ofMap(n, uiC->pEasy["drawLimite"], 1, 0, 255 ));
@@ -218,25 +270,26 @@ public:
 //		cout << e.name << endl;
 		if (e.name == "svg") {
 			if (*e.s != "") {
-				string file = ((ofxMicroUI::dirList*)&e)->getFileName();
-				if (loadedFile != file && ofFile::doesFileExist(file)) {
-					cout << "SVG LOADED!" << file << endl;
+				_svg = &svgMap[*e.s];
+// 				string file = ((ofxMicroUI::dirList*)&e)->getFileName();
+// 				if (loadedFile != file && ofFile::doesFileExist(file)) {
+// 					cout << "SVG LOADED!" << file << endl;
 
-					svg.load(file);
-					fboSvg.allocate(svg.getWidth(), svg.getHeight(), GL_RGBA);
-//					setupCairo(svg.getWidth(), svg.getHeight());
+// 					svg.load(file);
+// 					fboSvg.allocate(svg.getWidth(), svg.getHeight(), GL_RGBA);
+// //					setupCairo(svg.getWidth(), svg.getHeight());
 					
-					loadedFile = file;
-					outlines.clear();
-					for (ofPath p: svg.getPaths()){
-						// svg defaults to non zero winding which doesn't look so good as contours
-						p.setPolyWindingMode(OF_POLY_WINDING_ODD);
-						const vector<ofPolyline>& lines = p.getOutline();
-						for(const ofPolyline & line: lines){
-							outlines.push_back(line.getResampledBySpacing(1));
-						}
-					}
-				}
+// 					loadedFile = file;
+// 					outlines.clear();
+// 					for (ofPath p: svg.getPaths()){
+// 						// svg defaults to non zero winding which doesn't look so good as contours
+// 						p.setPolyWindingMode(OF_POLY_WINDING_ODD);
+// 						const vector<ofPolyline>& lines = p.getOutline();
+// 						for(const ofPolyline & line: lines){
+// 							outlines.push_back(line.getResampledBySpacing(1));
+// 						}
+// 					}
+// 				}
 			}
 		}
 	}
@@ -773,73 +826,76 @@ public:
 
 
 
-//struct sceneNav : public sceneDmtr {
-//public:
-//	using sceneDmtr::sceneDmtr;
-//	
+struct sceneNav : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	
+
+	struct nav {
+		public:
+
+		glm::vec3 pos = glm::vec3(0,0,0);
+		glm::vec3 vertices[20] = { glm::vec3(0,0,0) };
+		
+//		ofMesh mesh;
+		nav() {
+//			mesh.setMode(OF_PRIMITIVE_LINES);
+//			mesh.disableColors();
+		}
+
+		int cursor = 0;
+
+		ofPolyline poly;
+		
+		void draw() {
+	        glm::vec4 Position = glm::vec4(pos, 1.0f);
+			float angleX = ofDegToRad(ofRandom(-1, 1));
+			glm::mat4 Rot = glm::rotate(glm::mat4(1.0f), (angleX), glm::vec3(1.0, 0.0, 0.0));
+			float angleY = ofDegToRad(ofRandom(-1, 1));
+			glm::mat4 RotY = glm::rotate(glm::mat4(1.0f), (angleX), glm::vec3(0, 1.0, 0.0));
+			float angleZ = ofDegToRad(ofRandom(-1, 1));
+			glm::mat4 RotZ = glm::rotate(glm::mat4(1.0f), (angleX), glm::vec3(0.0, 0.0, 1.0));
+
+       		glm::mat4 Model = glm::translate( glm::mat4(1.0f), glm::vec3(0, 0.0f, 1.0f));
+			glm::vec4 Transformed = Position * Model * Rot * RotY * RotZ;
+			pos = glm::vec3(Transformed) / Transformed[3];
+			vertices[cursor%20] = pos;
+//			cout << pos << endl;
 //
-//	struct nav {
-//		public:
-//
-//		glm::vec3 pos = glm::vec3(0,0,0);
-//		glm::vec3 vertices[20] = { glm::vec3(0,0,0) };
-//		
-////		ofMesh mesh;
-//		nav() {
-////			mesh.setMode(OF_PRIMITIVE_LINES);
-////			mesh.disableColors();
-//		}
-//
-//		int cursor = 0;
-//
-////		ofPolyline poly;
-//		
-//		void draw() {
-////	        glm::vec4 Position = glm::vec4(pos, 1.0f);
-////			float angle = ofDegToRad(ofRandom(-3, 3));
-////			glm::mat4 Rot = glm::rotate(glm::mat4(1.0f), (angle), glm::vec3(0.0, 1.0, 0.0));
-////        	glm::mat4 Model = glm::translate(
-////            		    glm::mat4(1.0f), glm::vec3(0, 1.0f, 1.0f));
-////			glm::vec4 Transformed = Model * Rot * Position;
-////			pos = glm::vec3(Transformed) / Transformed[3];
-////			pos = glm::vec3(0.0f);
-////			vertices[cursor%20] = pos;
-//////			cout << pos << endl;
-////
-////			poly.clear();
-//////			mesh.clear();
-////			for (int a=0; a<20; a++) {
-////				int index = (a + cursor) % 20;
-////				poly.addVertex(vertices[index]);
-////			}
-//////			if (cursor > 20)
-////			{
-//////				mesh.drawWireframe();
-////				poly.draw();
-////			}
-////			cursor ++;
-//		}
-//	};
-//
-//	nav navs[5] = { nav() };
-//
-//	void setup() override {
-//	}
-//	
-//	void draw() override {
-//		checkSetup();
-//
-//		ofSetColor(getColor(0, uiColors));
-//		for (auto & n : navs) {
-//			n.draw();
-//		}
-//		// ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
-//	}
-//	
-//	void uiEvents(ofxMicroUI::element & e) override {
-//	}
-//};
-//
+			poly.clear();
+////			mesh.clear();
+			for (int a=0; a<20; a++) {
+				int index = (a + cursor) % 20;
+				poly.addVertex(vertices[index]);
+			}
+////			if (cursor > 20)
+//			{
+////				mesh.drawWireframe();
+				poly.draw();
+//			}
+			cursor ++;
+		}
+	};
+
+	nav navs[35] = { nav() };
+
+	void setup() override {
+	}
+	
+	void draw() override {
+		checkSetup();
+
+		ofSetColor(getColor(0, uiColors));
+		for (auto & n : navs) {
+			n.draw();
+		}
+		// ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+	}
+};
+
 
 
 
@@ -848,20 +904,42 @@ struct sceneRandom : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	
+	int margem = 500;
+	// boundsrect quadrado aqui.
+	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem*2, fbo->getWidth() + margem*2);
+	
 	void setup() override {
 	}
 	
 	void draw() override {
 		checkSetup();
-		for (int a=0; a<uiC->pInt["numero"]; a++) {
-			float x = ofRandom(0,fbo->getWidth());
-			float y = ofRandom(0,fbo->getHeight());
-			float w = ofRandom(0,fbo->getWidth()*.5);
-			float h = ofRandom(0,fbo->getHeight()*.5);
-			ofSetColor(getColor(ofRandom(0,1), uiColors));
-			ofDrawRectangle(x, y, w, h);
 
+		ofTranslate(fbo->getWidth()* .5 , fbo->getHeight()* .5);
+		ofRotateDeg(uiC->pEasy["rot"]);
+
+		float tx = incrementa("tempoX") / 100.0;
+		float ty = incrementa("tempoY") / 100.0;
+		ofSetRectMode(OF_RECTMODE_CENTER);
+		if (uiC->pBool["noise"]) {
+			for (int a=0; a<uiC->pFloat["numero"]; a++) {
+				float w = ofNoise(a * uiC->pEasy["noiseWA"], tx) * fbo->getWidth() * uiC->pEasy["w"];
+				float h = ofNoise(a * uiC->pEasy["noiseHA"], ty) * fbo->getHeight() * uiC->pEasy["h"];
+				float x = -fbo->getWidth()* .5 + boundsRect.x + ofNoise(a * uiC->pEasy["noiseXA"], tx) * boundsRect.width;
+				float y = -fbo->getHeight()* .5 + boundsRect.x + ofNoise(a * uiC->pEasy["noiseYA"], ty) * boundsRect.height;
+				ofSetColor(getColor(a * uiC->pEasy["aColor"] + uiC->pEasy["offColor"], uiColors));
+				ofDrawRectangle(x,y,w,h);
+			}
+		} else {
+			for (int a=0; a<uiC->pFloat["numero"]; a++) {
+				float x = -fbo->getWidth()* .5 + ofRandom(boundsRect.x, boundsRect.width);
+				float y = -fbo->getHeight()* .5 + ofRandom(boundsRect.x, boundsRect.width);
+				float w = ofRandom(0,fbo->getWidth()*.5);
+				float h = ofRandom(0,fbo->getHeight()*.5);
+				ofSetColor(getColor(ofRandom(0,1), uiColors));
+				ofDrawRectangle(x, y, w, h);
+			}
 		}
+		ofSetRectMode(OF_RECTMODE_CORNER);
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {

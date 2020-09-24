@@ -3588,48 +3588,48 @@ public:
 
 
 
-
-struct scenePrison : public sceneModel {
-public:
-	using sceneModel::sceneModel;
-
-	void draw() override {
-		ofSetColor(255);
-		ofSetLineWidth(uiC->pEasy["linewidth"]);
-		int numero = 0;
-		float aresta = uiC->pEasy["aresta"];
-		float limite = uiC->pInt["nx"] * aresta * .5;
-		
-		float w = uiC->pEasy["w"] * aresta;
-		float h = uiC->pEasy["h"] * aresta;
-		float d = uiC->pEasy["d"] * aresta;
-		
-		if (ui->pString["draw"] == "wire") {
-			ofNoFill();
-		} else {
-			ofFill();
-		}
-		
-		float total = uiC->pInt["nx"] * uiC->pInt["ny"];
-		
-		for (int a=0; a<uiC->pInt["nx"]; a++) {
-			for (int b=0; b<uiC->pInt["ny"]; b++) {
-				float x = ofMap(a, 0, uiC->pInt["nx"], -limite, limite);
-				float y = ofMap(b, 0, uiC->pInt["ny"], -limite, limite);
-				if (uiC->pBool["color"]) {
-					float hue = fmod(numero*uiC->pEasy["hueMult"] + uiC->pEasy["hue"], 255);
-					ofSetColor(ofColor::fromHsb(hue, uiC->pEasy["sat"], 255));
-				} else {
-					float n = (float)numero / total;
-					cout << n << endl;
-					ofSetColor(getColor(n, uiColors));
-				}
-				ofDrawBox(x, 0, y, w, h, d);
-				numero ++;
-			}
-		}
-	}
-};
+//
+//struct scenePrison : public sceneModel {
+//public:
+//	using sceneModel::sceneModel;
+//
+//	void draw() override {
+//		ofSetColor(255);
+//		ofSetLineWidth(uiC->pEasy["linewidth"]);
+//		int numero = 0;
+//		float aresta = uiC->pEasy["aresta"];
+//		float limite = uiC->pInt["nx"] * aresta * .5;
+//
+//		float w = uiC->pEasy["w"] * aresta;
+//		float h = uiC->pEasy["h"] * aresta;
+//		float d = uiC->pEasy["d"] * aresta;
+//
+//		if (ui->pString["draw"] == "wire") {
+//			ofNoFill();
+//		} else {
+//			ofFill();
+//		}
+//
+//		float total = uiC->pInt["nx"] * uiC->pInt["ny"];
+//
+//		for (int a=0; a<uiC->pInt["nx"]; a++) {
+//			for (int b=0; b<uiC->pInt["ny"]; b++) {
+//				float x = ofMap(a, 0, uiC->pInt["nx"], -limite, limite);
+//				float y = ofMap(b, 0, uiC->pInt["ny"], -limite, limite);
+//				if (uiC->pBool["color"]) {
+//					float hue = fmod(numero*uiC->pEasy["hueMult"] + uiC->pEasy["hue"], 255);
+//					ofSetColor(ofColor::fromHsb(hue, uiC->pEasy["sat"], 255));
+//				} else {
+//					float n = (float)numero / total;
+//					cout << n << endl;
+//					ofSetColor(getColor(n, uiColors));
+//				}
+//				ofDrawBox(x, 0, y, w, h, d);
+//				numero ++;
+//			}
+//		}
+//	}
+//};
 
 
 
@@ -3738,12 +3738,8 @@ void setupScenesAll() {
 	scenesMap["lines"] = scenes.back();
 
 #ifdef USEASSIMP
-	scenes.push_back(new sceneModel(u, fbo));
-	scenesMap["model"] = scenes.back();
-
-	scenes.push_back(new scenePrison(u, fbo));
-	scenesMap["prison"] = scenes.back();
-
+//	scenes.push_back(new scenePrison(u, fbo));
+//	scenesMap["prison"] = scenes.back();
 #endif
 
 }
