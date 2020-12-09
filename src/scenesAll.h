@@ -1,46 +1,132 @@
+struct sceneLiner : public sceneDmtr {
+public:
+	
+	using sceneDmtr::sceneDmtr;
+	
+	ofPolyline poly;
+	vector <glm::vec2> points;
+	
+	void setup() override {
+		poly.setClosed(false);
+	}
+
+	void draw() override {
+		checkSetup();
+
+		
+
+		
+		for (float a=0; a<uiC->pEasy["numLines"]; a++) {
+			ofSetLineWidth( a * uiC->pEasy["lineWidthA"] + ui->pEasy["lineWidth"]);
+			float qual = a / uiC->pEasy["numLines"];
+			ofSetColor(getColor(qual, uiColors));
+
+			
+			poly.clear();
+			points.clear();
+			
+			for (float i=0; i<uiC->pEasy["numero"]; i++) {
+				float x = ofMap(i,0, uiC->pEasy["numero"], 0, fbo->getWidth());
+				float y = ofMap(i,0, uiC->pEasy["numero"], uiC->pEasy["y"], uiC->pEasy["yX"] + a * uiC->pEasy["yAX"]);
+				y += a * uiC->pEasy["yA"];
+				for (int n=1; n<4; n++) {
+					string index = ofToString(n);
+					if (uiC->pBool["ok"+index]) {
+						// tmpVec.y += (ofNoise(x * p.noiseMult + offXTime, p.ny, p.easy)-.5) * p.my;
+//						cout << a * uiC->pEasy["noiseMult" + index] << endl;
+						float noise = i * uiC->pEasy["noiseMult" + index] + a * uiC->pEasy["noiseMultA"];
+//						cout << noise << endl;
+						
+						
+						y += ofNoise(noise, uiC->pEasy["velManual" + index]) * uiC->pEasy["multY" + index];
+					}
+				}
+				if (uiC->pBool["poly"]) {
+					if (i == 0) {
+						poly.lineTo(x,y);
+					} else {
+						poly.curveTo(x,y);
+					}
+				} else {
+					points.push_back(glm::vec2(x,y));
+				}
+//				poly.addVertex(x,y);
+			}
+			if (uiC->pBool["poly"]) {
+				poly.draw();
+			} else {
+				int pn = 0;
+				for (auto & p : points) {
+					float r = uiC->pEasy["raio"] + ofNoise(pn * uiC->pEasy["raioMult"] + a * uiC->pEasy["raioMultA"]) * uiC->pEasy["raioNoise"];
+					if (r > 0) {
+						ofDrawEllipse(p.x, p.y, r, r);
+					}
+					pn ++;
+				}
+			}
+		}
+
+		// densidade1
+		// densidadeX1
+		// densidadeA1
+
+		// densidade2
+		// densidadeX2
+		// densidadeA2
+
+		// densidade3
+		// densidadeX3
+		// densidadeA3
+
+		// y
+		// yX
+		// yA
+	}
+};
+
 
 struct sceneOcean : public sceneDmtr {
 public:
 	ofVboMesh mesh;
 	int width = 105;
 	float multiplicador = 0.4;
-
+	
+	struct param {
+	public:
+		float signal = 1;
+		float noiseMult;
+		float multY;
+		float easy;
+		float ny;
+		float my;
+		string i;
+		bool ok = false;
+//		param();
+	};
+	
+	param params[4];
+	float hashValuesX[200];
+	float updown = 0;
+	
 	using sceneDmtr::sceneDmtr;
+	
+
+	
 	
 	void addNormals() {
 		for( int i=0; i < mesh.getVertices().size(); i++ ) mesh.addNormal(glm::vec3(0,0,0));
 	}
 	
-	void uiEvents(ofxMicroUI::element & e) override {
-//		cout << "wow uievent here" << endl;
-		
-		if (e.name == "invert") {
-			if (!e._settings->presetIsLoading) {
-				float noiseMult1 = uiC->pFloat["noiseMult1"];
-				float multY = uiC->pFloat["multY"];
-				float multiVel1 = uiC->pFloat["multiVel1"];
-				
-				uiC->set("noiseMult1", uiC->pFloat["noiseMult2"]);
-				uiC->set("multY", uiC->pFloat["multY2"]);
-				uiC->set("multiVel1", uiC->pFloat["multiVel2"]);
-
-				uiC->set("noiseMult2", noiseMult1);
-				uiC->set("multY2", multY);
-				uiC->set("multiVel2", multiVel1);
-			}
-
-
-		}
-		if (e.name == "normals") {
-			if (*e.b) {
-				addNormals();
-			} else {
-				mesh.clearNormals();
-			}
+	void setupParams() {
+		for (int a=0; a<3; a++) {
+			string i = ofToString(a+1);
+			params[a].i = i;
+			params[a].signal = a%2 ? -1 : 1;
 		}
 	}
 	
 	void setup() override {
+		setupParams();
 		for (int x=0; x<width; x++) {
 			for (int z=0; z<width; z++) {
 				float y = 0;
@@ -59,52 +145,44 @@ public:
 				mesh.addIndex(x+(z+1)*width);			// 10
 			}
 		}
-		
-//		for( int i=0; i < mesh.getVertices().size(); i++ ) mesh.addNormal(glm::vec3(0,0,0));
 	}
 	
-	struct param {
-	public:
-		float noiseMult;
-		float multY;
-		float easy;
-		float ny;
-		float my;
-		string i;
-//		param();
-	};
-	
-	
-	param params[3];
-	float hashValuesX[200];
-	float updown = 0;
+	float shaper(float in, float inMin, float inMax, float outMin, float outMax, float shaper){
+		// (1) convert to pct (0-1)
+		float pct = ofMap (in, inMin, inMax, 0, 1, true);
+		// raise this number to a power
+		pct = powf(pct, shaper);
+		float out = ofMap(pct, 0,1, outMin, outMax, true);
+		return out;
+	}
 
 	void draw() override {
 		checkSetup();
-		
-		for (int a=0; a<3; a++) {
-			string i = ofToString(a+1);
-			params[a].i = i;
-			params[a].noiseMult = uiC->pEasy["noiseMult" + i]; // + uiC->pEasy["noiseMult" + i + "Audio"] * updown;
-			params[a].multY = uiC->pEasy["multY" + i]; // + uiC->pEasy["multY" +i+ "Audio"] * updown;
-			params[a].easy = incrementa("multiVel"+i);
+		for (auto & p : params) {
+			p.ok = uiC->pBool["ok" + p.i];
+			if (p.ok) {
+				p.noiseMult = uiC->pEasy["noiseMult" + p.i];
+				p.multY = uiC->pEasy["multY" + p.i];
+				p.easy = incrementa("multiVel" + p.i) + uiC->pFloat["velManual" + p.i];
+			}
 		}
 		
 		float offXTime = incrementa("offXTime");
 		float offYTime = incrementa("offYTime");
-		
-		for (int x=0; x<width; x++) {
-			hashValuesX[x] = 0;
-			for (auto & p : params) {
-				hashValuesX[x]  += x * p.noiseMult + offXTime;
-			}
-		}
+//		for (int x=0; x<width; x++) {
+//			hashValuesX[x] = 0;
+//			for (auto & p : params) {
+//				hashValuesX[x]  += x * p.noiseMult + offXTime;
+//			}
+//		}
 		
 		
 		for (int y=0; y<width; y++) {
 			for (auto & p : params) {
-				p.ny = y * p.noiseMult + offYTime;
-				p.my = multiplicador * p.multY;
+				if (p.ok) {
+					p.ny = y * p.noiseMult + offYTime;
+					p.my = multiplicador * p.multY;
+				}
 			}
 
 			for (int x=0; x<width; x++) {
@@ -114,16 +192,17 @@ public:
 				// mesmo no X fazer hashtable se quiser.
 				tmpVec.y = 0;
 				for (auto & p : params) {
-					tmpVec.y += (ofNoise(x * p.noiseMult + offXTime, p.ny, p.easy)-.5) * p.my;
-//					tmpVec.y += (ofNoise(hashValuesX[x], p.ny, p.easy)-.5) * p.my;
+					if (p.ok) {
+						tmpVec.y += (ofNoise(x * p.noiseMult + offXTime, p.ny, p.easy)-.5) * p.my;
+//						tmpVec.y += (ofNoise(hashValuesX[x], p.ny, p.easy)-.5) * p.my;
+					}
 				}
 				
-				if (uiC->pBool["esferas"]) {
-					//objeto3d(tmpVec, uiC->pFloat["raio"]);
-				} else {
-					mesh.setVertex(index, tmpVec);
+				if (uiC->pBool["shaper"]) {
+					tmpVec.y = shaper(tmpVec.y, 0, 400, 0, 400, uiC->pEasy["shaper"]);
 				}
-				//mesh.setColor(index, getCor((x + y*width)/(float)total));
+				mesh.setVertex(index, tmpVec);
+//				mesh.getVerticesPointer()[index].y = tmpVec.y;
 			}
 		}
 		
@@ -135,6 +214,39 @@ public:
 		}
 
 		drawMeshStatic(&mesh, ui);
+		
+
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+//		cout << "wow uievent here" << endl;
+
+
+
+		if (e.name == "invert") {
+			if (!e._settings->presetIsLoading) {
+				cout << "OCEAN INVERT" << endl;
+				float noiseMult1 = uiC->pFloat["noiseMult1"];
+				float multY1 = uiC->pFloat["multY1"];
+				float multiVel1 = uiC->pFloat["multiVel1"];
+				
+				uiC->set("noiseMult1", uiC->pFloat["noiseMult2"]);
+				uiC->set("multY1", uiC->pFloat["multY2"]);
+				uiC->set("multiVel1", uiC->pFloat["multiVel2"]);
+
+				uiC->set("noiseMult2", noiseMult1);
+				uiC->set("multY2", multY1);
+				uiC->set("multiVel2", multiVel1);
+			}
+			
+		}
+		if (e.name == "normals") {
+			if (*e.b) {
+				addNormals();
+			} else {
+				mesh.clearNormals();
+			}
+		}
 	}
 };
 
@@ -2530,326 +2642,7 @@ public:
 };
 
 
-
-
-struct sceneGirinos : public sceneDmtr {
-public:
-	using sceneDmtr::sceneDmtr;
-	
-	bool girinoChanged = false;
-	
-	void uiEvents(ofxMicroUI::element & e) override {
-		girinoChanged = true;
-	}
-
-
-	struct girinoSettings {
-	public:
-		bool circuit2;
-		//glm::vec2 dimensions = glm::vec2(800, 480);
-		glm::vec2 dimensions = glm::vec2(800, 480);
-		int minX, minY, maxX, maxY, largura, altura;
-		int margem = -50;
-		bool drawRect = false;
-		bool circuit = true;
-		bool drawText = false;
-		float incrementador,
-				densidade, fatorQual, anguloMult,
-				densidade2, fatorQual2, anguloMult2;
-		
-		void setDimensions(glm::vec2 d) {
-			dimensions = d;
-			minX = 		margem;
-			minY = 		margem;
-			maxX = 		dimensions.x - margem;
-			maxY = 		dimensions.y - margem;
-			largura = 	dimensions.x - margem*2;
-			altura = 	dimensions.y - margem*2;
-		}
-
-	} girinoSet, girinoSet2;
-
-
-	struct girino {
-	public:
-		girino() {}
-		float rand;
-		
-		glm::vec2 pos;
-		float qual;
-		int cursor = 0;
-		ofPoint positions[60];
-		int posSize = 0;
-		float angulo;
-		float vel = 2;
-		bool alive = false;
-		
-		girinoSettings * _settings = NULL;
-		
-		// border
-		int minX, minY, maxX, maxY, largura, altura;
-
-		
-		girino(float q, girinoSettings & _s) : qual(q) {
-			_settings = &_s;
-			//fazer posicao negativa no inicio
-			//dimensions = p;
-			pos = glm::vec2(ofRandom(0,_settings->dimensions.x),
-							ofRandom(0,_settings->dimensions.y));
-			rand = ofRandom(0,1);
-			//int n = ;
-	//		posSize = ofRandom(10,30);
-			//posSize = ofRandom(20,60);
-			posSize = ofRandom(50,60);
-			//positions.assign(n, ofPoint());
-			angulo = ofRandom(0,360);
-			alive = true;
-		}
-		
-		void addX(float v) {
-			pos.x += v;
-			for (auto & p : positions) { p.x += v; }
-		}
-		
-		void addY(float v) {
-			pos.y += v;
-			for (auto & p : positions) { p.y += v; }
-		}
-
-		void preUpdate() {
-			if (_settings != NULL) {
-				
-				angulo = fmod(ofNoise((pos.x)/_settings->densidade,
-							   (pos.y)/_settings->densidade,
-							   qual * _settings->fatorQual,
-							   _settings->incrementador
-							) * 360.0 * _settings->anguloMult, 360.0);
-				if (_settings->densidade2) {
-					angulo += fmod(ofNoise((pos.x)/_settings->densidade2,
-									(pos.y)/_settings->densidade2,
-									qual * _settings->fatorQual2,
-									_settings->incrementador
-								) * 360.0 * _settings->anguloMult2, 360.0);
-				}
-					
-					
-	//				if (_settings->densidade) {
-	//					angulo += fmod(ofNoise((pos.x)/_settings->densidade,
-	//								   (pos.y)/_settings->densidade,
-	//								   qual * _settings->fatorQual,
-	//								   _settings->incrementador
-	//								) * 360.0 * _settings->anguloMult, 360.0);
-	//				}
-	//				if (_settings->densidade2) {
-	//					angulo += fmod(ofNoise((pos.x)/_settings->densidade2,
-	//									(pos.y)/_settings->densidade2,
-	//									qual * _settings->fatorQual2,
-	//									_settings->incrementador
-	//								) * 360.0 * _settings->anguloMult2, 360.0);
-	//				}
-			}
-		}
-		
-		void update() {
-			if (alive) {
-		//		angulo += ofRandom(-15, 15);
-		//		if (angulo > 360) { angulo -= 360; }
-		//		else if (angulo < 0) { angulo += 360; }
-				preUpdate();
-				if (_settings->circuit) {
-					angulo = int(angulo / 45) * 45;
-				}
-				if (_settings->circuit2) {
-					angulo = int(angulo / 90) * 90;
-				}
-				pos += p2c(glm::vec2(angulo, vel));
-				
-				if (pos.x > _settings->maxX) {  addX(-_settings->largura);  }
-				else if (pos.x < _settings->minX) {  addX(_settings->largura);   }
-				if (pos.y > _settings->maxY) {  addY(-_settings->altura);   }
-				else if (pos.y < _settings->minY) {  addY(_settings->altura);    }
-
-				positions[cursor] = pos;
-				cursor ++ ;
-				if (cursor >= posSize) {
-					cursor -= posSize;
-				}
-			}
-		}
-		
-		void draw() {
-			//update();
-			if (alive) {
-				ofPolyline p;
-				for (int a=0; a<posSize; a++) {
-					p.addVertex(positions[(a+cursor)%posSize]);
-				}
-				p.draw();
-				
-				if (_settings->drawRect) {
-					ofDrawRectangle((ofPoint)pos - ofPoint(3,3), 6, 6);
-				}
-
-				if (_settings->drawText) {
-					string s = ofToString(int(angulo));
-					ofDrawBitmapString(s, pos.x, pos.y);
-				}
-			}
-		}
-	};
-
-
-
-	class girinosThread : public ofThread {
-		public:
-		bool doUpdate = true;
-		vector <girino> girinosDraw, girinos, girinosMiddle;
-		
-		girinosThread() {
-			girinosDraw.reserve(5000);
-			girinos.reserve(5000);
-			girinosMiddle.reserve(5000);
-		}
-
-		~girinosThread() {
-			cout << "girinos destructor" << endl;
-			waitForThread();
-		}
-		
-		void threadedFunction() { while(isThreadRunning()) { update(); } }
-		
-		void draw() {
-			lock();
-			girinosDraw = girinosMiddle;
-			unlock();
-
-			for (auto & g : girinosDraw) {
-				g.draw();
-			}
-		}
-		
-		void update() {
-			if (doUpdate) {
-				for (auto & g : girinos) { g.update(); }
-				lock();
-				girinosMiddle = girinos; // copy from one thread to the other
-				unlock();
-				//doUpdate = false;
-			}
-		}
-		
-		void setup() {
-		}
-	} gi;
-
-
-	void createGirino(float qual) {
-		gi.girinos.emplace_back(qual,girinoSet);
-	}
-
-	void setup() override {
-		girinoSet.setDimensions(glm::vec2(fbo->getWidth(), fbo->getHeight()));
-		girinoSet2.setDimensions(glm::vec2(fbo->getWidth(), fbo->getHeight()));
-		gi.startThread();
-		int max = 200;
-		gi.lock();
-		for (int a=0; a<max; a++) {
-			float qual = a/(float)max;
-			createGirino(qual);
-		}
-		gi.unlock();
-	}
-
-
-	float incrementador = 0;
-
-	void draw() override {
-		checkSetup();
-
-		//((inspector*)uiC->getElement("size"))->set(ofToString(gi.girinos.size()));
-		if (girinoChanged)
-		{
-			cout << "updating changed" << endl;
-			gi.lock();
-			int index = 0;
-			for (auto & g : gi.girinos) {
-				g.qual = index/(float)gi.girinos.size();
-				index++;
-				g.vel = uiC->pEasy["vel"] + g.rand * uiC->pEasy["velRand"];
-			}
-			girinoChanged = false;
-			gi.unlock();
-		}
-		
-		
-		
-
-		if (uiC->pBool["numeroWaves"]) {
-			float s = ofMap(sin(ofGetElapsedTimef() * 3), -1, 1, 100, 3000);
-			uiC->getSlider("numero")->set(int(s));
-		}
-		ofNoFill();
-		incrementador += uiC->pFloat["perFrame"];
-		
-
-		
-		if (gi.girinos.size() < uiC->pInt["numero"]) {
-			int numero = uiC->pInt["numero"] - gi.girinos.size();
-			gi.lock();
-			for (int a=0; a<numero; a++) {
-				createGirino(ofRandom(0,1));
-			}
-			gi.unlock();
-		}
-		else if (gi.girinos.size() > uiC->pInt["numero"]) {
-			int numero = gi.girinos.size() - uiC->pInt["numero"];
-			gi.lock();
-			for (int a=0; a<numero; a++) {
-	//			gi.girinos.begin()->alive = false;
-				gi.girinos.begin()->_settings = NULL;
-				gi.girinos.erase(gi.girinos.begin());
-			}
-			gi.unlock();
-		}
-		
-	//	float halfPosX = fbo->getWidth() * .5;
-	//	for (auto & g : gi.girinos) {
-	//		g._settings = g.pos.x < halfPosX ? &girinoSet : &girinoSet2;
-	//	}
-		
-		gi.draw();
-		gi.doUpdate = true;
-		
-		gi.lock();
-			girinoSet.incrementador = incrementador;
-			girinoSet2.incrementador = incrementador;
-			girinoSet.densidade = 		uiC->pEasy["densidade"];
-			girinoSet.fatorQual = 		uiC->pEasy["fatorQual"];
-			girinoSet.anguloMult =		uiC->pEasy["anguloMult"];
-			girinoSet.densidade2 = 		uiC->pEasy["densidade2"];
-			girinoSet.fatorQual2 = 		uiC->pEasy["fatorQual2"];
-			girinoSet.anguloMult2 =		uiC->pEasy["anguloMult2"];
-			girinoSet.circuit = uiC->pBool["circuit"];
-			girinoSet.circuit2 = uiC->pBool["circuit90"];
-			girinoSet.drawRect = uiC->pBool["drawRect"];
-			girinoSet.drawText = uiC->pBool["drawText"];
-			
-			
-			
-			girinoSet2.densidade = 		uiC->pEasy["densidade3"];
-			girinoSet2.fatorQual = 		uiC->pEasy["fatorQual3"];
-			girinoSet2.anguloMult =		uiC->pEasy["anguloMult3"];
-			girinoSet2.densidade2 = 		uiC->pEasy["densidade4"];
-			girinoSet2.fatorQual2 = 		uiC->pEasy["fatorQual4"];
-			girinoSet2.anguloMult2 =		uiC->pEasy["anguloMult4"];
-			girinoSet2.circuit = uiC->pBool["circuit2"];
-			girinoSet2.circuit2 = uiC->pBool["circuit290"];
-			girinoSet2.drawRect = uiC->pBool["drawRect"];
-			girinoSet2.drawText = uiC->pBool["drawText"];
-		gi.unlock();
-	}
-};
-
+#include "sceneGirinos.h"
 
 
 struct sceneGirinos3d : public sceneDmtr {
@@ -3722,9 +3515,6 @@ void setupScenesAll() {
 	scenes.push_back(new sceneRede0(u, fbo));
 	scenesMap["redes0"] = scenes.back();
 
-	scenes.push_back(new sceneSyntype(u, fbo));
-	scenesMap["syntype"] = scenes.back();
-
 	scenes.push_back(new sceneGirinos(u, fbo));
 	scenesMap["girinos"] = scenes.back();
 
@@ -3736,7 +3526,16 @@ void setupScenesAll() {
 
 	scenes.push_back(new sceneLines(u, fbo));
 	scenesMap["lines"] = scenes.back();
+	
+	
+	scenes.push_back(new sceneSyntype(u, fbo));
+	scenesMap["syntype"] = scenes.back();
 
+	
+	scenes.push_back(new sceneLiner(u, fbo));
+	scenesMap["liner"] = scenes.back();
+
+	
 #ifdef USEASSIMP
 //	scenes.push_back(new scenePrison(u, fbo));
 //	scenesMap["prison"] = scenes.back();

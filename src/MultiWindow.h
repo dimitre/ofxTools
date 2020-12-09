@@ -55,15 +55,16 @@ int main( ){
 	
     int monitorCount;
     GLFWmonitor** monitors = glfwGetMonitors(&monitorCount);
+    cout << "Multiwindow manager start" << endl;
     cout << "Screens Found: " << monitorCount << endl;
 	for (int a=1; a<monitorCount; a++) {
         int xM; int yM;
-        glfwGetMonitorPos(monitors[1], &xM, &yM); // We take the second monitor
-        const GLFWvidmode * desktopMode = glfwGetVideoMode(monitors[1]);
+        glfwGetMonitorPos(monitors[a], &xM, &yM); // We take the second monitor
+        const GLFWvidmode * desktopMode = glfwGetVideoMode(monitors[a]);
 		
 		glm::vec2 size = glm::vec2(desktopMode->width, desktopMode->height);
 		glm::vec2 pos = glm::vec2(xM, yM);
-		cout << "display #" << a << endl;
+		cout << "secondary display #" << a << endl;
 		cout << "position: " << pos << endl;
 		cout << "size:" << size << endl;
 		cout << "-------" << endl;

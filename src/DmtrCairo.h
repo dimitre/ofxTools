@@ -1,5 +1,7 @@
 #define SVGCAIRO 1
 
+bool useCairo = false;
+
 shared_ptr<ofBaseGLRenderer> opengl;
 shared_ptr<ofCairoRenderer> cairo;
 shared_ptr<ofCairoRenderer> cairoOut;
@@ -29,6 +31,11 @@ void beginCairo() {
 			cairoOut->setup(savingCairoFilename, ofCairoRenderer::SVG, false, false, rect);
 			ofSetCurrentRenderer(cairoOut);
 			ofGetCurrentRenderer()->setupGraphicDefaults();
+			ofStyle style = ofGetCurrentRenderer()->getStyle();
+			ofGetCurrentRenderer()->setStyle(style);
+			cairo_set_miter_limit(cairoOut->getCairoContext(), 2);
+			cairo_set_line_join(cairoOut->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+			cairo_set_line_cap(cairoOut->getCairoContext(), CAIRO_LINE_CAP_ROUND); /* default */  // ROUND SQUARE
 	#endif
 		} else {
 			
@@ -80,6 +87,7 @@ void endCairo() {
 }
 
 
+#ifdef USECAIROBLENDING
 void startCairoBlendingMode() {
 	if (cairoIsSetup) {
 		string * s = &uiColors->pString["blend"];
@@ -138,7 +146,7 @@ void startCairoBlendingMode() {
 		}
 	}
 }
-
+#endif
 
 
 //void setupCairo() {

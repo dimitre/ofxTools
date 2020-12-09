@@ -1,59 +1,9 @@
 
-
-static void calcNormals( ofMesh & mesh, bool bNormalize, bool mode){
-    for( int i=0; i < mesh.getIndices().size(); i+=3 ){
-        const int ia = mesh.getIndices()[i];
-        const int ib = mesh.getIndices()[i+1];
-        const int ic = mesh.getIndices()[i+2];
-		glm::vec3 e1 = mesh.getVertices()[ia] - mesh.getVertices()[ib];
-		glm::vec3 e2 = mesh.getVertices()[ic] - mesh.getVertices()[ib];
-		// depending on your clockwise / winding order, you might want to reverse the e2 / e1 above if your normals are flipped.
-		glm::vec3 no = mode ? glm::cross(e2, e1) : glm::cross(e1, e2);
-        mesh.getNormals()[ia] = no;
-        mesh.getNormals()[ib] = no;
-        mesh.getNormals()[ic] = no;
-    }
-
-	if (bNormalize) {
-		for (auto & n : mesh.getNormals()) {
-			n = glm::normalize(n);
-		}
-	}
-}
-
-
-static void drawMeshStatic(ofMesh * m, ofxMicroUI * ui) {
-	if (ui->pString["draw"] == "wire") {
-		m->drawWireframe();
-	}
-	else if (ui->pString["draw"] == "faces") {
-		m->drawFaces();
-	}
-	else if (ui->pString["draw"] == "points") {
-		//cout << "aqui " << endl;
-		glDisable(GL_POINT_SMOOTH);
-		glPointSize(ui->pEasy["pointSize"]);
-		m->draw(OF_MESH_POINTS);
-	}
-}
-
-static void drawMeshStatic(ofVboMesh * m, ofxMicroUI * ui) {
-	if (ui->pString["draw"] == "wire") {
-		m->drawWireframe();
-	}
-	else if (ui->pString["draw"] == "faces") {
-		m->drawFaces();
-	}
-	else if (ui->pString["draw"] == "points") {
-		//cout << "aqui " << endl;
-		glDisable(GL_POINT_SMOOTH);
-		glPointSize(ui->pEasy["pointSize"]);
-		m->draw(OF_MESH_POINTS);
-	}
-}
-
 struct sceneDmtr {
 public:
+	
+//	friend class sceneConfig;
+	
 	#include "polar.h"
 	
 	bool isSetup = false;
@@ -62,9 +12,40 @@ public:
 	ofxMicroUI * ui = NULL;
 	ofxMicroUI * uiColors = NULL;
 	ofFbo * fbo = NULL;
-	float updown = 0.0;
 	glm::vec2 middle;
 	map <string, float> incrementadorTemporal;
+	
+	sceneConfig * config = NULL;
+	
+	sceneDmtr() { }
+
+	sceneDmtr(sceneConfig * _c) : config(_c) {
+		u = config->u;
+		ui = &u->uis["ui"];
+		uiC = &u->uis["scene"];
+		uiColors = &u->uis["colors"];
+		fbo = config->fbo;
+		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
+		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
+	}
+	
+	sceneDmtr(ofxMicroUI * _u, ofFbo * _fbo) : u(_u), fbo(_fbo) {
+		ui = &u->uis["ui"];
+		uiC = &u->uis["scene"];
+		uiColors = &u->uis["colors"];
+		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
+		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
+	}
+	
+	// TODO
+	float getFreq(int index) {
+		return 0;
+	}
+	
+	ofColor getCor(float n) {
+		return getColor(n, uiColors);
+	}
+
 
 	float incrementa(string qual) {
 		string uniqueId = uiC->uiName + qual;
@@ -78,20 +59,8 @@ public:
 		string uniqueId = uiC->uiName + qual;
 		incrementadorTemporal[uniqueId] = 0;
 	}
-	
-	ofColor getCor(float n) {
-		return getColor(n, uiColors);
-	}
 
-	sceneDmtr() { }
 
-	sceneDmtr(ofxMicroUI * _u, ofFbo * _fbo) : u(_u), fbo(_fbo) {
-		ui = &u->uis["ui"];
-		uiC = &u->uis["scene"];
-		uiColors = &u->uis["colors"];
-		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
-		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
-	}
 
 	virtual void checkSetup() {
 		if (!isSetup) {
@@ -106,6 +75,10 @@ public:
 	
 	virtual void setup() {
 		isSetup = true;
+	}
+
+	virtual void update() {
+		
 	}
 	
 	virtual void draw() {
@@ -295,8 +268,6 @@ public:
 	}
 };
 #endif
-
-
 
 
 
@@ -994,6 +965,34 @@ public:
 	}
 };
 
+
+struct sceneTextFile : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	
+	ofTrueTypeFont font;
+
+	void setup() override {
+		font.load("_ui/mono08_55.ttf", 7);
+	}
+	
+	void draw() override {
+		checkSetup();
+		ofSetColor(255);
+		string s = uiC->pBool["upper"] ? ofToUpper(uiC->pText["text"]) : uiC->pText["text"];
+		uiC->pFont["font"].drawString(s, uiC->pInt["offX"], uiC->pInt["offY"]);
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "fontSize") {
+			ofxMicroUI::fontList * _f = ((ofxMicroUI::fontList*)uiC->getElement("font"));
+			if (_f != NULL) {
+				((ofxMicroUI::fontList*)uiC->getElement("font"))->size = *e.i;
+				((ofxMicroUI::fontList*)uiC->getElement("font"))->reload();
+			}
+		}
+	}
+};
 
 
 struct sceneNo : public sceneDmtr {

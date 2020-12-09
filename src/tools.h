@@ -1,3 +1,27 @@
+
+// REVISAR ISSO
+
+#ifdef BLENDING
+void startBlendingMode() {
+	string * s = &uiColors->pString["blend"];
+	if (*s == "alpha") {
+		ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+	}
+	else if (*s == "add") {
+		ofEnableBlendMode(OF_BLENDMODE_ADD);
+	}
+	else if (*s == "screen") {
+		ofEnableBlendMode(OF_BLENDMODE_SCREEN);
+	}
+	else if (*s == "multiply") {
+		ofEnableBlendMode(OF_BLENDMODE_MULTIPLY);
+	}
+	else if (*s == "subtract") {
+		ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
+	}
+}
+#endif
+
 //void shortcutUIEvent(ofxMicroUI::element & e) {
 //	if (ofIsStringInString(e.name, "_shortcut")) {
 //		if (!e._settings->presetIsLoading && *e.s != "") {
@@ -7,31 +31,6 @@
 //		}
 //	}
 //}
-
-void fboToPng(ofFbo * fbo) {
-	ofPixels pixelsExport;
-	ofFbo fboExport;
-	fboExport.allocate(fbo->getWidth(), fbo->getHeight(), GL_RGB);
-	fboExport.begin();
-	ofClear(0,255);
-	ofSetColor(255);
-	fbo->draw(0,0);
-	fboExport.end();
-	
-//	pixelsExport.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
-//	fbo->readToPixels(pixelsExport);
-	
-	pixelsExport.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR);
-	fboExport.readToPixels(pixelsExport);
-	
-	string p = ofToString(u.pString["presets"]);
-	string fullFileName = "_output/" + p + "_" +ofGetTimestampString() + ".png";
-	
-	ofSaveImage(pixelsExport, fullFileName);
-	string resultado = ofSystem("open " + ofToDataPath(fullFileName));
-}
-
-
 
 float nextChange = 0;
 int nPreset = -1;
@@ -100,22 +99,3 @@ void autoPilot() {
 //		ofEnableBlendMode(OF_BLENDMODE_SCREEN);
 //	}
 //}
-
-void startBlendingMode() {
-	string * s = &uiColors->pString["blend"];
-	if (*s == "alpha") {
-		ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-	}
-	else if (*s == "add") {
-		ofEnableBlendMode(OF_BLENDMODE_ADD);
-	}
-	else if (*s == "screen") {
-		ofEnableBlendMode(OF_BLENDMODE_SCREEN);
-	}
-	else if (*s == "multiply") {
-		ofEnableBlendMode(OF_BLENDMODE_MULTIPLY);
-	}
-	else if (*s == "subtract") {
-		ofEnableBlendMode(OF_BLENDMODE_SUBTRACT);
-	}
-}

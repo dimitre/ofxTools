@@ -7,7 +7,6 @@ ofFbo * fbo = &soft.fbo;//
 ofFbo * fbo2 = &soft.fbo2;
 ofFbo * fbo3 = &soft.fbo3;
 
-ofxMicroUI *uiTex  = &u.uis["texture"];
 string & scene = ui->pString["scene"];
 ofxMicroUIRemote uiRemote;
 
@@ -17,8 +16,12 @@ ofxSyphonServer syphonOut;
 
 #include "DmtrCairo.h"
 
+
+ofxScenes scenes = ofxScenes(fbo, &u, ui->pString["scene"]);
+
 int contagemRandomPreset = 0;
 
+// preset part from OSC
 void remoteMessage(string & e) {
 	cout << "remote message !" << endl;
 	vector <string> partes = ofSplitString(e, "/");
@@ -53,10 +56,6 @@ void remoteMessage(string & e) {
 	}
 }
 
-ofxScenes scenes = ofxScenes(fbo, &u, ui->pString["scene"]);
-
-
-bool useCairo = false;
 
 void miawBg() {
 	if (uiColors->pString["background"] == "solid") {
@@ -111,14 +110,6 @@ void miawBg() {
 			
 		}
 	}
-
-	// 	if (uiColors->pBool["useBg2"]) {
-
-	// 	} else {
-	// 	}
-	// } else {
-	// 	ofClear(0,0);
-	// }
 }
 
 
@@ -129,7 +120,6 @@ void beginMiaw(bool background = true) {
 	if (background) {
 		if (useCairo) {
 			beginCairo();
-//			ofGetCurrentRenderer()->clearAlpha();
 			miawBg();
 			startCairoBlendingMode();
 		} else {
@@ -154,8 +144,6 @@ void endMiaw() {
 }
 
 
-
-	
 #ifdef USEAUDIOBPM
 	ofxMicroUI * uiAudio = &u.uis["audio"];
 	ofxMicroUIFFT fft;
@@ -180,7 +168,7 @@ void endMiaw() {
 
 void preSetupMiaw() {
 	
-	ofxMicroUI::expires(1598719562, 60);
+//	ofxMicroUI::expires(1598719562, 60);
 	ofSetEscapeQuitsApp(false);
 	scenes.setup();
 

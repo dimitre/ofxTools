@@ -1,6 +1,10 @@
 
-float r2x (float a, float m) { return m * cos(ofDegToRad(a)); }
-float r2y (float a, float m) { return m * sin(ofDegToRad(a)); }
+//float r2x (float a, float m) { return m * cos(ofDegToRad(a)); }
+//float r2y (float a, float m) { return m * sin(ofDegToRad(a)); }
+
+ofxMicroUI *uiTex  = &u.uis["texture"];
+
+
 
 #ifndef	HASAUDIO
 float beat = 0.0;
@@ -17,7 +21,6 @@ ofEasyCam camera3d;
 glm::vec3 cameraLook3d;
 glm::vec3 cameraLookUp = { 0.f, -1.0f, 0.0f };
 glm::vec3 cameraLookUp2 = { 0.f, 1.0f, 0.0f };
-
 
 ofNode lookNode;
 
@@ -48,10 +51,6 @@ void beginGl() {
 			fbo2->getTexture().bind();
 		}
 
-		if (uiTex->pBool["useTexture"]) {
-			uiTex->pImage["tex"].getTexture().bind();
-		}
-	
 		if (uiTex->pBool["usePointSprite"]) {
 			ofEnablePointSprites();
 			ofDisableDepthTest();
@@ -70,23 +69,7 @@ void endGl() {
 	glShadeModel(GL_SMOOTH);
 	glMatrixMode(GL_MODELVIEW);
 
-	if (!useCairo) {
-		if (uiTex->pBool["usePointSprite"]) {
-			ofDisablePointSprites();
-			uiTex->pImage["pointSprite"].getTexture().unbind();
-		}
-	
-		if (uiTex->pBool["useTexture"]) {
-			uiTex->pImage["tex"].getTexture().unbind();
-		}
-
-		if (uiTex->pBool["rebind"]) {
-			fbo2->getTexture().unbind();
-		}
-	}
 }
-
-
 
 
 
@@ -103,8 +86,8 @@ public:
 	float pointsPerMeter = 1;
 
 	luzUI(ofxMicroUI * _ui, ofxMicroUI * _uiLuz) : ui(_ui), uiLuz(_uiLuz) {
-//		luz.setAreaLight(100, 100);
-		luz.setPointLight();
+		luz.setAreaLight(100, 100);
+//		luz.setPointLight();
 	}
 	void begin() {
 		if (ui->pBool["on"]) {
