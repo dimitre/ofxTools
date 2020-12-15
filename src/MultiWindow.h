@@ -21,17 +21,6 @@ int main( ){
 //	  OF_TARGET_LINUXARMV7L
 //	}
 	
-#ifdef TARGET_OSX
-	cout << "TARGET_OSX" << endl;
-#endif
-	
-#ifdef TARGET_LINUX
-	cout << "TARGET_LINUX" << endl;
-#endif
-
-#ifdef TARGET_LINUX64
-	cout << "TARGET_LINUX64" << endl;
-#endif
 
 
 	// WINDOW GUI
@@ -55,39 +44,72 @@ int main( ){
 	
     int monitorCount;
     GLFWmonitor** monitors = glfwGetMonitors(&monitorCount);
+	
     cout << "Multiwindow manager start" << endl;
+	#ifdef TARGET_OSX
+		cout << "TARGET_OSX" << endl;
+	#endif
+		
+	#ifdef TARGET_LINUX
+		cout << "TARGET_LINUX" << endl;
+	#endif
+
+	#ifdef TARGET_LINUX64
+		cout << "TARGET_LINUX64" << endl;
+	#endif
+
+		cout << glfwGetVersionString() << endl;
+	
     cout << "Screens Found: " << monitorCount << endl;
-	for (int a=1; a<monitorCount; a++) {
+	
+	
+	for (int a=0; a<monitorCount; a++) {
+		cout << "-------" << endl;
+		cout << "display # " << a << " : " << glfwGetMonitorName(monitors[a]) << endl;
+
+		float scaleX, scaleY;
+		glfwGetMonitorContentScale(monitors[a], &scaleX, &scaleY); // We take the second monitor
+		cout << "contentscale : " << scaleX << " x " << scaleY << endl;
+
+		// nao funciona pois eh sobre uma janela especifica
+//		int fbX, fbY;
+//		glfwGetFramebufferSize(monitors[a], &fbX, &fbY);
+//		cout << "glfwGetFramebufferSize : " << fbX << " x " << fbY << endl;
+		
         int xM; int yM;
         glfwGetMonitorPos(monitors[a], &xM, &yM); // We take the second monitor
-        const GLFWvidmode * desktopMode = glfwGetVideoMode(monitors[a]);
-		
-		glm::vec2 size = glm::vec2(desktopMode->width, desktopMode->height);
 		glm::vec2 pos = glm::vec2(xM, yM);
-		cout << "secondary display #" << a << endl;
 		cout << "position: " << pos << endl;
+
+//		glViewport(0, 0, width, height);
+		
+        const GLFWvidmode * desktopMode = glfwGetVideoMode(monitors[a]);
+//		cout << (ofAppGLFWWindow *)(monitors[a])->getPixelScreenCoordScale() << endl;
+		glm::vec2 size = glm::vec2(desktopMode->width, desktopMode->height);
 		cout << "size:" << size << endl;
-		cout << "-------" << endl;
 
-		settings.setSize (size.x, size.y);
-        settings.setPosition(pos);
-		settings.windowMode = OF_FULLSCREEN;
-		settings.shareContextWith = guiWindow;
-		newWindow = ofCreateWindow(settings);
+		if (a > 0) {
+			settings.setSize (size.x, size.y);
+			settings.setPosition(pos);
+			settings.windowMode = OF_FULLSCREEN;
+			settings.resizable = false;
+			settings.shareContextWith = guiWindow;
+			newWindow = ofCreateWindow(settings);
 
-		if (a==1) {
-			ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow1);
+			if (a==1) {
+				ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow1);
+			}
+			else if (a==2) {
+				ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow2);
+			}
+			else if (a==3) {
+				ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow3);
+			}
+			else if (a==4) {
+				ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow4);
+			}
+			allWindows.emplace_back(newWindow);
 		}
-		else if (a==2) {
-			ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow2);
-		}
-		else if (a==3) {
-			ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow3);
-		}
-		else if (a==4) {
-			ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow4);
-		}
-		allWindows.emplace_back(newWindow);
 //        return true;
     }
 //#endif
