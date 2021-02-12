@@ -1,21 +1,18 @@
 struct sceneLiner : public sceneDmtr {
 public:
-	
 	using sceneDmtr::sceneDmtr;
 	
 	ofPolyline poly;
 	vector <glm::vec2> points;
 	
 	void setup() override {
+		name = "liner";
 		poly.setClosed(false);
 	}
 
 	void draw() override {
 		checkSetup();
 
-		
-
-		
 		for (float a=0; a<uiC->pEasy["numLines"]; a++) {
 			ofSetLineWidth( a * uiC->pEasy["lineWidthA"] + ui->pEasy["lineWidth"]);
 			float qual = a / uiC->pEasy["numLines"];
@@ -87,6 +84,9 @@ public:
 
 struct sceneOcean : public sceneDmtr {
 public:
+	using sceneDmtr::sceneDmtr;
+	name = "ocean";
+
 	ofVboMesh mesh;
 	int width = 105;
 	float multiplicador = 0.4;
@@ -108,7 +108,6 @@ public:
 	float hashValuesX[200];
 	float updown = 0;
 	
-	using sceneDmtr::sceneDmtr;
 	
 
 	
@@ -220,9 +219,6 @@ public:
 	
 	void uiEvents(ofxMicroUI::element & e) override {
 //		cout << "wow uievent here" << endl;
-
-
-
 		if (e.name == "invert") {
 			if (!e._settings->presetIsLoading) {
 				cout << "OCEAN INVERT" << endl;
@@ -252,9 +248,10 @@ public:
 
 
 
-struct sceneWorms : public sceneDmtr {
+struct sceneMinhoca : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	name = "minhoca";
 
 	struct worm {
 	public:
@@ -373,6 +370,8 @@ public:
 struct sceneGridbox : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	name = "gridbox";
+
 	void draw() override {
 		ofSetColor(255);
 		// ofSetLineWidth(uiC->pEasy["linewidth"]);
@@ -422,6 +421,7 @@ public:
 struct sceneSolidos : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	name = "solidos";
 	
 	ofBoxPrimitive box;
 	ofCylinderPrimitive cylinder;
@@ -503,6 +503,7 @@ public:
 struct scenePunchcard : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	name = "punchcard";
 	
 	void setup() override {
 	}
@@ -530,7 +531,7 @@ public:
 struct sceneMicroscenes : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+	name = "microScenes";
 		
 	struct microScene {
 	public:
@@ -660,6 +661,7 @@ public:
 struct sceneWave : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	name = "wave";
 	
 	void setup() override {
 		
@@ -690,17 +692,11 @@ public:
 
 
 
-
-
-
-
-
-
-
 struct sceneBola2 : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+	name = "bola2";
+
 	struct objeto {
 	public:
 		ofVec2f pos;
@@ -787,17 +783,11 @@ public:
 
 
 
-
-
-
 struct sceneOndas : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
-	void setup() override {
-		
-	}
-	
+	name = "ondas";
+
 	void draw() override {
 		checkSetup();
 		
@@ -889,10 +879,7 @@ public:
 struct sceneLatquad2 : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
-	void setup() override {
-		
-	}
+	name = "latquad2";
 	
 	void draw() override {
 		checkSetup();
@@ -991,10 +978,8 @@ public:
 struct sceneMoire : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
-	void setup() override {
-	}
-	
+	name = "moire";
+
 	void draw() override {
 		checkSetup();
 		
@@ -1032,13 +1017,11 @@ public:
 struct sceneLatquad3 : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	name = "latquad3";
 	
 	ofMesh mesh;
 	ofImage spriteImage;
 
-	void setup() override {
-	}
-	
 	void draw() override {
 		checkSetup();
 		
@@ -1151,10 +1134,7 @@ public:
 struct sceneLatquad : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
-	void setup() override {
-		
-	}
+	name = "latquad";	
 	
 	void draw() override {
 		checkSetup();
@@ -1202,7 +1182,8 @@ public:
 struct scenePulsar : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+	name = "pulsar";
+
 	ofMesh meshEq;
 	ofMesh mesh;
 
@@ -1313,7 +1294,8 @@ public:
 struct sceneLuan : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+	name = "luan";
+
 	ofVboMesh ceu;
 	ofVboMesh ceus[3];
 	int densidade[3] = { 1, 5, 10 };
@@ -1412,12 +1394,12 @@ public:
 // comparar com a anterior e remover se for o caso.
 struct sceneOcean0 : public sceneDmtr {
 public:
-	
+	using sceneDmtr::sceneDmtr;
+	name = "ocean0";
+
 	ofMesh mesh;
 	int width = 110;
 	float multiplicador = 0.4;
-	
-	using sceneDmtr::sceneDmtr;
 	
 	void uiEvents(ofxMicroUI::element & e) override {
 		if (e.name == "normals") {
@@ -1509,6 +1491,8 @@ public:
 struct sceneNovelo : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	name = "novelo";
+
 	void draw() override {
 		ofPushMatrix();
 		ofNoFill();
@@ -1536,10 +1520,10 @@ public:
 
 
 
-struct sceneRede : public sceneDmtr {
+struct sceneRedes : public sceneDmtr {
 public:
-
 	using sceneDmtr::sceneDmtr;
+	name = "redes";
 
 	struct rede {
 	public:
@@ -1668,10 +1652,10 @@ public:
 };
 
 
-
 struct sceneLeparc : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	name = "leparc";
 	
 	void draw() override {
 		checkSetup();
@@ -1757,11 +1741,11 @@ public:
 };
 
 
-
-
 struct scene3d : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	// xaxa revisar se é isso mesmo?
+	name = "3d";
 	
 	ofSpherePrimitive sphere;
 
@@ -1813,6 +1797,8 @@ public:
 struct sceneRadial : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	name = "radial"; 
+
 	void draw() override {
 		checkSetup();
 
@@ -1877,6 +1863,8 @@ public:
 struct sceneGalaxia : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	name = "galaxia";
+
 	void draw() override {
 		checkSetup();
 
@@ -1991,9 +1979,10 @@ public:
 
 struct sceneBox : public sceneDmtr {
 public:
+	using sceneDmtr::sceneDmtr;
+	name = "box";
 
 	ofPlanePrimitive plane;
-	using sceneDmtr::sceneDmtr;
 
 	void setup() override {
 		plane.set(20, 10);   ///dimensions for width and height in pixels
@@ -2019,7 +2008,7 @@ public:
 struct scenePoeira : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+	name = "poeira";
 
 	struct poeira {
 	public:
@@ -2084,10 +2073,7 @@ public:
 struct scenePlexus : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
-	void setup() override {
-		
-	}
+	name = "plexus";
 	
 	void draw() override {
 		checkSetup();
@@ -2128,13 +2114,10 @@ public:
 };
 
 
-struct sceneRede0 : public sceneDmtr {
+struct sceneRedes0 : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
-	void setup() override {
-		
-	}
+	name = "redes0";
 	
 	void draw() override {
 		checkSetup();
@@ -2169,10 +2152,7 @@ public:
 struct sceneLines : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
-	void setup() override {
-		
-	}
+	name = "lines";	
 	
 	void draw() override {
 		checkSetup();
@@ -2192,7 +2172,7 @@ public:
 struct sceneUva : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+	name = "uva";
 
 	struct uva {
 	public:
@@ -2264,6 +2244,7 @@ public:
 struct sceneSyntype : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	name = "syntype";
 
 	string loadedFile = "";
 
@@ -2582,6 +2563,7 @@ public:
 struct scenePirose : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	name = "pirose";
 	
 	void setup() override {
 		
@@ -2642,20 +2624,340 @@ public:
 };
 
 
-#include "sceneGirinos.h"
+// #include "sceneGirinos.h"
+
+struct sceneGirinos : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	name = "girinos";
+
+	int margem = 50;
+	ofRectangle boundsRect = ofRectangle(-margem, -margem,
+										 fbo->getWidth() + margem * 2,
+										 fbo->getHeight() + margem * 2);
+	
+	bool girinoChanged = false;
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+		girinoChanged = true;
+	}
+
+	struct girinoSettings {
+	public:
+		bool circuit2;
+		ofRectangle boundsRect;
+		ofRectangle fboRect;
+		bool useCurve = true;
+		bool drawRect = false;
+		bool circuit = true;
+		bool drawText = false;
+		float incrementador,
+				densidade, fatorQual, anguloMult,
+				densidade2, fatorQual2, anguloMult2;
+	} girinoSet, girinoSet2;
+
+
+	
+	
+	
+	struct girino {
+	public:
+		girino() {}
+		float rand;
+		
+		glm::vec2 pos;
+		float qual;
+		int cursor = 0;
+		glm::vec2 positions[60];
+		int posSize = 10;
+		float angulo;
+		float vel = 2;
+		bool alive = false;
+		
+		girinoSettings * _settings = NULL;
+		
+		// border
+//		int minX, minY, maxX, maxY, largura, altura;
+
+		
+		girino(float q, girinoSettings & _s) : qual(q) {
+			_settings = &_s;
+			//fazer posicao negativa no inicio
+			//dimensions = p;
+			pos = glm::vec2(ofRandom(_settings->boundsRect.x, _settings->boundsRect.width),
+							ofRandom(_settings->boundsRect.y, _settings->boundsRect.height));
+			rand = ofRandom(0,1);
+			posSize = ofRandom(10,60);
+			angulo = ofRandom(0,360);
+			alive = true;
+		}
+		
+		void addX(float v) {
+			
+			pos.x += v;
+			for (auto & p : positions) { p.x += v; }
+		}
+		
+		void addY(float v) {
+			pos.y += v;
+			for (auto & p : positions) { p.y += v; }
+		}
+
+		void preUpdate() {
+			if (_settings != NULL) {
+				
+				angulo = fmod(ofNoise((pos.x)/_settings->densidade,
+							   (pos.y)/_settings->densidade,
+							   qual * _settings->fatorQual,
+							   _settings->incrementador
+							) * 360.0 * _settings->anguloMult, 360.0);
+				if (_settings->densidade2) {
+					angulo += fmod(ofNoise((pos.x)/_settings->densidade2,
+									(pos.y)/_settings->densidade2,
+									qual * _settings->fatorQual2,
+									_settings->incrementador
+								) * 360.0 * _settings->anguloMult2, 360.0);
+				}
+			}
+		}
+		
+		void update() {
+			if (alive) {
+				preUpdate();
+				if (_settings->circuit) {
+					angulo = int(angulo / 45) * 45;
+				}
+				if (_settings->circuit2) {
+					angulo = int(angulo / 90) * 90;
+				}
+				pos += p2c(glm::vec2(angulo, vel));
+				
+				if (pos.x > _settings->boundsRect.width) {
+					addX(-_settings->fboRect.width);
+				}
+				else if (pos.x < _settings->boundsRect.x) {
+					addX(_settings->fboRect.width);
+				}
+
+				if (pos.y > _settings->boundsRect.height) {
+					addY(-_settings->fboRect.height);
+				}
+				else if (pos.y < _settings->boundsRect.y) {
+					addY(_settings->fboRect.height);
+				}
+				
+				positions[cursor] = pos;
+				cursor ++ ;
+				if (cursor >= posSize) {
+					cursor -= posSize;
+				}
+			}
+		}
+		
+		void draw() {
+			//update();
+			if (alive) {
+				ofPolyline p;
+				for (int a=0; a<posSize; a++) {
+					glm::vec2 point = positions[(a+cursor)%posSize];
+
+					if (_settings->useCurve) {
+						if (a == 0) {
+							p.lineTo(point.x, point.y);
+						} else {
+							p.curveTo(point.x, point.y);
+						}
+					} else {
+						p.addVertex(point.x, point.y);
+					}
+				}
+				p.draw();
+				
+				if (_settings->drawRect) {
+					ofDrawRectangle((ofPoint)pos - ofPoint(3,3), 6, 6);
+				}
+
+				if (_settings->drawText) {
+					string s = ofToString(int(angulo));
+					ofDrawBitmapString(s, pos.x, pos.y);
+				}
+			}
+		}
+	};
+
+
+
+	class girinosThread : public ofThread {
+		public:
+		bool doUpdate = true;
+		vector <girino> girinosDraw, girinos, girinosMiddle;
+		ofxMicroUI * uiColors = NULL;
+		
+		girinosThread() {
+			girinosDraw.reserve(5000);
+			girinos.reserve(5000);
+			girinosMiddle.reserve(5000);
+		}
+
+		~girinosThread() {
+			cout << "girinos destructor" << endl;
+			waitForThread();
+		}
+		
+		void threadedFunction() { while(isThreadRunning()) { update(); } }
+		
+		void draw() {
+			lock();
+			girinosDraw = girinosMiddle;
+			unlock();
+
+			for (auto & g : girinosDraw) {
+				if (uiColors != NULL) {
+					ofSetColor(getColor(g.qual, uiColors));
+				}
+				g.draw();
+			}
+		}
+		
+		void update() {
+			if (doUpdate) {
+				for (auto & g : girinos) { g.update(); }
+				lock();
+				girinosMiddle = girinos; // copy from one thread to the other
+				unlock();
+				//doUpdate = false;
+			}
+		}
+		
+		void setup() {
+		}
+	} gi;
+
+
+	void createGirino(float qual) {
+		gi.girinos.emplace_back(qual,girinoSet);
+	}
+
+	void setup() override {
+
+		ofRectangle fboRect = ofRectangle(0,0,fbo->getWidth(), fbo->getHeight());
+		girinoSet.boundsRect = boundsRect;
+		girinoSet.fboRect = fboRect;
+		
+		cout << boundsRect << endl;
+		cout << fboRect << endl;
+		cout << "-------" << endl;
+//		girinoSet2.boundsRect = boundsRect;
+//		girinoSet2.fboRect = fboRect;
+		
+		gi.uiColors = uiColors;
+		gi.startThread();
+		int max = 200;
+		gi.lock();
+		for (int a=0; a<max; a++) {
+			float qual = a/(float)max;
+			createGirino(qual);
+		}
+		gi.unlock();
+	}
+
+
+	float incrementador = 0;
+
+	void draw() override {
+		checkSetup();
+
+		if (girinoChanged)
+		{
+			cout << "updating changed " << ofRandom(0,9999) << endl;
+			gi.lock();
+			int index = 0;
+			for (auto & g : gi.girinos) {
+				g.qual = index/(float)gi.girinos.size();
+				index++;
+				g.vel = uiC->pEasy["vel"] + g.rand * uiC->pEasy["velRand"];
+			}
+			girinoChanged = false;
+			gi.unlock();
+		}
+		
+		if (uiC->pBool["numeroWaves"]) {
+			float s = ofMap(sin(ofGetElapsedTimef() * 3), -1, 1, 100, 3000);
+			uiC->getSlider("numero")->set(int(s));
+		}
+		ofNoFill();
+		incrementador += uiC->pFloat["perFrame"];
+		
+
+		
+		if (gi.girinos.size() < uiC->pInt["numero"]) {
+			int numero = uiC->pInt["numero"] - gi.girinos.size();
+			gi.lock();
+			for (int a=0; a<numero; a++) {
+				createGirino(ofRandom(0,1));
+			}
+			gi.unlock();
+		}
+		else if (gi.girinos.size() > uiC->pInt["numero"]) {
+			int numero = gi.girinos.size() - uiC->pInt["numero"];
+			gi.lock();
+			for (int a=0; a<numero; a++) {
+	//			gi.girinos.begin()->alive = false;
+				gi.girinos.begin()->_settings = NULL;
+				gi.girinos.erase(gi.girinos.begin());
+			}
+			gi.unlock();
+		}
+		
+	//	float halfPosX = fbo->getWidth() * .5;
+	//	for (auto & g : gi.girinos) {
+	//		g._settings = g.pos.x < halfPosX ? &girinoSet : &girinoSet2;
+	//	}
+		
+		gi.draw();
+		gi.doUpdate = true;
+		
+		gi.lock();
+			girinoSet.incrementador = incrementador;
+			girinoSet2.incrementador = incrementador;
+			girinoSet.densidade = 		uiC->pEasy["densidade_1"];
+			girinoSet.fatorQual = 		uiC->pEasy["fatorQual_1"];
+			girinoSet.anguloMult =		uiC->pEasy["anguloMult_1"];
+			girinoSet.densidade2 = 		uiC->pEasy["densidade2_1"];
+			girinoSet.fatorQual2 = 		uiC->pEasy["fatorQual2_1"];
+			girinoSet.anguloMult2 =		uiC->pEasy["anguloMult2_1"];
+			girinoSet.circuit = uiC->pBool["circuit_1"];
+			girinoSet.circuit2 = uiC->pBool["circuit90_1"];
+		
+			girinoSet.drawRect = uiC->pBool["drawRect"];
+			girinoSet.drawText = uiC->pBool["drawText"];
+
+			girinoSet.useCurve = uiC->pBool["useCurve"];
+			
+//			girinoSet2.densidade = uiC->pEasy["densidade_2"];
+//			girinoSet2.fatorQual = uiC->pEasy["fatorQual_2"];
+//			girinoSet2.anguloMult = uiC->pEasy["anguloMult_2"];
+//			girinoSet2.densidade2 = uiC->pEasy["densidade2_2"];
+//			girinoSet2.fatorQual2 = uiC->pEasy["fatorQual2_2"];
+//			girinoSet2.anguloMult2 = uiC->pEasy["anguloMult2_2"];
+//			girinoSet2.circuit = uiC->pBool["circuit_2"];
+//			girinoSet2.circuit2 = uiC->pBool["circuit90_2"];
+//
+//			girinoSet2.drawRect = uiC->pBool["drawRect"];
+//			girinoSet2.drawText = uiC->pBool["drawText"];
+		gi.unlock();
+	}
+};
+
+
+
 
 
 struct sceneGirinos3d : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+	name = "girinos3d";
 
-	
-	void uiEvents(ofxMicroUI::element & e) override {
-	}
-	
-	
-	
 	struct girinoSettings {
 	public:
 		bool circuit2;
@@ -2987,8 +3289,9 @@ public:
 #ifdef USESVG
 struct sceneSvg0 : public sceneDmtr {
 public:
-	
 	using sceneDmtr::sceneDmtr;
+	name = "svg0";
+
 	ofxSVG svg;
 
 
@@ -3200,12 +3503,12 @@ public:
 #ifdef USEASSIMP
 struct sceneModel : public sceneDmtr {
 public:
+	using sceneDmtr::sceneDmtr;
+	name = "model";
+
 	// neue
 //	shared_ptr<ofShader>	mShdInstanced;
 //	ofTexture	mTexDepth;
-
-
-	using sceneDmtr::sceneDmtr;
 	string loadedFile = "";
 	ofxAssimpModelLoader model;
 	ofxAssimpModelLoader * _model = NULL;
@@ -3381,160 +3684,44 @@ public:
 
 
 
-//
-//struct scenePrison : public sceneModel {
-//public:
-//	using sceneModel::sceneModel;
-//
-//	void draw() override {
-//		ofSetColor(255);
-//		ofSetLineWidth(uiC->pEasy["linewidth"]);
-//		int numero = 0;
-//		float aresta = uiC->pEasy["aresta"];
-//		float limite = uiC->pInt["nx"] * aresta * .5;
-//
-//		float w = uiC->pEasy["w"] * aresta;
-//		float h = uiC->pEasy["h"] * aresta;
-//		float d = uiC->pEasy["d"] * aresta;
-//
-//		if (ui->pString["draw"] == "wire") {
-//			ofNoFill();
-//		} else {
-//			ofFill();
-//		}
-//
-//		float total = uiC->pInt["nx"] * uiC->pInt["ny"];
-//
-//		for (int a=0; a<uiC->pInt["nx"]; a++) {
-//			for (int b=0; b<uiC->pInt["ny"]; b++) {
-//				float x = ofMap(a, 0, uiC->pInt["nx"], -limite, limite);
-//				float y = ofMap(b, 0, uiC->pInt["ny"], -limite, limite);
-//				if (uiC->pBool["color"]) {
-//					float hue = fmod(numero*uiC->pEasy["hueMult"] + uiC->pEasy["hue"], 255);
-//					ofSetColor(ofColor::fromHsb(hue, uiC->pEasy["sat"], 255));
-//				} else {
-//					float n = (float)numero / total;
-//					cout << n << endl;
-//					ofSetColor(getColor(n, uiColors));
-//				}
-//				ofDrawBox(x, 0, y, w, h, d);
-//				numero ++;
-//			}
-//		}
-//	}
-//};
-
-
 
 #endif
 
 
-
-
-
 void setupScenesAll() {
-	
-	
-	scenes.push_back(new sceneOcean(u, fbo));
-	scenesMap["ocean"] = scenes.back();
-
-	scenes.push_back(new sceneWorms(u, fbo));
-	scenesMap["minhoca"] = scenes.back();
-	
-	scenes.push_back(new sceneGridbox(u, fbo));
-	scenesMap["gridbox"] = scenes.back();
-	
-	scenes.push_back(new sceneSolidos(u, fbo));
-	scenesMap["solidos"] = scenes.back();
-
-	scenes.push_back(new scenePunchcard(u, fbo));
-	scenesMap["punchcard"] = scenes.back();
-
-	scenes.push_back(new sceneMicroscenes(u, fbo));
-	scenesMap["microScenes"] = scenes.back();
-
-	scenes.push_back(new sceneWave(u, fbo));
-	scenesMap["wave"] = scenes.back();
-	
-	scenes.push_back(new sceneBola2(u, fbo));
-	scenesMap["bola2"] = scenes.back();
-
-	scenes.push_back(new sceneOndas(u, fbo));
-	scenesMap["ondas"] = scenes.back();
-
-	scenes.push_back(new sceneLatquad(u, fbo));
-	scenesMap["latquad"] = scenes.back();
-
-	scenes.push_back(new sceneLatquad2(u, fbo));
-	scenesMap["latquad2"] = scenes.back();
-
-	scenes.push_back(new sceneLatquad3(u, fbo));
-	scenesMap["latquad3"] = scenes.back();
-
-	scenes.push_back(new sceneMoire(u, fbo));
-	scenesMap["moire"] = scenes.back();
-
-	scenes.push_back(new scenePulsar(u, fbo));
-	scenesMap["pulsar"] = scenes.back();
-
-	scenes.push_back(new sceneLuan(u, fbo));
-	scenesMap["luan"] = scenes.back();
-	
-	
-	
-	
-	
-	
-	scenes.push_back(new sceneBox(u, fbo));
-	scenesMap["box"] = scenes.back();
-
-	scenes.push_back(new sceneNovelo(u, fbo));
-	scenesMap["novelo"] = scenes.back();
-
-	scenes.push_back(new sceneRede(u, fbo));
-	scenesMap["redes"] = scenes.back();
-	
-	scenes.push_back(new scene3d(u, fbo));
-	scenesMap["3d"] = scenes.back();
-
-	scenes.push_back(new sceneLeparc(u, fbo));
-	scenesMap["leparc"] = scenes.back();
-
-	scenes.push_back(new sceneRadial(u, fbo));
-	scenesMap["radial"] = scenes.back();
-
-	scenes.push_back(new sceneGalaxia(u, fbo));
-	scenesMap["galaxia"] = scenes.back();
-
-	scenes.push_back(new scenePoeira(u, fbo));
-	scenesMap["poeira"] = scenes.back();
-
-	scenes.push_back(new scenePlexus(u, fbo));
-	scenesMap["plexus"] = scenes.back();
-
-	scenes.push_back(new sceneRede0(u, fbo));
-	scenesMap["redes0"] = scenes.back();
-
-	scenes.push_back(new sceneGirinos(u, fbo));
-	scenesMap["girinos"] = scenes.back();
-
-	scenes.push_back(new sceneGirinos3d(u, fbo));
-	scenesMap["girinos3d"] = scenes.back();
-
-	scenes.push_back(new scenePirose(u, fbo));
-	scenesMap["pirose"] = scenes.back();
-
-	scenes.push_back(new sceneLines(u, fbo));
-	scenesMap["lines"] = scenes.back();
-	
-	
-	scenes.push_back(new sceneSyntype(u, fbo));
-	scenesMap["syntype"] = scenes.back();
-
-	
-	scenes.push_back(new sceneLiner(u, fbo));
-	scenesMap["liner"] = scenes.back();
-
+	scenes.push_back(new sceneOcean(&config, "ocean"));
+	scenes.push_back(new sceneMinhoca(&config, "minhoca"));
+	scenes.push_back(new sceneGridbox(&config, "gridbox"));
+	scenes.push_back(new sceneSolidos(&config, "solidos"));
+	scenes.push_back(new scenePunchcard(&config, "punchcard"));
+	scenes.push_back(new sceneMicroscenes(&config, "microScenes"));
+	// coke cymatics
+	scenes.push_back(new sceneWave(&config, "wave"));
+	scenes.push_back(new sceneBola2(&config, "bola2"));
+	scenes.push_back(new sceneOndas(&config, "ondas"));
+	scenes.push_back(new sceneLatquad(&config, "latquad"));
+	scenes.push_back(new sceneLatquad2(&config, "latquad2"));
+	scenes.push_back(new sceneLatquad3(&config, "latquad3"));
+	scenes.push_back(new sceneMoire(&config, "moire"));
+	scenes.push_back(new scenePulsar(&config, "pulsar"));
+	scenes.push_back(new sceneLuan(&config, "luan"));
+	scenes.push_back(new sceneBox(&config, "box"));
+	scenes.push_back(new sceneNovelo(&config, "novelo"));
+	scenes.push_back(new sceneRede(&config, "rede"));
+	//xaxa
+	scenes.push_back(new scene3d(&config, "3d"));
+	scenes.push_back(new sceneLeparc(&config, "leparc"));
+	scenes.push_back(new sceneRadial(&config, "radial"));
+	scenes.push_back(new sceneGalaxia(&config, "galaxia"));
+	scenes.push_back(new scenePoeira(&config, "poeira"));
+	scenes.push_back(new scenePlexus(&config, "plexus"));
+	scenes.push_back(new sceneRedes0(&config, "redes0"));
+	scenes.push_back(new sceneGirinos(&config, "girinos"));
+	scenes.push_back(new sceneGirinos3d(&config, "girinos3d"));
+	scenes.push_back(new scenePirose(&config, "pirose"));
+	scenes.push_back(new sceneLines(&config, "lines"));
+	scenes.push_back(new sceneSyntype(&config, "syntype"));
+	scenes.push_back(new sceneLiner(&config, "liner"));
 	
 #ifdef USEASSIMP
 //	scenes.push_back(new scenePrison(u, fbo));

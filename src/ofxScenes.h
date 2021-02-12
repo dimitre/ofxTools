@@ -1,4 +1,9 @@
 //
+//#include <boost/signals2.hpp>
+//#include <iostream>
+//
+//using namespace boost::signals2;
+
 
 //#define USESVG 1
 #ifdef USESVG
@@ -10,7 +15,7 @@
 #include "ofxAssimpModelLoader.h"
 #endif
 
-#define USEFFT 1
+//#define USEFFT 1
 #ifdef USEFFT
 #include "ofxMicroUIFFT.h"
 #endif
@@ -26,25 +31,37 @@ public:
 #endif
 		ofFbo * fbo = NULL;
 		ofxMicroUI * u = NULL;
+		ofxMicroUI * uiC = NULL;
 		ofxMicroUI * uiColors = NULL;
-		
+
 //		int margem = 100;
 //		ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
 
 //		string & scene;
+
 		sceneConfig() {} ;
 		sceneConfig(ofFbo * _fbo, ofxMicroUI * _u) :
 		fbo(_fbo), u(_u) {
 			uiColors = &u->uis["colors"];
+			uiC = &u->uis["scene"];
+		};
+		
+		sceneConfig(ofFbo * _fbo, ofxMicroUI * _u, ofxMicroUI * _uiC) :
+		fbo(_fbo), u(_u), uiC(_uiC) {
+			uiColors = &u->uis["colors"];
+		};
+		
+		sceneConfig(ofFbo * _fbo, ofxMicroUI * _u, ofxMicroUI * _uiC, ofxMicroUI * _uiColors) :
+		fbo(_fbo), u(_u), uiC(_uiC), uiColors(_uiColors) {
+//			uiColors = &u->uis["colors"];
 		};
 	} config;
 	
-	
-
 	#include "scenes.h"
 
 	ofFbo * fbo = NULL;
 	ofxMicroUI * u = NULL;
+	ofxMicroUI * uiC = NULL;
 	ofxMicroUI * uiColors = NULL;
 	string & scene;
 	
@@ -52,13 +69,25 @@ public:
 	// mais tarde aplicar essa como parametro de todas as sceneDmtr, como construtor passando como ponteiro.
 	// com isso poder extender os parametros sem precisar mais mudar nada de sceneDmtr::sceneDmtr
 	
-
+//	ofxScenes() {}
+	
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, string & s) : fbo(_f), u(_u), scene(s) {
 		config = sceneConfig(fbo, u);
 //		config.uiColors = &u->uis["colors"];
-		
 		uiColors = &u->uis["colors"];
 	}
+	
+	ofxScenes(ofFbo * _f, ofxMicroUI * _u, ofxMicroUI * _uiC, string & s) : fbo(_f), u(_u), uiC(_uiC), scene(s) {
+		config = sceneConfig(fbo, u, uiC);
+		uiColors = &u->uis["colors"];
+	}
+
+	ofxScenes(ofFbo * _f, ofxMicroUI * _u, ofxMicroUI * _uiC, ofxMicroUI * _uiColors, string & s) :
+	fbo(_f), u(_u), uiC(_uiC), uiColors(_uiColors), scene(s) {
+		config = sceneConfig(fbo, u, uiC, uiColors);
+//		uiColors = &u->uis["colors"];
+	}
+
 	
 	static ofColor getColor(float n, ofxMicroUI * uiColors) {
 		if (uiColors->pBool["usePalette"]) {
@@ -70,8 +99,6 @@ public:
 		}
 	}
 	
-
-
 	static void calcNormals( ofMesh & mesh, bool bNormalize, bool mode){
 		for( int i=0; i < mesh.getIndices().size(); i+=3 ){
 			const int ia = mesh.getIndices()[i];
@@ -128,9 +155,13 @@ public:
 	vector <sceneDmtr *> scenes;
 	map <string, sceneDmtr *> scenesMap;
 	
-	
-	
-	// #define SCENESALL 1
+	#define SCENESMIAW 1
+	#ifdef SCENESMIAW
+	#include "scenes.h"
+	#endif	
+
+
+	#define SCENESALL 1
 	#ifdef SCENESALL
 	#include "scenesAll.h"
 	#endif
@@ -141,76 +172,39 @@ public:
 	#endif	
 	
 	
+	// vector <void()> _setupFunctions;
+	// signal<void()> setups;
+
 	void setup() {
-	#ifdef SCENESMUTI
+		// setups.connect([]{ setupScenesMuti(); });
+		// setups.connect([]{ setupScenes(); });
+		// setups();
+		// _setupFunctions.push_back(&ofxScenes::setupScenesMuti);
+
+
+#ifdef SCENESMUTI
 		setupScenesMuti();
-	#endif	
-
-
+#endif	
 #ifdef SCENESALL
 		setupScenesAll();
 #endif
 
+#ifdef SCENESMIAW
+		setupScenes();
+#endif
+
 #ifdef USESVG
-		scenes.push_back(new sceneSvg(u, fbo));
-		scenesMap["svg"] = scenes.back();
+		scenes.push_back(new sceneSvg(&config, "svg"));
 #endif
 	
 #ifdef USEASSIMP
-		scenes.push_back(new sceneModel(u, fbo));
-		scenesMap["model"] = scenes.back();
-		
-		// scenes.push_back(new sceneModel(u, fbo));
-		// scenesMap["model2"] = scenes.back();
+		scenes.push_back(new sceneModel(&config, "model"));
+		// scenes.push_back(new sceneModel(&config, "model2"));
 #endif
 
-#ifdef MIAW
-		scenes.push_back(new sceneImage(u, fbo));
-		scenesMap["image"] = scenes.back();
-
-		scenes.push_back(new sceneVideo(u, fbo));
-		scenesMap["video"] = scenes.back();
-
-		scenes.push_back(new sceneToma(u, fbo));
-		scenesMap["toma"] = scenes.back();
-
-		scenes.push_back(new sceneConfetti(u, fbo));
-		scenesMap["confetti"] = scenes.back();
-		
-		scenes.push_back(new sceneBasic(u, fbo));
-		scenesMap["basic"] = scenes.back();
-		
-		scenes.push_back(new sceneSvank(u, fbo));
-		scenesMap["svank"] = scenes.back();
-
-		scenes.push_back(new sceneClaquete(u, fbo));
-		scenesMap["claquete"] = scenes.back();
-
-		scenes.push_back(new sceneNo(u, fbo));
-		scenesMap["no"] = scenes.back();
-
-		scenes.push_back(new sceneGrad(u, fbo));
-		scenesMap["grad"] = scenes.back();
-		
-		scenes.push_back(new sceneRibbon(u, fbo));
-		scenesMap["ribbon"] = scenes.back();
-
-		scenes.push_back(new sceneRandom(u, fbo));
-		scenesMap["random"] = scenes.back();
-
-		scenes.push_back(new sceneNav(u, fbo));
-		scenesMap["nav"] = scenes.back();
-#endif
-		
-		scenes.push_back(new sceneTextFile(u, fbo));
-		scenesMap["text"] = scenes.back();
-
-
-
-		
-		for (auto & s : scenesMap) {
-			s.second->setup();
-			s.second->isSetup = true;
+		for (auto & s : scenes) {
+			scenesMap[s->name] = s;
+			scenesMap[s->name]->setup();
 		}
 	}
 	

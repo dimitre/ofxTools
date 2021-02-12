@@ -1,10 +1,10 @@
-
 struct sceneDmtr {
 public:
 	
 //	friend class sceneConfig;
-	
-	#include "polar.h"
+	// #include "polar.h"
+	sceneConfig * config = NULL;
+	string name = "";
 	
 	bool isSetup = false;
 	ofxMicroUI * u = NULL;
@@ -15,15 +15,26 @@ public:
 	glm::vec2 middle;
 	map <string, float> incrementadorTemporal;
 	
-	sceneConfig * config = NULL;
 	
 	sceneDmtr() { }
+
+	sceneDmtr(sceneConfig * _c, string n) : config(_c), name(n) {
+		u = config->u;
+		ui = &u->uis["ui"];
+		uiC = config->uiC;
+		uiColors = config->uiColors;
+		fbo = config->fbo;
+		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
+		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
+	}
 
 	sceneDmtr(sceneConfig * _c) : config(_c) {
 		u = config->u;
 		ui = &u->uis["ui"];
-		uiC = &u->uis["scene"];
-		uiColors = &u->uis["colors"];
+//		uiC = &u->uis["scene"];
+		uiC = config->uiC;
+//		uiColors = &u->uis["colors"];
+		uiColors = config->uiColors;
 		fbo = config->fbo;
 		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
 		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
@@ -60,8 +71,6 @@ public:
 		incrementadorTemporal[uniqueId] = 0;
 	}
 
-
-
 	virtual void checkSetup() {
 		if (!isSetup) {
 			setup();
@@ -70,15 +79,14 @@ public:
 	}
 
 	virtual void uiEvents(ofxMicroUI::element & e) {
-//		cout << "uiEvent primitive" << endl;
+		// cout << "uiEvent primitive " << endl;
 	}
 	
 	virtual void setup() {
 		isSetup = true;
 	}
 
-	virtual void update() {
-		
+	virtual void update() {		
 	}
 	
 	virtual void draw() {
@@ -87,11 +95,12 @@ public:
 };
 
 
-
 #ifdef USESVG
 struct sceneSvg : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	// name = "svg";
+
 	string loadedFile = "";
 
 	// ofxSVG svg;
@@ -276,6 +285,8 @@ public:
 struct sceneImage : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	// name = "image";
+
 	ofImage * i;
 
 	// TabNine::Config
@@ -391,6 +402,8 @@ public:
 struct sceneVideo : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	// name = "video";
+
 	int vw, vh;
 	int vx, vy, total;
 	
@@ -454,10 +467,205 @@ public:
 
 
 
+struct sceneToma : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	// name = "toma";
+
+	struct coisa {
+		public:
+			//ofConePrimitive::ofConePrimitive(float radius, float height, int radiusSegments, int heightSegments, int capSegments=2, ofPrimitiveMode mode=OF_PRIMITIVE_TRIANGLE_STRIP)
+			ofConePrimitive cone = ofConePrimitive(12, 10, 24, 2);
+
+			// ofBoxPrimitive::ofBoxPrimitive(float width, float height, float depth, int resWidth=2, int resHeight=2, int resDepth=2)
+			ofBoxPrimitive box = ofBoxPrimitive(10, 10, 10);
+
+			//ofSpherePrimitive::ofSpherePrimitive(float radius, int res, ofPrimitiveMode mode=OF_PRIMITIVE_TRIANGLE_STRIP)
+			ofSpherePrimitive sphere = ofSpherePrimitive(5, 48);
+
+			// ofCylinderPrimitive::ofCylinderPrimitive(float radius, float height, int radiusSegments, int heightSegments, int capSegments=2, bool bCapped=true, ofPrimitiveMode mode=OF_PRIMITIVE_TRIANGLE_STRIP)
+			ofCylinderPrimitive cylinder = ofCylinderPrimitive(10, 10, 24, 2);
+
+			int tipo;
+			ofColor cor;
+			glm::vec3 pos;
+			glm::vec3 rot;
+			void draw() {
+				ofSetColor(cor);
+				ofPushMatrix();
+				ofTranslate(pos);
+				ofRotateXDeg(rot.x);
+				ofRotateYDeg(rot.y);
+				ofRotateZDeg(rot.z);
+				if (tipo == 0) {
+					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*3)), 0, 1, 5, 0);
+					rot.y += 2.5;
+					cone.draw();
+				}
+				else if (tipo == 1) {	
+					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*5)), 0, 1, 5, 0);
+					// rot.y = ofMap(sin(ofGetElapsedTimef()*.2),0, 1, 0, 90);
+					rot.x += .3;
+					rot.y += .4;
+					rot.z += .5;
+					box.draw();
+				}
+				else if (tipo == 2) {
+					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*4)), 0, 1, 5, 0);
+					sphere.draw();
+				}
+				else if (tipo == 3) {
+					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*6)), 0, 1, 5, 0);
+
+					cylinder.draw();
+				}
+				ofPopMatrix();
+			}
+
+			coisa(int t, ofColor c, glm::vec3 p) : tipo(t), cor(c), pos(p) {};
+	};
+
+	float dist = 30;
+	vector <coisa> coisas = { 
+		coisa(0, ofxMicroUI::stringHexToColor("#fedc61"), glm::vec3(0, 0, 0)),
+		coisa(1, ofxMicroUI::stringHexToColor("#ae3fac"), glm::vec3(dist, 0, 0)),
+		coisa(2, ofxMicroUI::stringHexToColor("#453fb0"), glm::vec3(-dist, 0, 0)),
+		coisa(3, ofxMicroUI::stringHexToColor("#008d54"), glm::vec3(0, 0, -dist)) 
+	};
+
+	void setup() override {
+	}
+	
+	void draw() override {
+		checkSetup();
+		for (auto & c : coisas) {
+			c.draw();
+		}
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+	}
+};
+
+
+
+// TENTEI PORTAR mas nao funciona ainda nao sei porque
+struct sceneRibbon : public sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	// name = "ribbon";
+
+	ofImage * ribbon1;
+	ofImage * ribbon2;
+	
+	void setup() override {
+		ofDisableArbTex();
+		//	ribbon1.loadImage("ribbon.jpg");
+		// ribbon1.loadImage("ribbon_texture1.tiff");
+		// ribbon2.loadImage("ribbon_texture2.tiff");
+	}
+	
+	void draw() override {
+		checkSetup();
+
+		ribbon1 = &uiC->pImage["tex1"];
+		ribbon2 = &uiC->pImage["tex2"];
+		ribbon1->getTexture().setTextureWrap( GL_REPEAT, GL_REPEAT );
+		ribbon2->getTexture().setTextureWrap( GL_REPEAT, GL_REPEAT );
+
+		ofMesh mesh2;
+//		mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+		
+		int ww = uiC->pEasy["maxX"];
+		int hh = uiC->pEasy["maxY"];
+		for (int y=0; y<hh; y++) {
+			for (int x=0; x<ww; x++) {
+
+				ofVec3f ponto = ofVec3f(x, y, 0);
+
+				// cout << ponto << endl;
+				ofVec3f ponto2 = ponto.getRotated(y * uiC->pEasy["multZ"], ofVec3f(0,0,1));
+				ofVec3f ponto3 = ponto2.getRotated(y * uiC->pEasy["multY"], ofVec3f(0,1,0));
+				ofVec3f ponto4 = ponto3.getRotated(y * uiC->pEasy["multX"], ofVec3f(1,0,0));
+
+				mesh2.addVertex(ponto4 * uiC->pEasy["multiplicador"]);
+				mesh2.addTexCoord(ofVec2f(y, x / (float)ww));
+
+				mesh2.addIndex(x+y*ww);				// 0
+				if (x<ww-1)
+					mesh2.addIndex((x+1)+y*ww);			// 1
+				if (y<hh-1)
+					mesh2.addIndex(x+(y+1)*ww);			// 10
+
+				if (x<ww-1)
+					mesh2.addIndex((x+1)+y*ww);			// 1
+				if (x<ww-1 && y<hh-1)
+					mesh2.addIndex((x+1)+(y+1)*ww);		// 11
+				if (y<hh-1)
+					mesh2.addIndex(x+(y+1)*ww);			// 10
+				
+
+
+			}
+		}
+		
+		mesh2.enableTextures();
+
+		glCullFace(GL_FRONT);
+		glEnable(GL_CULL_FACE);
+
+		if (uiC->pBool["useTex"]) {
+			ribbon1->getTexture().bind();
+		}
+		if (uiC->pString["draw"] == "wire") {
+			mesh2.drawWireframe();
+		}
+		if (uiC->pString["draw"] == "faces") {
+			mesh2.drawFaces();
+		}
+		if (uiC->pString["draw"] == "points") {
+			mesh2.draw(OF_MESH_POINTS);
+		}
+		if (uiC->pBool["useTex"]) {
+			ribbon1->getTexture().unbind();
+		}
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_CULL_FACE);
+		
+		
+		glCullFace(GL_BACK);
+		glEnable(GL_CULL_FACE);
+		if (uiC->pBool["useTex"]) {
+			ribbon2->getTexture().bind();
+		}
+
+		if (uiC->pString["draw"] == "wire") {
+			mesh2.drawWireframe();
+		}
+		if (uiC->pString["draw"] == "faces") {
+			mesh2.drawFaces();
+		}
+		if (uiC->pString["draw"] == "points") {
+			mesh2.draw(OF_MESH_POINTS);
+		}
+
+		if (uiC->pBool["useTex"]) {
+			ribbon2->getTexture().bind();
+		}
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_CULL_FACE);		
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+	}
+};
+
+
 struct sceneConfetti : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+	// name = "confetti";
+
 	struct confetti {
 		public:
 			int index;
@@ -582,225 +790,10 @@ public:
 
 
 
-struct sceneToma : public sceneDmtr {
-public:
-	using sceneDmtr::sceneDmtr;
-
-	struct coisa {
-		public:
-			//ofConePrimitive::ofConePrimitive(float radius, float height, int radiusSegments, int heightSegments, int capSegments=2, ofPrimitiveMode mode=OF_PRIMITIVE_TRIANGLE_STRIP)
-			ofConePrimitive cone = ofConePrimitive(12, 10, 24, 2);
-
-			// ofBoxPrimitive::ofBoxPrimitive(float width, float height, float depth, int resWidth=2, int resHeight=2, int resDepth=2)
-			ofBoxPrimitive box = ofBoxPrimitive(10, 10, 10);
-
-			//ofSpherePrimitive::ofSpherePrimitive(float radius, int res, ofPrimitiveMode mode=OF_PRIMITIVE_TRIANGLE_STRIP)
-			ofSpherePrimitive sphere = ofSpherePrimitive(5, 48);
-
-			// ofCylinderPrimitive::ofCylinderPrimitive(float radius, float height, int radiusSegments, int heightSegments, int capSegments=2, bool bCapped=true, ofPrimitiveMode mode=OF_PRIMITIVE_TRIANGLE_STRIP)
-			ofCylinderPrimitive cylinder = ofCylinderPrimitive(10, 10, 24, 2);
-
-			int tipo;
-			ofColor cor;
-			glm::vec3 pos;
-			glm::vec3 rot;
-			void draw() {
-				ofSetColor(cor);
-				ofPushMatrix();
-				ofTranslate(pos);
-				ofRotateXDeg(rot.x);
-				ofRotateYDeg(rot.y);
-				ofRotateZDeg(rot.z);
-				if (tipo == 0) {
-					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*3)), 0, 1, 5, 0);
-					rot.y += 2.5;
-					cone.draw();
-				}
-				else if (tipo == 1) {	
-					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*5)), 0, 1, 5, 0);
-					// rot.y = ofMap(sin(ofGetElapsedTimef()*.2),0, 1, 0, 90);
-					rot.x += .3;
-					rot.y += .4;
-					rot.z += .5;
-					box.draw();
-				}
-				else if (tipo == 2) {
-					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*4)), 0, 1, 5, 0);
-					sphere.draw();
-				}
-				else if (tipo == 3) {
-					pos.y = ofMap(abs(sin(ofGetElapsedTimef()*6)), 0, 1, 5, 0);
-
-					cylinder.draw();
-				}
-				ofPopMatrix();
-			}
-
-			coisa(int t, ofColor c, glm::vec3 p) : tipo(t), cor(c), pos(p) {};
-	};
-
-	float dist = 30;
-	vector <coisa> coisas = { 
-		coisa(0, ofxMicroUI::stringHexToColor("#fedc61"), glm::vec3(0, 0, 0)),
-		coisa(1, ofxMicroUI::stringHexToColor("#ae3fac"), glm::vec3(dist, 0, 0)),
-		coisa(2, ofxMicroUI::stringHexToColor("#453fb0"), glm::vec3(-dist, 0, 0)),
-		coisa(3, ofxMicroUI::stringHexToColor("#008d54"), glm::vec3(0, 0, -dist)) 
-	};
-
-	void setup() override {
-	}
-	
-	void draw() override {
-		checkSetup();
-		for (auto & c : coisas) {
-			c.draw();
-		}
-	}
-	
-	void uiEvents(ofxMicroUI::element & e) override {
-	}
-};
-
-
-
-
-struct sceneBasic : public sceneDmtr {
-public:
-	using sceneDmtr::sceneDmtr;
-	
-	void setup() override {
-	}
-	
-	void draw() override {
-		checkSetup();
-		ofSetColor(getColor(0, uiColors));
-		ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
-	}
-	
-	void uiEvents(ofxMicroUI::element & e) override {
-	}
-};
-
-
-
-
-// TENTEI PORTAR mas nao funciona ainda nao sei porque
-struct sceneRibbon : public sceneDmtr {
-public:
-	using sceneDmtr::sceneDmtr;
-
-	ofImage * ribbon1;
-	ofImage * ribbon2;
-	
-	void setup() override {
-		ofDisableArbTex();
-		//	ribbon1.loadImage("ribbon.jpg");
-		// ribbon1.loadImage("ribbon_texture1.tiff");
-		// ribbon2.loadImage("ribbon_texture2.tiff");
-	}
-	
-	void draw() override {
-		checkSetup();
-
-		ribbon1 = &uiC->pImage["tex1"];
-		ribbon2 = &uiC->pImage["tex2"];
-		ribbon1->getTexture().setTextureWrap( GL_REPEAT, GL_REPEAT );
-		ribbon2->getTexture().setTextureWrap( GL_REPEAT, GL_REPEAT );
-
-		ofMesh mesh2;
-//		mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-		
-		int ww = uiC->pEasy["maxX"];
-		int hh = uiC->pEasy["maxY"];
-		for (int y=0; y<hh; y++) {
-			for (int x=0; x<ww; x++) {
-
-				ofVec3f ponto = ofVec3f(x, y, 0);
-
-				// cout << ponto << endl;
-				ofVec3f ponto2 = ponto.getRotated(y * uiC->pEasy["multZ"], ofVec3f(0,0,1));
-				ofVec3f ponto3 = ponto2.getRotated(y * uiC->pEasy["multY"], ofVec3f(0,1,0));
-				ofVec3f ponto4 = ponto3.getRotated(y * uiC->pEasy["multX"], ofVec3f(1,0,0));
-
-				mesh2.addVertex(ponto4 * uiC->pEasy["multiplicador"]);
-				mesh2.addTexCoord(ofVec2f(y, x / (float)ww));
-
-				mesh2.addIndex(x+y*ww);				// 0
-				if (x<ww-1)
-					mesh2.addIndex((x+1)+y*ww);			// 1
-				if (y<hh-1)
-					mesh2.addIndex(x+(y+1)*ww);			// 10
-
-				if (x<ww-1)
-					mesh2.addIndex((x+1)+y*ww);			// 1
-				if (x<ww-1 && y<hh-1)
-					mesh2.addIndex((x+1)+(y+1)*ww);		// 11
-				if (y<hh-1)
-					mesh2.addIndex(x+(y+1)*ww);			// 10
-				
-
-
-			}
-		}
-		
-		mesh2.enableTextures();
-
-		glCullFace(GL_FRONT);
-		glEnable(GL_CULL_FACE);
-
-		if (uiC->pBool["useTex"]) {
-			ribbon1->getTexture().bind();
-		}
-		if (uiC->pString["draw"] == "wire") {
-			mesh2.drawWireframe();
-		}
-		if (uiC->pString["draw"] == "faces") {
-			mesh2.drawFaces();
-		}
-		if (uiC->pString["draw"] == "points") {
-			mesh2.draw(OF_MESH_POINTS);
-		}
-		if (uiC->pBool["useTex"]) {
-			ribbon1->getTexture().unbind();
-		}
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_CULL_FACE);
-		
-		
-		glCullFace(GL_BACK);
-		glEnable(GL_CULL_FACE);
-		if (uiC->pBool["useTex"]) {
-			ribbon2->getTexture().bind();
-		}
-
-		if (uiC->pString["draw"] == "wire") {
-			mesh2.drawWireframe();
-		}
-		if (uiC->pString["draw"] == "faces") {
-			mesh2.drawFaces();
-		}
-		if (uiC->pString["draw"] == "points") {
-			mesh2.draw(OF_MESH_POINTS);
-		}
-
-		if (uiC->pBool["useTex"]) {
-			ribbon2->getTexture().bind();
-		}
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_CULL_FACE);		
-	}
-	
-	void uiEvents(ofxMicroUI::element & e) override {
-	}
-};
-
-
-
-
 struct sceneNav : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+	// name = "nav";
 
 	struct nav {
 		public:
@@ -822,9 +815,9 @@ public:
 	        glm::vec4 Position = glm::vec4(pos, 1.0f);
 			float angleX = ofDegToRad(ofRandom(-1, 1));
 			glm::mat4 Rot = glm::rotate(glm::mat4(1.0f), (angleX), glm::vec3(1.0, 0.0, 0.0));
-			float angleY = ofDegToRad(ofRandom(-1, 1));
+			// float angleY = ofDegToRad(ofRandom(-1, 1));
 			glm::mat4 RotY = glm::rotate(glm::mat4(1.0f), (angleX), glm::vec3(0, 1.0, 0.0));
-			float angleZ = ofDegToRad(ofRandom(-1, 1));
+			// float angleZ = ofDegToRad(ofRandom(-1, 1));
 			glm::mat4 RotZ = glm::rotate(glm::mat4(1.0f), (angleX), glm::vec3(0.0, 0.0, 1.0));
 
        		glm::mat4 Model = glm::translate( glm::mat4(1.0f), glm::vec3(0, 0.0f, 1.0f));
@@ -874,7 +867,8 @@ public:
 struct sceneRandom : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+	// name = "random";
+
 	int margem = 500;
 	// boundsrect quadrado aqui.
 	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem*2, fbo->getWidth() + margem*2);
@@ -923,7 +917,8 @@ public:
 struct sceneText : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+	// name = "text";
+
 	ofTrueTypeFont font;
 	ofFbo fboText;
 
@@ -969,6 +964,7 @@ public:
 struct sceneTextFile : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	// name = "textFile";
 	
 	ofTrueTypeFont font;
 
@@ -998,6 +994,7 @@ public:
 struct sceneNo : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
+	// name = "no";
 	
 	void setup() override {
 	}
@@ -1020,7 +1017,8 @@ public:
 struct sceneGrad : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+	// name = "grad";
+
 	ofMesh fundoMesh;
 
 	void setup() override {
@@ -1058,7 +1056,8 @@ public:
 struct sceneClaquete : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+	// name = "claquete";
+
 	ofFbo fboText;
 
 	void setup() override {
@@ -1093,13 +1092,11 @@ public:
 };
 
 
-
-
-
 struct sceneSvank : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	
+	// name = "svank";
+
 	void setup() override {
 	}
 	
@@ -1114,3 +1111,51 @@ public:
 };
 
 
+// struct sceneBasic : public sceneDmtr {
+// public:
+// 	using sceneDmtr::sceneDmtr;
+
+// 	void draw() override {
+// 		checkSetup();
+// 		ofSetColor(getColor(0, uiColors));
+// 		ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
+// 	}
+// };
+
+
+
+
+
+// struct sceneBasic : public sceneDmtr {
+// public:
+// 	using sceneDmtr::sceneDmtr;
+	
+// 	void setup() override {
+// 	}
+	
+// 	void draw() override {
+// 		checkSetup();
+// 		ofSetColor(getColor(0, uiColors));
+// 		ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
+// 	}
+	
+// 	void uiEvents(ofxMicroUI::element & e) override {
+// 	}
+// };
+
+
+void setupScenes() {
+	scenes.push_back(new sceneImage(&config, "image"));
+	scenes.push_back(new sceneVideo(&config, "video"));
+	scenes.push_back(new sceneToma(&config, "toma"));
+	scenes.push_back(new sceneConfetti(&config, "confetti"));
+	scenes.push_back(new sceneRibbon(&config, "ribbon"));
+	scenes.push_back(new sceneSvank(&config, "svank"));
+	scenes.push_back(new sceneClaquete(&config, "claquete"));
+	scenes.push_back(new sceneNo(&config, "no"));
+	scenes.push_back(new sceneGrad(&config, "grad"));
+	scenes.push_back(new sceneRandom(&config, "random"));
+	scenes.push_back(new sceneNav(&config, "nav"));
+	scenes.push_back(new sceneTextFile(&config, "textfile"));
+	// scenes.push_back(new sceneBasic(&config, "basic"));
+}

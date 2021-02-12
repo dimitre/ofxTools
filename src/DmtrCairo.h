@@ -19,6 +19,19 @@ void setupCairo(int w, int h) {
 	cairoIsSetup = true;
 }
 
+
+void setupCairo(ofFbo * fbo) {
+	int w = fbo->getWidth();
+	int h = fbo->getHeight();
+	cout << "setupCairo :: " << w << " x " << h << endl;
+	opengl = ofGetGLRenderer();
+	cairo = make_shared<ofCairoRenderer>();
+	cairoOut = make_shared<ofCairoRenderer>();
+	ofRectangle rect = ofRectangle(0, 0, w, h);
+	cairo->setupMemoryOnly(ofCairoRenderer::IMAGE, false, false, rect);
+	cairoIsSetup = true;
+}
+
 string savingCairoFilename = "";
 void beginCairo() {
 	if (cairoIsSetup) {
@@ -35,7 +48,7 @@ void beginCairo() {
 			ofGetCurrentRenderer()->setStyle(style);
 			cairo_set_miter_limit(cairoOut->getCairoContext(), 2);
 			cairo_set_line_join(cairoOut->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
-			cairo_set_line_cap(cairoOut->getCairoContext(), CAIRO_LINE_CAP_ROUND); /* default */  // ROUND SQUARE
+			cairo_set_line_cap(cairoOut->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
 	#endif
 		} else {
 			
@@ -44,9 +57,12 @@ void beginCairo() {
 			ofStyle style = ofGetCurrentRenderer()->getStyle();
 			ofGetCurrentRenderer()->setStyle(style);
 			cairo_set_miter_limit(cairo->getCairoContext(), 2);
-			cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
-			cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_ROUND); /* default */  // ROUND SQUARE
+//			cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+//			cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
+			cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_BEVEL); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+			cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_BUTT); // ROUND SQUARE
 			
+
 			if (ui->pBool["cairoStroked"]) {
 				static const double dashes[] = { 100.0,  /* ink */
 					40.0,  /* skip */

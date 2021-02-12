@@ -1,5 +1,6 @@
 struct sceneMuti : public sceneDmtr {
 	using sceneDmtr::sceneDmtr;
+	#include "polar.h"
 	
 	float updown = 0;
 	float beat = 0;
@@ -128,8 +129,8 @@ struct sceneMuti : public sceneDmtr {
 
 struct sceneUniversoNovo : public sceneMuti {
 public:
-
 	using sceneMuti::sceneMuti;
+	// name = "universoNovo";
 
 	// cena universo novo
 	struct objNovo {
@@ -296,8 +297,8 @@ public:
 
 struct sceneRect : public sceneMuti {
 public:
-	
 	using sceneMuti::sceneMuti;
+	// name = "rect";
 	
 	// provisorio
 	bool isPoligonos = false;
@@ -349,10 +350,13 @@ public:
 	}
 
 	void update() override {
+#ifdef USEFFT
+
 		audio =
 		config->fft->updown;
 		updown =
 		config->fft->updown;
+#endif
 		
 		if (updateObjects) {
 			updateObjects = false;
@@ -687,8 +691,9 @@ public:
 
 struct scenePoligonos : public sceneRect {
 public:
-
 	using sceneRect::sceneRect;
+	// name = "poligonos";
+
 	void setup() override {
 		setPoligonos();
 		isPoligonos = true;
@@ -701,8 +706,9 @@ public:
 
 struct sceneTemp : public sceneMuti {
 public:
-
 	using sceneMuti::sceneMuti;
+	// name = "temp";
+
 	void setup() override {
 	}
 
@@ -714,14 +720,11 @@ public:
 
 struct sceneGrid : public sceneMuti {
 public:
-
+	using sceneMuti::sceneMuti;
+	// name = "grid";
 	
 	float beat = 0;
 	
-	using sceneMuti::sceneMuti;
-	void setup() override {
-	}
-
 	void draw() override {
 //		ofTranslate(fbo->getWidth() * .5, fbo->getHeight() * .5);
 		int limitX = uiC->pEasy["nObjetosX"] + uiC->pEasy["nObjetosXAudio"] * updown;
@@ -805,18 +808,8 @@ public:
 
 
 void setupScenesMuti() {
-//	scenes.push_back(new sceneRect(u, fbo));
-	scenes.push_back(new sceneRect(&config));
-	scenesMap["rect"] = scenes.back();
-
-//	scenes.push_back(new scenePoligonos(u, fbo));
-	scenes.push_back(new scenePoligonos(&config));
-	scenesMap["poligonos"] = scenes.back();
-
-	scenes.push_back(new sceneUniversoNovo(u, fbo));
-	scenesMap["universoNovo"] = scenes.back();
-
-	scenes.push_back(new sceneGrid(u, fbo));
-	scenesMap["grid"] = scenes.back();
-
+	scenes.push_back(new sceneRect(&config, "rect"));
+	scenes.push_back(new scenePoligonos(&config, "poligonos"));
+	scenes.push_back(new sceneUniversoNovo(&config, "universoNovo"));
+	scenes.push_back(new sceneGrid(&config, "grid"));
 }

@@ -64,35 +64,36 @@ int main( ){
 	
 	
 	for (int a=0; a<monitorCount; a++) {
-		cout << "-------" << endl;
-		cout << "display # " << a << " : " << glfwGetMonitorName(monitors[a]) << endl;
+		string output;
+		output += "display # " + ofToString(a) + " : " + glfwGetMonitorName(monitors[a]) + "\r";
 
 		float scaleX, scaleY;
 		glfwGetMonitorContentScale(monitors[a], &scaleX, &scaleY); // We take the second monitor
-		cout << "contentscale : " << scaleX << " x " << scaleY << endl;
+		output += "contentscale : " + ofToString(scaleX) + " x " + ofToString(scaleY) + "\r";
 
 		// nao funciona pois eh sobre uma janela especifica
 //		int fbX, fbY;
 //		glfwGetFramebufferSize(monitors[a], &fbX, &fbY);
-//		cout << "glfwGetFramebufferSize : " << fbX << " x " << fbY << endl;
+//		cout << "glfwGetFramebufferSize : " << fbX << " x " << fbY << "\r";
 		
         int xM; int yM;
         glfwGetMonitorPos(monitors[a], &xM, &yM); // We take the second monitor
 		glm::vec2 pos = glm::vec2(xM, yM);
-		cout << "position: " << pos << endl;
+		output += "position: " + ofToString(pos.x) + " x " + ofToString(pos.y) + "\r";
 
 //		glViewport(0, 0, width, height);
 		
         const GLFWvidmode * desktopMode = glfwGetVideoMode(monitors[a]);
-//		cout << (ofAppGLFWWindow *)(monitors[a])->getPixelScreenCoordScale() << endl;
+//		cout << (ofAppGLFWWindow *)(monitors[a])->getPixelScreenCoordScale() << "\r";
 		glm::vec2 size = glm::vec2(desktopMode->width, desktopMode->height);
-		cout << "size:" << size << endl;
+		output += "size: " + ofToString(size.x) + " x " + ofToString(size.y) + "\r";
+		// output << "size:" << size << endl;
 
 		if (a > 0) {
 			settings.setSize (size.x, size.y);
 			settings.setPosition(pos);
 			settings.windowMode = OF_FULLSCREEN;
-			settings.resizable = false;
+//			settings.resizable = false;=-
 			settings.shareContextWith = guiWindow;
 			newWindow = ofCreateWindow(settings);
 
@@ -110,8 +111,13 @@ int main( ){
 			}
 			allWindows.emplace_back(newWindow);
 		}
+		
+		ofxMicroUI::messageBox(output);
+		// cout << output << endl;
 //        return true;
     }
+	// cout << "-------" << endl;
+
 //#endif
 
 //#ifdef TARGET_OSX
