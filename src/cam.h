@@ -332,9 +332,16 @@ void luzUIEvent(ofxMicroUI::element & e) {
 
 //--------------------------------------------------------------
 void dmtrCamUIEvent_3d(ofxMicroUI::element & e) {
+	
+	// XAXA
+//	cout << e.name << endl;
+//	cout << e._settings->presetIsLoading << endl;
+//	cout << "-----" << endl;
 	if (!e._settings->presetIsLoading) {
 
-//			cout << e.name << endl;
+//		cout << e.name << endl;
+//		cout << e._settings->presetIsLoading << endl;
+
 		if (e.name == "resetLook") {
 			uiCam->getSlider("lookX")->set(0.0);
 //			uiCam->getSlider("lookY")->set(1.6);
@@ -372,9 +379,6 @@ void dmtrCamUIEvent_3d(ofxMicroUI::element & e) {
 	
 
 }
-
-
-
 
 
 

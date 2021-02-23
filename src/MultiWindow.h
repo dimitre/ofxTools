@@ -4,6 +4,7 @@ vector <shared_ptr<ofAppBaseWindow> > allWindows;
 
 #include "GLFW/glfw3.h"
 
+
 //========================================================================
 int main( ){
 #ifndef WINDOWWIDTH
@@ -14,7 +15,7 @@ int main( ){
 #define WINDOWHEIGHT 840
 #endif
 
-	
+
 //	ofTargetPlatform {
 //	  OF_TARGET_OSX, OF_TARGET_WINGCC, OF_TARGET_WINVS, OF_TARGET_IOS,
 //	  OF_TARGET_ANDROID, OF_TARGET_LINUX, OF_TARGET_LINUX64, OF_TARGET_LINUXARMV6L,
@@ -62,6 +63,7 @@ int main( ){
 	
     cout << "Screens Found: " << monitorCount << endl;
 	
+
 	
 	for (int a=0; a<monitorCount; a++) {
 		string output;
@@ -97,7 +99,9 @@ int main( ){
 			settings.shareContextWith = guiWindow;
 			newWindow = ofCreateWindow(settings);
 
+
 			if (a==1) {
+				// ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow1);
 				ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow1);
 			}
 			else if (a==2) {

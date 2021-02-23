@@ -1,4 +1,5 @@
 #define SVGCAIRO 1
+#define USECAIROBLENDING 1
 
 bool useCairo = false;
 

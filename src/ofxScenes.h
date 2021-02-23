@@ -1,8 +1,9 @@
-//
-//#include <boost/signals2.hpp>
-//#include <iostream>
-//
-//using namespace boost::signals2;
+
+
+//	 #define SCENESMIAW 1
+//	 #define SCENESALL 1
+	//  #define SCENESMUTI 1
+	// #define SCENES3D 1
 
 
 //#define USESVG 1
@@ -31,6 +32,7 @@ public:
 #endif
 		ofFbo * fbo = NULL;
 		ofxMicroUI * u = NULL;
+		ofxMicroUI * ui = NULL;
 		ofxMicroUI * uiC = NULL;
 		ofxMicroUI * uiColors = NULL;
 
@@ -42,28 +44,33 @@ public:
 		sceneConfig() {} ;
 		sceneConfig(ofFbo * _fbo, ofxMicroUI * _u) :
 		fbo(_fbo), u(_u) {
-			uiColors = &u->uis["colors"];
+			ui = &u->uis["ui"];
 			uiC = &u->uis["scene"];
+			uiColors = &u->uis["colors"];
 		};
 		
 		sceneConfig(ofFbo * _fbo, ofxMicroUI * _u, ofxMicroUI * _uiC) :
 		fbo(_fbo), u(_u), uiC(_uiC) {
+			ui = &u->uis["ui"];
 			uiColors = &u->uis["colors"];
 		};
 		
 		sceneConfig(ofFbo * _fbo, ofxMicroUI * _u, ofxMicroUI * _uiC, ofxMicroUI * _uiColors) :
 		fbo(_fbo), u(_u), uiC(_uiC), uiColors(_uiColors) {
+			ui = &u->uis["ui"];
 //			uiColors = &u->uis["colors"];
 		};
 	} config;
 	
-	#include "scenes.h"
+	#include "sceneDmtr.h"
 
 	ofFbo * fbo = NULL;
 	ofxMicroUI * u = NULL;
 	ofxMicroUI * uiC = NULL;
 	ofxMicroUI * uiColors = NULL;
 	string & scene;
+
+	ofxMicroUI * ui = NULL;
 	
 	// teste 17 nov 2020, nao sei se vai dar certo.
 	// mais tarde aplicar essa como parametro de todas as sceneDmtr, como construtor passando como ponteiro.
@@ -74,17 +81,24 @@ public:
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, string & s) : fbo(_f), u(_u), scene(s) {
 		config = sceneConfig(fbo, u);
 //		config.uiColors = &u->uis["colors"];
+
 		uiColors = &u->uis["colors"];
+		// novidade teste
+		ui = &u->uis["ui"];
 	}
 	
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, ofxMicroUI * _uiC, string & s) : fbo(_f), u(_u), uiC(_uiC), scene(s) {
 		config = sceneConfig(fbo, u, uiC);
 		uiColors = &u->uis["colors"];
+		// novidade teste
+		ui = &u->uis["ui"];
 	}
 
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, ofxMicroUI * _uiC, ofxMicroUI * _uiColors, string & s) :
 	fbo(_f), u(_u), uiC(_uiC), uiColors(_uiColors), scene(s) {
 		config = sceneConfig(fbo, u, uiC, uiColors);
+		// novidade teste
+		ui = &u->uis["ui"];
 //		uiColors = &u->uis["colors"];
 	}
 
@@ -151,37 +165,27 @@ public:
 		}
 	}
 
-	
 	vector <sceneDmtr *> scenes;
 	map <string, sceneDmtr *> scenesMap;
 	
-	#define SCENESMIAW 1
+
 	#ifdef SCENESMIAW
 	#include "scenes.h"
 	#endif	
 
-
-	#define SCENESALL 1
 	#ifdef SCENESALL
 	#include "scenesAll.h"
 	#endif
 
-	#define SCENESMUTI 1
 	#ifdef SCENESMUTI
 	#include "scenesMuti.h"
 	#endif	
 	
-	
-	// vector <void()> _setupFunctions;
-	// signal<void()> setups;
+	#ifdef SCENES3D
+	#include "scenes3d.h"
+	#endif
 
 	void setup() {
-		// setups.connect([]{ setupScenesMuti(); });
-		// setups.connect([]{ setupScenes(); });
-		// setups();
-		// _setupFunctions.push_back(&ofxScenes::setupScenesMuti);
-
-
 #ifdef SCENESMUTI
 		setupScenesMuti();
 #endif	
@@ -192,28 +196,29 @@ public:
 #ifdef SCENESMIAW
 		setupScenes();
 #endif
-
-#ifdef USESVG
-		scenes.push_back(new sceneSvg(&config, "svg"));
-#endif
-	
-#ifdef USEASSIMP
-		scenes.push_back(new sceneModel(&config, "model"));
-		// scenes.push_back(new sceneModel(&config, "model2"));
+		
+#ifdef SCENES3D
+		setupScenes3d();
 #endif
 
+		cout << "------" << endl;
 		for (auto & s : scenes) {
+			cout << ":: adding " << s->name << endl;
 			scenesMap[s->name] = s;
 			scenesMap[s->name]->setup();
 		}
+		cout << "------" << endl;
 	}
 	
 	void draw() {
-		if (scene != "") {
+		ofSetLineWidth(ui->pEasy["lineWidth"]);
+
+		if (scene != "" && scene != "_") {
 			if ( scenesMap.find(scene) != scenesMap.end() ) {
 				ofSetColor(getColor(0, uiColors));
 				scenesMap[scene]->draw();
 			} else {
+				
 				cout << "scene not found " << scene << endl;
 			}
 		}

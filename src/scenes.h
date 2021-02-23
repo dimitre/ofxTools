@@ -1,102 +1,6 @@
-struct sceneDmtr {
-public:
-	
-//	friend class sceneConfig;
-	// #include "polar.h"
-	sceneConfig * config = NULL;
-	string name = "";
-	
-	bool isSetup = false;
-	ofxMicroUI * u = NULL;
-	ofxMicroUI * uiC = NULL;
-	ofxMicroUI * ui = NULL;
-	ofxMicroUI * uiColors = NULL;
-	ofFbo * fbo = NULL;
-	glm::vec2 middle;
-	map <string, float> incrementadorTemporal;
-	
-	
-	sceneDmtr() { }
-
-	sceneDmtr(sceneConfig * _c, string n) : config(_c), name(n) {
-		u = config->u;
-		ui = &u->uis["ui"];
-		uiC = config->uiC;
-		uiColors = config->uiColors;
-		fbo = config->fbo;
-		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
-		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
-	}
-
-	sceneDmtr(sceneConfig * _c) : config(_c) {
-		u = config->u;
-		ui = &u->uis["ui"];
-//		uiC = &u->uis["scene"];
-		uiC = config->uiC;
-//		uiColors = &u->uis["colors"];
-		uiColors = config->uiColors;
-		fbo = config->fbo;
-		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
-		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
-	}
-	
-	sceneDmtr(ofxMicroUI * _u, ofFbo * _fbo) : u(_u), fbo(_fbo) {
-		ui = &u->uis["ui"];
-		uiC = &u->uis["scene"];
-		uiColors = &u->uis["colors"];
-		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
-		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
-	}
-	
-	// TODO
-	float getFreq(int index) {
-		return 0;
-	}
-	
-	ofColor getCor(float n) {
-		return getColor(n, uiColors);
-	}
-
-
-	float incrementa(string qual) {
-		string uniqueId = uiC->uiName + qual;
-//		incrementadorTemporal[uniqueId] += uiC->pFloat[qual];
-		// 07/09/2020
-		incrementadorTemporal[uniqueId] += uiC->pEasy[qual];
-		return incrementadorTemporal[uniqueId];
-	}
-
-	void resetIncrementa(string qual) {
-		string uniqueId = uiC->uiName + qual;
-		incrementadorTemporal[uniqueId] = 0;
-	}
-
-	virtual void checkSetup() {
-		if (!isSetup) {
-			setup();
-			isSetup = true;
-		}
-	}
-
-	virtual void uiEvents(ofxMicroUI::element & e) {
-		// cout << "uiEvent primitive " << endl;
-	}
-	
-	virtual void setup() {
-		isSetup = true;
-	}
-
-	virtual void update() {		
-	}
-	
-	virtual void draw() {
-		checkSetup();
-	}
-};
-
-
 #ifdef USESVG
-struct sceneSvg : public sceneDmtr {
+
+struct sceneSvg : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "svg";
@@ -282,7 +186,7 @@ public:
 
 
 
-struct sceneImage : public sceneDmtr {
+struct sceneImage : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "image";
@@ -369,7 +273,7 @@ public:
 					for (int x = -1; x<= (vx+1); x++) {
 						for (int y = -1; y<= (vy+1); y++) {
 							if ((x+y)%2 || !uiC->pBool["impar"]) {
-								ofSetColor(getColor(imageNumber/(float)total, uiColors));
+								ofSetColor(ofxScenes::getColor(imageNumber/(float)total, config->uiColors));
 								ofPushMatrix();
 								ofTranslate(
 									x * iwMargin + iwMargin * .5 + offX, 
@@ -399,7 +303,7 @@ public:
 };
 
 
-struct sceneVideo : public sceneDmtr {
+struct sceneVideo : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "video";
@@ -432,7 +336,7 @@ public:
 		int index = 0;
 		for (int x =0; x<=vx; x++) {
 			for (int y =0; y<=vy; y++) {
-				ofSetColor(getColor(index/(float)total, uiColors));
+				ofSetColor(ofxScenes::getColor(index/(float)total, config->uiColors));
 				ofPushMatrix();
 				ofTranslate(x * vw + vw*.5, y * vh + vh * .5);
 				ofRotateDeg(rot);
@@ -467,7 +371,7 @@ public:
 
 
 
-struct sceneToma : public sceneDmtr {
+struct sceneToma : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "toma";
@@ -550,7 +454,7 @@ public:
 
 
 // TENTEI PORTAR mas nao funciona ainda nao sei porque
-struct sceneRibbon : public sceneDmtr {
+struct sceneRibbon : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "ribbon";
@@ -661,7 +565,7 @@ public:
 };
 
 
-struct sceneConfetti : public sceneDmtr {
+struct sceneConfetti : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "confetti";
@@ -756,12 +660,12 @@ public:
 		for (auto & c : confettis) {
 			if (c.index < uiC->pEasy["numero"]) {
 				if (uiC->pInt["colorMode"] == 0) {
-					ofSetColor(getColor(c.mult, uiColors));
+					ofSetColor(ofxScenes::getColor(c.mult, config->uiColors));
 				} else if (uiC->pInt["colorMode"] == 1) {
-					ofSetColor(getColor(ofRandom(0,1), uiColors));
+					ofSetColor(ofxScenes::getColor(ofRandom(0,1), config->uiColors));
 				} else if (uiC->pInt["colorMode"] == 2) {
 					float n = ofNoise(incrementa("tempoColor"), c.mult, c.pos.x * .1);
-					ofSetColor(getColor(n, uiColors));
+					ofSetColor(ofxScenes::getColor(n, config->uiColors));
 				}
 				
 				c.draw();
@@ -790,7 +694,7 @@ public:
 
 
 
-struct sceneNav : public sceneDmtr {
+struct sceneNav : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "nav";
@@ -849,7 +753,7 @@ public:
 	void draw() override {
 		checkSetup();
 
-		ofSetColor(getColor(0, uiColors));
+		ofSetColor(ofxScenes::getColor(0, config->uiColors));
 		for (auto & n : navs) {
 			n.draw();
 		}
@@ -864,7 +768,7 @@ public:
 
 
 
-struct sceneRandom : public sceneDmtr {
+struct sceneRandom : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "random";
@@ -891,7 +795,7 @@ public:
 				float h = ofNoise(a * uiC->pEasy["noiseHA"], ty) * fbo->getHeight() * uiC->pEasy["h"];
 				float x = -fbo->getWidth()* .5 + boundsRect.x + ofNoise(a * uiC->pEasy["noiseXA"], tx) * boundsRect.width;
 				float y = -fbo->getHeight()* .5 + boundsRect.x + ofNoise(a * uiC->pEasy["noiseYA"], ty) * boundsRect.height;
-				ofSetColor(getColor(a * uiC->pEasy["aColor"] + uiC->pEasy["offColor"], uiColors));
+				ofSetColor(ofxScenes::getColor(a * uiC->pEasy["aColor"] + uiC->pEasy["offColor"], config->uiColors));
 				ofDrawRectangle(x,y,w,h);
 			}
 		} else {
@@ -900,7 +804,7 @@ public:
 				float y = -fbo->getHeight()* .5 + ofRandom(boundsRect.x, boundsRect.width);
 				float w = ofRandom(0,fbo->getWidth()*.5);
 				float h = ofRandom(0,fbo->getHeight()*.5);
-				ofSetColor(getColor(ofRandom(0,1), uiColors));
+				ofSetColor(ofxScenes::getColor(ofRandom(0,1), config->uiColors));
 				ofDrawRectangle(x, y, w, h);
 			}
 		}
@@ -914,7 +818,7 @@ public:
 
 
 
-struct sceneText : public sceneDmtr {
+struct sceneText : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "text";
@@ -930,7 +834,7 @@ public:
 	
 	void draw() override {
 		checkSetup();
-		ofSetColor(getColor(0, uiColors));
+		ofSetColor(ofxScenes::getColor(0, config->uiColors));
 		// ofDrawBitmapString(uiC->pText["text"], 20, 20);
 		fboText.begin();
 		ofClear(0,0);
@@ -961,7 +865,7 @@ public:
 };
 
 
-struct sceneTextFile : public sceneDmtr {
+struct sceneTextFile : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "textFile";
@@ -991,7 +895,7 @@ public:
 };
 
 
-struct sceneNo : public sceneDmtr {
+struct sceneNo : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "no";
@@ -1014,7 +918,7 @@ public:
 
 
 
-struct sceneGrad : public sceneDmtr {
+struct sceneGrad : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "grad";
@@ -1027,11 +931,11 @@ public:
 	
 	void draw() override {
 		checkSetup();
-		int paletteSize = ((ofxMicroUI::colorPalette*)uiColors->getElement("colorPalette"))->getPaletteSize();
+		int paletteSize = ((ofxMicroUI::colorPalette*)config->uiColors->getElement("colorPalette"))->getPaletteSize();
 		fundoMesh.clear();
 		for (int p=0; p<=paletteSize; p++) {
 			float y = ofMap(p, 0, paletteSize, 0, fbo->getHeight());
-			ofColor color = ((ofxMicroUI::colorPalette*)uiColors->getElement("colorPalette"))->getColorByIndex(p);
+			ofColor color = ((ofxMicroUI::colorPalette*)config->uiColors->getElement("colorPalette"))->getColorByIndex(p);
 			// cout << y << endl;
 			fundoMesh.addVertex(glm::vec3(0, y, 0));
 			fundoMesh.addColor(color);
@@ -1053,7 +957,7 @@ public:
 	}
 };
 
-struct sceneClaquete : public sceneDmtr {
+struct sceneClaquete : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "claquete";
@@ -1072,8 +976,8 @@ public:
 		
 		fboText.begin();
 		ofClear(0,0);
-		ofSetColor(getColor(ofRandom(0,1), uiColors));
-		ofSetColor(getColor(0, uiColors));
+		ofSetColor(ofxScenes::getColor(ofRandom(0,1), config->uiColors));
+		ofSetColor(ofxScenes::getColor(0, config->uiColors));
 //		cout <<  << endl;
 		ofDrawBitmapString("OK Dmtr.org\n" + uiC->pString["text"], 4, 18);
 		fboText.end();
@@ -1092,7 +996,7 @@ public:
 };
 
 
-struct sceneSvank : public sceneDmtr {
+struct sceneSvank : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "svank";
@@ -1102,7 +1006,7 @@ public:
 	
 	void draw() override {
 		checkSetup();
-		ofSetColor(getColor(0, uiColors));
+		ofSetColor(ofxScenes::getColor(0, config->uiColors));
 		ofDrawRectangle(0,0,fbo->getWidth(), fbo->getHeight());
 	}
 	
@@ -1111,7 +1015,7 @@ public:
 };
 
 
-// struct sceneBasic : public sceneDmtr {
+// struct sceneBasic : public ofxScenes::sceneDmtr {
 // public:
 // 	using sceneDmtr::sceneDmtr;
 
@@ -1126,7 +1030,7 @@ public:
 
 
 
-// struct sceneBasic : public sceneDmtr {
+// struct sceneBasic : public ofxScenes::sceneDmtr {
 // public:
 // 	using sceneDmtr::sceneDmtr;
 	
@@ -1144,18 +1048,22 @@ public:
 // };
 
 
-void setupScenes() {
-	scenes.push_back(new sceneImage(&config, "image"));
-	scenes.push_back(new sceneVideo(&config, "video"));
-	scenes.push_back(new sceneToma(&config, "toma"));
-	scenes.push_back(new sceneConfetti(&config, "confetti"));
-	scenes.push_back(new sceneRibbon(&config, "ribbon"));
-	scenes.push_back(new sceneSvank(&config, "svank"));
-	scenes.push_back(new sceneClaquete(&config, "claquete"));
-	scenes.push_back(new sceneNo(&config, "no"));
-	scenes.push_back(new sceneGrad(&config, "grad"));
-	scenes.push_back(new sceneRandom(&config, "random"));
-	scenes.push_back(new sceneNav(&config, "nav"));
-	scenes.push_back(new sceneTextFile(&config, "textfile"));
-	// scenes.push_back(new sceneBasic(&config, "basic"));
-}
+//void setupScenes() {
+//#ifdef USESVG
+//	scenes.push_back(new sceneSvg(&config, "svg"));
+//#endif
+//
+//	scenes.push_back(new sceneImage(&config, "image"));
+//	scenes.push_back(new sceneVideo(&config, "video"));
+//	scenes.push_back(new sceneToma(&config, "toma"));
+//	scenes.push_back(new sceneConfetti(&config, "confetti"));
+//	scenes.push_back(new sceneRibbon(&config, "ribbon"));
+//	scenes.push_back(new sceneSvank(&config, "svank"));
+//	scenes.push_back(new sceneClaquete(&config, "claquete"));
+//	scenes.push_back(new sceneNo(&config, "no"));
+//	scenes.push_back(new sceneGrad(&config, "grad"));
+//	scenes.push_back(new sceneRandom(&config, "random"));
+//	scenes.push_back(new sceneNav(&config, "nav"));
+//	scenes.push_back(new sceneTextFile(&config, "textfile"));
+//	// scenes.push_back(new sceneBasic(&config, "basic"));
+//}

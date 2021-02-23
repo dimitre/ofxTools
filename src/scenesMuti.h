@@ -1,4 +1,4 @@
-struct sceneMuti : public sceneDmtr {
+struct sceneMuti : public ofxScenes::sceneDmtr {
 	using sceneDmtr::sceneDmtr;
 	#include "polar.h"
 	
@@ -702,22 +702,6 @@ public:
 	}
 };
 
-
-
-struct sceneTemp : public sceneMuti {
-public:
-	using sceneMuti::sceneMuti;
-	// name = "temp";
-
-	void setup() override {
-	}
-
-	void draw() override {
-
-	}	
-};
-
-
 struct sceneGrid : public sceneMuti {
 public:
 	using sceneMuti::sceneMuti;
@@ -736,7 +720,6 @@ public:
 		+ uiC->pEasy["objetosDistanciaBeat"] * beat;
 		
 		int contagem = 0;
-		float space = objetosDistancia;
 		float totalObjetos = (limitX * 2.0 +1)*(limitY * 2.0 + 1) * (limitZ * 2.0+1);
 		if (totalObjetos == 0)
 			totalObjetos = 1.0;
@@ -777,9 +760,9 @@ public:
 					ofPushMatrix();
 
 
-					float x = space * (float)a + uiC->pEasy["randomPos"] * (ofNoise(a*10.0 + .1, b, c + .1)-.5);
-					float y = space * (float)b + uiC->pEasy["randomPos"] * (ofNoise(b*10.0 + .1, a, c + .1)-.5);
-					float z = space * (float)c + uiC->pEasy["randomPos"] * (ofNoise(c*10.0 + .1, a, b + .1)-.5);
+					float x = objetosDistancia * a + uiC->pEasy["randomPos"] * (ofNoise(a*10.0 + .1, b, c + .1)-.5);
+					float y = objetosDistancia * b + uiC->pEasy["randomPos"] * (ofNoise(b*10.0 + .1, a, c + .1)-.5);
+					float z = objetosDistancia * c + uiC->pEasy["randomPos"] * (ofNoise(c*10.0 + .1, a, b + .1)-.5);
 
 					ofTranslate(ofPoint(x,y,z));
 					if (uiC->pFloat["randomAngle"] || uiC->pFloat["randomAngleAudio"]) {
@@ -807,9 +790,38 @@ public:
 };
 
 
+struct sceneTest : public sceneMuti {
+public:
+	using sceneMuti::sceneMuti;
+
+	void setup() override {
+	}
+
+	void draw() override {
+		float offy = 0;
+		int modulo = 80;
+		int index = 0;
+		while (offy < fbo->getHeight()) {
+			float offx = 0;
+			while(offx < fbo->getWidth()) {
+				ofSetColor(ofColor::fromHsb(fmod(index * 5.0, 360), 255, 255));
+				ofDrawRectangle(offx, offy, modulo, modulo);
+				ofSetColor(255);
+				ofDrawBitmapString(ofToString(index), offx + 12, offy + 22);
+				offx += modulo;
+				index ++ ;
+			}
+			offy += modulo;
+		}
+	}
+};
+
+
+/*
 void setupScenesMuti() {
 	scenes.push_back(new sceneRect(&config, "rect"));
 	scenes.push_back(new scenePoligonos(&config, "poligonos"));
 	scenes.push_back(new sceneUniversoNovo(&config, "universoNovo"));
 	scenes.push_back(new sceneGrid(&config, "grid"));
 }
+*/

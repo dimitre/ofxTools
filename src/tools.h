@@ -32,11 +32,11 @@ void startBlendingMode() {
 //	}
 //}
 
-float nextChange = 0;
-int nPreset = -1;
 
 // separar em outro .h depois
 #ifdef USEAUTOPILOT
+float nextChange = 0;
+int nPreset = -1;
 ofxMicroUI * uiAutoPilot = &u.uis["autoPilot"];
 void setupAutoPilot() {
 	ofAddListener(ofEvents().draw, this, &ofApp::onAutoPilot);

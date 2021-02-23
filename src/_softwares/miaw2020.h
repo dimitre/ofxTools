@@ -15,7 +15,15 @@ ofxSyphonServer syphonOut;
 #endif
 
 #include "DmtrCairo.h"
+#include "shaders.h"
+#include "cam.h"
+//#include "scenes.h"
+#include "tools.h"
 
+featureShader shader2d = featureShader(&u.uis["ui"], &u.uis["shaders2d"], &soft);
+featureShader shader3d = featureShader(&u.uis["ui"], &u.uis["shaders3d"], &soft);
+featureShader shadergen = featureShader(&u.uis["ui"], &u.uis["shadersgen"], &soft);
+featureShader shaderfeed = featureShader(&u.uis["ui"], &u.uis["shadersfeed"], &soft);
 
 ofxScenes scenes = ofxScenes(fbo, &u, ui->pString["scene"]);
 
@@ -130,6 +138,7 @@ void beginMiaw(bool background = true) {
 		}
 	}
 	ofSetLineWidth(ui->pEasy["lineWidth"]);
+
 }
 
 void endMiaw() {
@@ -161,10 +170,6 @@ void endMiaw() {
 #endif
 
 
-#include "shaders.h"
-#include "cam.h"
-//#include "scenes.h"
-#include "tools.h"
 
 void preSetupMiaw() {
 	
@@ -172,12 +177,12 @@ void preSetupMiaw() {
 	ofSetEscapeQuitsApp(false);
 	scenes.setup();
 
-	setupCam_3d();
 //	u._settings->useFixedLabel = true;
 	shadersSetup();
 }
 
 void setupMiaw() {
+	setupCam_3d();
 	soft.fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 	soft.fbo2.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
 	soft.fbo3.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
