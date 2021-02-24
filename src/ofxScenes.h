@@ -185,7 +185,23 @@ public:
 	#include "scenes3d.h"
 	#endif
 
+
+	void onUpdate(ofEventArgs &data) {
+		// se eu fizer isso ele da update em todas as cenas mesmo as q nao estao selecionadas.
+		// for (auto & s : scenes) {
+		// 	s->update();
+		// }
+
+		if (scene != "" && scene != "_") {
+			if ( scenesMap.find(scene) != scenesMap.end() ) {
+				scenesMap[scene]->update();
+			}
+		}
+	}
+
 	void setup() {
+		ofAddListener(ofEvents().update, this, &ofxScenes::onUpdate);
+
 #ifdef SCENESMUTI
 		setupScenesMuti();
 #endif	
@@ -209,6 +225,8 @@ public:
 		}
 		cout << "------" << endl;
 	}
+
+
 	
 	void draw() {
 		ofSetLineWidth(ui->pEasy["lineWidth"]);

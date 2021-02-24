@@ -50,6 +50,7 @@ struct sceneNdi : public ofxScenes::sceneDmtr {
 	}
 
 	void update() override {
+//		cout << "update ndi" << endl;
 		ndiReceiver.ReceiveImage(ndiTexture);
 	}
 
@@ -57,14 +58,36 @@ struct sceneNdi : public ofxScenes::sceneDmtr {
 		ndiTexture.draw(0, 0, fbo->getWidth(), fbo->getHeight());
 	}
 
-	void draw() {
+	void draw() override {
+		// update();
+//		cout << "draw ndi" << endl;
+		
+
+		ofSetColor(255);
 		// float scale = 1.0;
 		float scale = uiC->pEasy["scale"];
 		float w = ndiTexture.getWidth() * scale;
 		float h = ndiTexture.getHeight() * scale;
-		ofTranslate(fbo->getWidth() *.5, fbo->getHeight() * .5);		
-		ndiTexture.draw(-w*.5, -h*.5, w, h);
-	}
+		
+		ofTranslate(fbo->getWidth() * .5, fbo->getHeight() * .5);
 
+		float x = -w*.5 + uiC->pEasy["offX"];
+		float y = -h*.5 + uiC->pEasy["offY"];
+
+//		i->draw(x, y, w, h);
+
+		ndiTexture.draw(x, y, w, h);
+		
+		if (uiC->pBool["debug"]) {
+			cout << "DEBUG ----------" << endl;
+			char name[256];
+			int nsenders = ndiReceiver.GetSenderCount();
+			for (int i = 0; i < nsenders; i++) {
+				ndiReceiver.GetSenderName(name, 256, i);
+				cout << "    Sender " << i << " [" << name << "]" << endl;
+			}
+			ndiTexture.draw(0, 0, fbo->getWidth(), fbo->getHeight());
+		}
+	}
 #endif
 };
