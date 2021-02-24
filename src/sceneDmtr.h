@@ -58,7 +58,7 @@ public:
 		return 0;
 	}
 	
-	ofColor getCor(float n) {
+	virtual ofColor getCor(float n) {
 		return getColor(n, config->uiColors);
 	}
 

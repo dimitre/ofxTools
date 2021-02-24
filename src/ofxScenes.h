@@ -26,6 +26,8 @@ public:
 	
 	struct sceneConfig {
 	public:
+
+		string name = "";
 		
 #ifdef USEFFT
 		ofxMicroUIFFT * fft = NULL;
@@ -105,14 +107,12 @@ public:
 	
 	static ofColor getColor(float n, ofxMicroUI * uiColors) {
 		if (uiColors->pBool["usePalette"]) {
-			// uiColors->pColor["colorPalette"] = ((ofxMicroUI::colorPalette*)uiColors->getElement("colorPalette"))->getColor(n);
-			// return uiColors->pColorEasy["colorPalette"];
 			return ((ofxMicroUI::colorPalette*)uiColors->getElement("colorPalette"))->getColor(n);
 		} else {
 			return uiColors->pColorEasy["color"];
 		}
 	}
-	
+
 	static void calcNormals( ofMesh & mesh, bool bNormalize, bool mode){
 		for( int i=0; i < mesh.getIndices().size(); i+=3 ){
 			const int ia = mesh.getIndices()[i];

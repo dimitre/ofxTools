@@ -11,6 +11,16 @@ struct sceneMuti : public ofxScenes::sceneDmtr {
 	ofConePrimitive cone, cone2;
 	ofSpherePrimitive sphere, sphere2;
 	ofIcoSpherePrimitive icoSphere, icoSphere2;
+
+
+	ofColor getColorRange(float n) {
+		if (config->uiColors->pBool["usePalette"]) {
+			return ((ofxMicroUI::colorPalette*)config->uiColors->getElement("colorPalette"))->getColor(n);
+		} else {
+			return ((ofxMicroUI::colorHsv*)config->uiColors->getElement("color"))->getColor(n);
+			// return uiColors->pColorEasy["color"];
+		}
+	}
 	
 	//--------------------------------------------------------------
 	float r2f (ofPoint range, float mult, int steps) {
@@ -303,9 +313,6 @@ public:
 	// provisorio
 	bool isPoligonos = false;
 	
-	
-
-
 	struct objetoEase {
 	public:
 		bool on = false;
@@ -571,7 +578,8 @@ public:
 								}
 							}
 							
-							estacor = getCor (o.index/(float)nObjetos + b/(float)numLinhas);
+							// estacor = getCor (o.index/(float)nObjetos + b/(float)numLinhas);
+							estacor = getColorRange(o.index/(float)nObjetos + b/(float)numLinhas);
 							ofSetColor(estacor);
 
 							if (uiC->pString["mode"] == "fill") {
@@ -801,13 +809,14 @@ public:
 		float offy = 0;
 		int modulo = 80;
 		int index = 0;
+		
 		while (offy < fbo->getHeight()) {
 			float offx = 0;
 			while(offx < fbo->getWidth()) {
 				ofSetColor(ofColor::fromHsb(fmod(index * 5.0, 360), 255, 255));
 				ofDrawRectangle(offx, offy, modulo, modulo);
 				ofSetColor(255);
-				ofDrawBitmapString(ofToString(index), offx + 12, offy + 22);
+				ofDrawBitmapString(config->name + ":" + ofToString(index), offx + 12, offy + 22);
 				offx += modulo;
 				index ++ ;
 			}
