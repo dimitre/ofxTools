@@ -25,11 +25,16 @@ public:
 		ofAddListener(ui->uiEvent, this, &microFeature::uiEvents);
 		setup();
 	}
-	microFeature(ofxMicroUI * _ui, ofxMicroUI * _ui2, ofxMicroUISoftware * _soft) : ui(_ui), ui2(_ui2), soft(_soft) {
+
+	microFeature(ofxMicroUI * _ui, ofxMicroUISoftware * _soft) : ui(_ui), soft(_soft) {
 		ofAddListener(ui->uiEvent, this, &microFeature::uiEvents);
 		setup();
 	}
 
+	microFeature(ofxMicroUI * _ui, ofxMicroUI * _ui2, ofxMicroUISoftware * _soft) : ui(_ui), ui2(_ui2), soft(_soft) {
+		ofAddListener(ui->uiEvent, this, &microFeature::uiEvents);
+		setup();
+	}
 };
 
 
@@ -268,4 +273,64 @@ public:
 	void begin() override { }
 	void end() override { }
 	void uiEvents(ofxMicroUI::element & e) override { }
+};
+
+
+
+
+struct featureShaderSimple : public microFeature {
+public:
+	using microFeature::microFeature;
+
+	ofShader shader;
+	bool * _on = NULL;
+	// string shaderLoaded = "";
+	// string name = "shaders2d";
+
+	void setup() override { 
+	}
+
+	void begin() override { 
+		if (shader.isLoaded() && ui->pBool["on"]) {
+			shader.begin();
+			shader.setUniform1f("time", ofGetElapsedTimef());
+			shader.setUniform2f("outputDimensions", soft->fboFinal->getWidth(), soft->fboFinal->getHeight());
+			
+			for (auto & p : ui->pFloat) {
+				float val = ui->pEasy[p.first];
+				shader.setUniform1f(p.first, val);
+			}
+			
+			for (auto & p : ui->pInt) {
+				shader.setUniform1i(p.first, p.second);
+			}
+			
+			for (auto & p : ui->pBool) {
+				shader.setUniform1i(p.first, p.second);
+			}
+
+			for (auto & p : ui->pColor) {
+				ofFloatColor c = ui->pColorEasy[p.first];
+				shader.setUniform4f(p.first, c.r, c.g, c.b, c.a);
+			}
+			
+			for (auto & p : ui->pImage) {
+				shader.setUniform1f("paletaWidth", 200);
+				if (ui->pBool["feed"]) {
+					shader.setUniformTexture("paleta", soft->fboFinal->getTexture(), 1);
+				} else {
+					shader.setUniformTexture(p.first, p.second.getTexture(), 1);
+				}
+			}
+	//		for (auto & p : ui->pPoint) {
+	//            shader.setUniform2f(p.first, p.second.x, p.second.y);
+	//		}
+		}
+	}
+
+	void end() override { 
+		if (shader.isLoaded() && ui->pBool["on"]) {
+			shader.end();
+		}
+	}
 };
