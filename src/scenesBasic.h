@@ -35,8 +35,6 @@ public:
 	}
 };
 
-
-
 struct sceneNdi : public ofxScenes::sceneDmtr {
 	using sceneDmtr::sceneDmtr;
 
@@ -61,8 +59,6 @@ struct sceneNdi : public ofxScenes::sceneDmtr {
 	void draw() override {
 		// update();
 //		cout << "draw ndi" << endl;
-		
-
 		ofSetColor(255);
 		// float scale = 1.0;
 		float scale = uiC->pEasy["scale"];
@@ -90,4 +86,25 @@ struct sceneNdi : public ofxScenes::sceneDmtr {
 		}
 	}
 #endif
+};
+
+
+
+
+struct sceneNdi : public ofxScenes::sceneDmtr {
+	using sceneDmtr::sceneDmtr;
+
+	float pos = 0;
+
+	void draw() {
+		ofSetColor(255);
+		float distancia = uiC->pEasy["distancia"];
+		float largura = uiC->pEasy["largura"];
+		float vel = uiC->pEasy["vel"];
+		pos += vel;
+		pos = fmod(pos, distancia);
+		for (int x=-fbo->getWidth() * .5; x<fbo->getWidth* 1.5; x+=distancia) {
+			ofDrawRectangle(pos, 0, largura, fbo->getHeight());
+		}
+	}
 };
