@@ -91,7 +91,7 @@ struct sceneNdi : public ofxScenes::sceneDmtr {
 
 
 
-struct sceneNdi : public ofxScenes::sceneDmtr {
+struct sceneGen : public ofxScenes::sceneDmtr {
 	using sceneDmtr::sceneDmtr;
 
 	float pos = 0;
