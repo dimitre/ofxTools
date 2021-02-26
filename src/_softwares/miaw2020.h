@@ -8,7 +8,11 @@ ofFbo * fbo2 = &soft.fbo2;
 ofFbo * fbo3 = &soft.fbo3;
 
 string & scene = ui->pString["scene"];
+
+#ifdef USEREMOTE
 ofxMicroUIRemote uiRemote;
+#endif
+
 
 #ifdef USESYPHON
 ofxSyphonServer syphonOut;
@@ -190,6 +194,7 @@ void setupMiaw() {
 	soft.fboFinal = &soft.fbo3;
 	soft.setUI(&u);
 	
+#ifdef USEREMOTE
 	uiRemote.loadConfig("_osc.txt");
 	uiRemote.oscInfo = ((ofxMicroUI::inspector*)u.getElement("oscInfo"));//()
 	uiRemote.oscInfoReceive = ((ofxMicroUI::inspector*)u.getElement("oscInfoReceive"));//()
@@ -199,6 +204,7 @@ void setupMiaw() {
 	for (auto & u : u.allUIs) {
 		uiRemote.addUI(u);
 	}
+#endif
 }
 
 #ifdef USENDI

@@ -250,6 +250,7 @@ public:
 		e.name == "shaders2d2"
 		) 
 		{
+            cout << "dentro : " << e.name << endl;
 			if (ofxMicroUI::dirList * r = dynamic_cast<ofxMicroUI::dirList*>(&e)) {
 				string f = r->getFileName();
 				if (f != "" & f != shaderLoaded) {
