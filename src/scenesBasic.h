@@ -89,22 +89,24 @@ struct sceneNdi : public ofxScenes::sceneDmtr {
 };
 
 
-
-
 struct sceneGen : public ofxScenes::sceneDmtr {
 	using sceneDmtr::sceneDmtr;
 
 	float pos = 0;
 
 	void draw() {
-		ofSetColor(255);
 		float distancia = uiC->pEasy["distancia"];
 		float largura = uiC->pEasy["largura"];
 		float vel = uiC->pEasy["vel"];
 		pos += vel;
 		pos = fmod(pos, distancia);
-		for (int x=-fbo->getWidth() * .5; x<fbo->getWidth* 1.5; x+=distancia) {
-			ofDrawRectangle(pos, 0, largura, fbo->getHeight());
+		// cout << "-----" << endl;
+		ofSetColor(255);
+
+		for (float i=-fbo->getWidth() * .5; i<fbo->getWidth()* 1.5; i+=distancia) {
+			float x = pos + i;
+			// cout << x << endl;
+			ofDrawRectangle(x, 0, largura, fbo->getHeight());
 		}
 	}
 };

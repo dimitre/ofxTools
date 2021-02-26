@@ -798,7 +798,9 @@ public:
 };
 
 
-struct sceneTest : public sceneMuti {
+
+// scene test pixelmap.
+struct sceneTestPixelmap : public sceneMuti {
 public:
 	using sceneMuti::sceneMuti;
 
@@ -826,6 +828,23 @@ public:
 };
 
 
+struct sceneStripTest : public sceneMuti {
+public:
+	using sceneMuti::sceneMuti;
+
+	ofImage image;
+	void setup() {
+		image.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
+	}
+
+	void draw() {
+		image.setColor(ofColor(0));
+		image.setColor(uiC->pInt["x"], uiC->pInt["y"], ofColor(255,0,0));
+		ofSetColor(255);
+		image.update();
+		image.draw(0,0);
+	}
+};
 /*
 void setupScenesMuti() {
 	scenes.push_back(new sceneRect(&config, "rect"));
