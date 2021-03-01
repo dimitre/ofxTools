@@ -23,6 +23,11 @@ ofxSyphonServer syphonOut;
 #include "cam.h"
 //#include "scenes.h"
 #include "tools.h"
+#include "feature.h"
+
+// talvez nao seja suficiente iniciar aqui antes da interface. pq ele fica com nome de master... isso eh ruim
+
+//featureShader shader2d2;
 
 featureShader shader2d = featureShader(&u.uis["ui"], &u.uis["shaders2d"], &soft);
 featureShader shader3d = featureShader(&u.uis["ui"], &u.uis["shaders3d"], &soft);

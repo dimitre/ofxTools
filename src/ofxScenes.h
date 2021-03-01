@@ -1,9 +1,7 @@
-
-
 //	 #define SCENESMIAW 1
 //	 #define SCENESALL 1
-	//  #define SCENESMUTI 1
-	// #define SCENES3D 1
+//	 #define SCENESMUTI 1
+//	 #define SCENES3D 1
 
 
 //#define USESVG 1
@@ -40,9 +38,7 @@ public:
 
 //		int margem = 100;
 //		ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
-
-//		string & scene;
-
+        
 		sceneConfig() {} ;
 		sceneConfig(ofFbo * _fbo, ofxMicroUI * _u) :
 		fbo(_fbo), u(_u) {
@@ -227,10 +223,8 @@ public:
 	}
 
 
-	
 	void draw() {
 		ofSetLineWidth(ui->pEasy["lineWidth"]);
-
 		if (scene != "" && scene != "_") {
 			if ( scenesMap.find(scene) != scenesMap.end() ) {
 				ofSetColor(getColor(0, uiColors));

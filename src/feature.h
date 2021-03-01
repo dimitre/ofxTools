@@ -4,7 +4,8 @@ public:
 	ofxMicroUI * ui = NULL;
 	ofxMicroUI * ui2 = NULL;
 	ofxMicroUISoftware * soft = NULL;
-
+    string name = "";
+    
 	virtual void begin() {
 		cout << "begin in primitive feature" << endl;
 	};
@@ -20,27 +21,145 @@ public:
 	virtual void uiEvents(ofxMicroUI::element & e) {
 		cout << "uiEvents in primitive feature" << endl;
 	}
+    
+    void internalSetup() {
+        
+        name = ui->uiName;
+        cout << "new feature with the name " << name << endl;
+        ofAddListener(ui->uiEvent, this, &microFeature::uiEvents);
+    }
 
 	microFeature(ofxMicroUI * _ui) : ui(_ui) {
-		ofAddListener(ui->uiEvent, this, &microFeature::uiEvents);
+        internalSetup();
 		setup();
 	}
 
 	microFeature(ofxMicroUI * _ui, ofxMicroUISoftware * _soft) : ui(_ui), soft(_soft) {
-		ofAddListener(ui->uiEvent, this, &microFeature::uiEvents);
+        internalSetup();
 		setup();
 	}
 
 	microFeature(ofxMicroUI * _ui, ofxMicroUI * _ui2, ofxMicroUISoftware * _soft) : ui(_ui), ui2(_ui2), soft(_soft) {
-		ofAddListener(ui->uiEvent, this, &microFeature::uiEvents);
+        internalSetup();
 		setup();
 	}
 };
 
 
+struct featureLight : public microFeature {
+	public:
+	using microFeature::microFeature;
+
+	ofLight luz;
+	glm::vec3 pos;
+	// float pointsPerMeter = 100;
+	float pointsPerMeter = 1;
+
+	void setup() override {
+		luz.setAreaLight(100, 100);
+	}
+
+	void begin() override {
+		if (ui->pBool["on"]) {
+			ofEnableLighting();
+
+			pos = glm::vec3(
+				ui->pEasy["luzX"] * pointsPerMeter,
+				ui->pEasy["luzY"] * pointsPerMeter,
+				ui->pEasy["luzZ"] * pointsPerMeter
+			);
+			
+//			ofSetColor(ui->pColorEasy["diffuseColorLuz"]);
+//			luz.draw();
+			luz.setPosition(pos);
+				
+			luz.setAttenuation(
+				ui->pEasy["lightAttenuationConstant"],
+				ui->pEasy["lightAttenuationLinear"],
+				ui->pEasy["lightAttenuationQuadratic"]
+			);
+
+			luz.setDiffuseColor ( ui->pColorEasy["diffuseColor"]);
+			luz.setSpecularColor( ui->pColorEasy["specularColor"]);
+			luz.setAmbientColor ( ui->pColorEasy["ambientColor"]);
+			luz.enable();
+		}
+	}
+
+	void end() override {
+		if (ui->pBool["on"]) {
+			luz.disable();
+		ofDisableLighting();
+		}
+	}
+};
 
 
+struct featureLuzinha : public microFeature {
+public:
 
+	// XAXA TEMP
+	float beat = 0.0;
+
+	using microFeature::microFeature;
+	ofLight luzinha3d;
+
+	void begin() override {
+		if (ui->pBool["shadeFlat"]) {
+			glShadeModel(GL_FLAT);
+			glMatrixMode(GL_MODELVIEW);
+		}
+		if (ui->pBool["Lighting"]) {
+			ofEnableLighting();
+			
+			if (ui->pBool["on"]) {
+				luzinha3d.setAreaLight(ui->pEasy["areaLight"],ui->pEasy["areaLight"]);
+				luzinha3d.setAttenuation(
+									ui->pEasy["lightAttenuationConstant"],
+									ui->pEasy["lightAttenuationLinear"],
+									ui->pEasy["lightAttenuationQuadratic"]);
+				luzinha3d.setPosition(
+									ui->pEasy["luzX"] + ui->pEasy["luzXBeat"] * beat,
+									ui->pEasy["luzY"] + ui->pEasy["luzYBeat"] * beat,
+									ui->pEasy["luzZ"] + ui->pEasy["luzZBeat"] * beat);
+				luzinha3d.setDiffuseColor( ofColor(ui->pEasy["diffuseColorLuz"]));
+				luzinha3d.setSpecularColor( ofColor(ui->pEasy["specularColorLuz"]));
+				luzinha3d.setAmbientColor( ofColor(ui->pEasy["ambientColorLuz"]));
+				luzinha3d.enable();
+			}			
+			// beginLuzes();
+		}
+	}
+
+	void end() override {
+		if (ui->pBool["Lighting"]) {
+			luzinha3d.disable();
+			ofDisableLighting();
+			ofDisableSeparateSpecularLight();
+		}
+		// endLuzes();
+	}
+
+	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "shadeFlat") {
+	//		if (*e.b) {
+	////			cout << e.name << *e.b << endl;
+	//			glShadeModel(GL_FLAT);
+	//			glMatrixMode(GL_MODELVIEW);
+	//			
+	//		} else {
+	//			glShadeModel(GL_SMOOTH);
+	//			glMatrixMode(GL_MODELVIEW);
+	//		}
+		}
+		
+		if (ui->pBool["enableSeparatapaecularLight"]) {
+			ofEnableSeparateSpecularLight();
+		} else {
+			ofDisableSeparateSpecularLight();
+		}		
+	}
+};
 
 
 struct featureCam : public microFeature {
@@ -172,7 +291,7 @@ public:
 	string shaderLoaded = "";
 	// map <string, ofShader> shadersMap;
 	// map <string, string> shadersMapLoaded;
-	string name = "shaders2d";
+//	string name = "shaders2d";
 
 
 	void setup() override { 
@@ -250,13 +369,15 @@ public:
 		e.name == "shaders2d2"
 		) 
 		{
-            cout << "dentro : " << e.name << endl;
+//            cout << "dentro : " << e.name << endl;
 			if (ofxMicroUI::dirList * r = dynamic_cast<ofxMicroUI::dirList*>(&e)) {
 				string f = r->getFileName();
-				if (f != "" & f != shaderLoaded) {
-					cout << "SHADERS LOAD " << e.name << "fileName :: " << f << endl;
+				if (f != "" && f != shaderLoaded) {
 					shader.load(f);
 					shaderLoaded = f;
+                    cout << "SHADERS LOAD " << e.name << " fileName :: " << f << endl;
+                    cout << "shader loaded = " << shaderLoaded << endl;
+                    cout << "this name " << name << endl;
 				}
 			} else {
 				
@@ -266,15 +387,6 @@ public:
 	}
 };
 
-
-struct featureCamTest : public microFeature {
-public:
-	using microFeature::microFeature;
-	void setup() override { }
-	void begin() override { }
-	void end() override { }
-	void uiEvents(ofxMicroUI::element & e) override { }
-};
 
 
 
@@ -334,4 +446,15 @@ public:
 			shader.end();
 		}
 	}
+};
+
+
+
+struct featureCamTest : public microFeature {
+public:
+    using microFeature::microFeature;
+    void setup() override { }
+    void begin() override { }
+    void end() override { }
+    void uiEvents(ofxMicroUI::element & e) override { }
 };

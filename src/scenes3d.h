@@ -1,6 +1,6 @@
 
 
-struct sceneOcean : public sceneDmtr {
+struct sceneOcean : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "ocean";
@@ -123,12 +123,10 @@ public:
 			if (!mesh.getNormals().size()) {
 				addNormals();
 			}
-			calcNormals(mesh, uiC->pBool["normalize"], uiC->pBool["winding"]);
+			ofxScenes::calcNormals(mesh, uiC->pBool["normalize"], uiC->pBool["winding"]);
 		}
 
-		drawMeshStatic(&mesh, ui);
-		
-
+        ofxScenes::drawMeshStatic(&mesh, ui);
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
@@ -167,7 +165,7 @@ public:
 //};
 
 // comparar com a anterior e remover se for o caso.
-struct sceneOcean0 : public sceneDmtr {
+struct sceneOcean0 : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 
@@ -262,7 +260,7 @@ public:
 
 
 
-struct sceneNovelo : public sceneDmtr {
+struct sceneNovelo : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "novelo";
@@ -292,7 +290,7 @@ public:
 
 
 
-struct scene3d : public sceneDmtr {
+struct scene3d : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// xaxa revisar se é isso mesmo?
@@ -328,12 +326,12 @@ public:
 
 						if (uiC->pBool["bundinha"]) {
 							ofTranslate(-raio*0.65, 0);
-							drawMeshStatic(&m, ui);
+							ofxScenes::drawMeshStatic(&m, ui);
 							ofTranslate(raio*1.3, 0);
-							drawMeshStatic(&m, ui);
+                            ofxScenes::drawMeshStatic(&m, ui);
 						}
 						else {
-							drawMeshStatic(&m, ui);
+                            ofxScenes::drawMeshStatic(&m, ui);
 						}
 						ofPopMatrix();
 					}
@@ -347,7 +345,7 @@ public:
 
 
 
-struct sceneGridbox : public sceneDmtr {
+struct sceneGridbox : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "gridbox";
@@ -381,7 +379,7 @@ public:
 				} else {
 					float n = (float)numero / total;
 //					cout << n << endl;
-					ofSetColor(getColor(n, uiColors));
+					ofSetColor(ofxScenes::getColor(n, config->uiColors));
 				}
 				ofDrawBox(x, 0, y, w, h, d);
 				numero ++;
@@ -393,7 +391,7 @@ public:
 
 
 
-struct sceneSolidos : public sceneDmtr {
+struct sceneSolidos : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "solidos";
@@ -474,7 +472,7 @@ public:
 
 
 
-struct scenePulsar : public sceneDmtr {
+struct scenePulsar : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "pulsar";
@@ -586,7 +584,7 @@ public:
 
 
 
-struct sceneLuan : public sceneDmtr {
+struct sceneLuan : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "luan";
@@ -637,7 +635,7 @@ public:
 //			ofDisableDepthTest();
 			uiC->pImage["pointSprite"+ ofToString(i)].getTexture().bind();
 //			glBegin(GL_POINTS);
-			drawMeshStatic(&c, ui);
+            ofxScenes::drawMeshStatic(&c, ui);
 //			glEnd();
 			uiC->pImage["pointSprite"+ ofToString(i)].getTexture().unbind();
 
@@ -656,7 +654,7 @@ public:
 
 
 
-struct sceneGalaxia : public sceneDmtr {
+struct sceneGalaxia : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "galaxia";
@@ -761,7 +759,7 @@ public:
 				ofPushMatrix();
 				ofRotateYDeg(aa);
 //				drawMesh(&mesh);
-				drawMeshStatic(&mesh, ui);
+                ofxScenes::drawMeshStatic(&mesh, ui);
 
 				ofPopMatrix();
 			}
@@ -773,7 +771,7 @@ public:
 
 
 
-struct sceneBox : public sceneDmtr {
+struct sceneBox : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "box";
@@ -801,7 +799,7 @@ public:
 
 
 
-struct scenePoeira : public sceneDmtr {
+struct scenePoeira : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "poeira";
@@ -866,7 +864,7 @@ public:
 
 
 // festa da uva mirabilis. portado pra ca mas nao testado .
-struct sceneUva : public sceneDmtr {
+struct sceneUva : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "uva";
@@ -938,7 +936,7 @@ public:
 
 
 
-struct sceneGirinos3d : public sceneDmtr {
+struct sceneGirinos3d : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "girinos3d";
@@ -972,6 +970,10 @@ public:
 
 	} girinoSet, girinoSet2;
 
+
+    static glm::vec2 p2c (glm::vec2 pos) {
+        return glm::vec2(pos.y * cos(ofDegToRad(pos.x)), pos.y * sin(ofDegToRad(pos.x)));
+    }
 
 	struct girino {
 	public:
@@ -1267,22 +1269,106 @@ public:
 
 
 
-void setupScenes3d() {
-		// 3d
-	scenes.push_back(new sceneOcean(&config, "ocean"));
-	scenes.push_back(new sceneGridbox(&config, "gridbox"));
-	scenes.push_back(new sceneSolidos(&config, "solidos"));
-	scenes.push_back(new scenePulsar(&config, "pulsar"));
-	scenes.push_back(new sceneLuan(&config, "luan"));
-	scenes.push_back(new sceneBox(&config, "box"));
-	scenes.push_back(new sceneNovelo(&config, "novelo"));
-	//xaxa
-	scenes.push_back(new scene3d(&config, "3d"));
-	scenes.push_back(new sceneGalaxia(&config, "galaxia"));
-	scenes.push_back(new sceneGirinos3d(&config, "girinos3d"));
-#ifdef USEASSIMP
-	scenes.push_back(new sceneModel(&config, "model"));
-#endif
-	scenes.push_back(new scenePoeira(&config, "poeira"));
+// void setupScenes3d() {
+// 		// 3d
+// 	scenes.push_back(new sceneOcean(&config, "ocean"));
+// 	scenes.push_back(new sceneGridbox(&config, "gridbox"));
+// 	scenes.push_back(new sceneSolidos(&config, "solidos"));
+// 	scenes.push_back(new scenePulsar(&config, "pulsar"));
+// 	scenes.push_back(new sceneLuan(&config, "luan"));
+// 	scenes.push_back(new sceneBox(&config, "box"));
+// 	scenes.push_back(new sceneNovelo(&config, "novelo"));
+// 	//xaxa
+// 	scenes.push_back(new scene3d(&config, "3d"));
+// 	scenes.push_back(new sceneGalaxia(&config, "galaxia"));
+// 	scenes.push_back(new sceneGirinos3d(&config, "girinos3d"));
+// #ifdef USEASSIMP
+// 	scenes.push_back(new sceneModel(&config, "model"));
+// #endif
+// 	scenes.push_back(new scenePoeira(&config, "poeira"));
 
-}
+// }
+
+
+
+struct sceneGraph : public ofxScenes::sceneDmtr {
+public:
+    using sceneDmtr::sceneDmtr;
+    
+		float min;
+	float max;
+	vector <float> vals;
+	vector <float> valsNorm;
+	ofJson js;
+	bool isLoaded = false;
+
+	void norm() {
+		min = *std::min_element(vals.begin(), vals.end());
+		max = *std::max_element(vals.begin(), vals.end());
+		cout << "norm() min element = " << min << ", max element =" << max << endl;
+		valsNorm.clear();
+		for(auto & v : vals) {
+			float newVal = ofMap(v, min, max, 0, 1);
+			// cout << newVal << endl;
+			valsNorm.push_back(newVal);
+		}
+	}
+
+	void load() {
+		// string url = "https://financialmodelingprep.com/api/v3/quote/AAPL?apikey=demo";
+		string url = "https://financialmodelingprep.com/api/v3/historical-chart/1hour/AAPL?apikey=562c36be10fce020d33f378be7ddc4bb";
+		cout << "json loading" << endl;
+		ofHttpResponse resp = ofLoadURL(url);
+		cout << "json loaded!" << endl;
+		js = ofJson::parse(resp.data.getText());
+		for (auto & k : js) {
+			vals.push_back(k["close"]);
+		}
+		norm();
+		isLoaded = true;
+	}
+    
+    ofColor getColorRange(float n) {
+        if (config->uiColors->pBool["usePalette"]) {
+            return ((ofxMicroUI::colorPalette*)config->uiColors->getElement("colorPalette"))->getColor(n);
+        } else {
+            return ((ofxMicroUI::colorHsv*)config->uiColors->getElement("color"))->getColor(n);
+            // return uiColors->pColorEasy["color"];
+        }
+    }
+    // name = "ocean";
+
+	vector <int> ys;
+
+	void setup() {
+		int y = 3;
+		for (int a=0; a<12; a++) {
+			y += ofRandom(-2,2);
+			ys.emplace_back(y);
+		}
+		load();
+	}
+    void draw() {
+        float cols = uiC->pEasy["cols"];
+        float spacing = fbo->getWidth() / cols;
+        for (int x=0; x<cols; x++) {
+			float my = valsNorm[x] * uiC->pEasy["colsMult"];
+			// cout << my << endl;
+			for (int y=0; y<my; y++) {
+                
+				ofPushMatrix();
+				ofTranslate(x*spacing, fbo->getHeight()*uiC->pEasy["offY"] - y*spacing);
+				ofRotateXDeg(uiC->pEasy["rotX"]);
+				ofRotateYDeg(uiC->pEasy["rotY"]);
+				ofRotateZDeg(uiC->pEasy["rotZ"]);
+//				ofSetColor(255);
+
+                ofSetColor(getColorRange(y/12.0));
+				ofDrawBox(spacing * uiC->pEasy["raio"]);
+				ofPopMatrix();
+
+			}
+        }
+    }
+};
+
