@@ -826,25 +826,6 @@ public:
 		}
 	}
 };
-
-
-struct sceneStripTest : public sceneMuti {
-public:
-	using sceneMuti::sceneMuti;
-
-	ofImage image;
-	void setup() {
-		image.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
-	}
-
-	void draw() {
-		image.setColor(ofColor(0));
-		image.setColor(uiC->pInt["x"], uiC->pInt["y"], ofColor(255,0,0));
-		ofSetColor(255);
-		image.update();
-		image.draw(0,0);
-	}
-};
 /*
 void setupScenesMuti() {
 	scenes.push_back(new sceneRect(&config, "rect"));
@@ -853,3 +834,62 @@ void setupScenesMuti() {
 	scenes.push_back(new sceneGrid(&config, "grid"));
 }
 */
+
+
+
+// STRIP SCENES
+
+
+struct sceneStripTest : public sceneMuti {
+public:
+	using sceneMuti::sceneMuti;
+
+	ofImage image;
+	void setup() override {
+		image.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
+	}
+
+	void draw() override {
+		image.setColor(ofColor(0));
+		image.setColor(uiC->pInt["x"], uiC->pInt["y"], ofColor(255,0,0));
+		ofSetColor(255);
+		image.update();
+		image.draw(0,0);
+	}
+};
+
+
+
+struct sceneStripOndas : public sceneMuti {
+	using sceneMuti::sceneMuti;
+	struct strip {
+		public:
+		int x, y, pos;
+		float qual;
+		strip (int xx, int yy, int p) : x(xx), y(yy), pos(p) {
+			qual = x+y;
+		}
+	};
+
+	vector <strip> strips;
+
+	void setup() override {
+        cout << "setup sceneStripOndas" << endl;
+		int pos = 0;
+        for (int y=0; y<6; y++) {
+            for (int x=0; x<10; x++) {
+				strips.emplace_back(x,y,pos);
+				pos++;
+			}
+		}
+	}
+
+	void draw() override {
+		float largura = uiC->pFloat["largura"];
+		for (auto & s : strips) {
+			ofSetColor(getCor(0));
+			float x = ofMap(sin(s.qual * uiC->pEasy["qual"] + ofGetElapsedTimef() * uiC->pFloat["tempo"]), -1, 1, 0, fbo->getWidth() - largura);
+			ofDrawLine(x, s.pos, x+largura, s.pos);
+		}
+	}
+};
