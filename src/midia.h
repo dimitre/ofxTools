@@ -329,24 +329,6 @@ public:
 				cout << "scene not found " << scene << endl;
 			}
 		}
-		// for (auto & n : notas) {
-		// 	float raio = n.vel * .5;
-		// 	n.x = ofMap(n.delay, uiC->pInt["minDelay"],  uiC->pInt["maxDelay"], 0, fbo->getWidth());
-		// 	n.y = ofMap(n.note, uiNotes->pInt["minNote"], uiNotes->pInt["maxNote"], fbo->getHeight(), 0);
-		// 	if (n.played) {
-		// 		ofFill();
-		// 	} else {
-		// 		ofNoFill();
-		// 	}
-		// 	ofDrawCircle(n.x, n.y, raio);
-		// }
-
-		// ofNoFill();
-		// ofBeginShape();
-		// for (auto & n : notas) {
-		// 	ofVertex(n.x, n.y);
-		// }
-		// ofEndShape();
 	}
 	
 	float nextJump = 0;
@@ -400,7 +382,6 @@ public:
 			updateNotas();
 		}
 	}
-
 	
 	void updateNotas() {
 		config.scales.clear();
@@ -419,8 +400,5 @@ public:
 //				}
 			}
 		}
-//		cout << "updateNotas" << endl;
-//		cout << scales.size() << endl;
 	}
-
 };

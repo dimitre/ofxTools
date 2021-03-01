@@ -13,7 +13,6 @@ string & scene = ui->pString["scene"];
 ofxMicroUIRemote uiRemote;
 #endif
 
-
 #ifdef USESYPHON
 ofxSyphonServer syphonOut;
 #endif
@@ -23,7 +22,7 @@ ofxSyphonServer syphonOut;
 #include "cam.h"
 //#include "scenes.h"
 #include "tools.h"
-#include "feature.h"
+//#include "feature.h"
 
 // talvez nao seja suficiente iniciar aqui antes da interface. pq ele fica com nome de master... isso eh ruim
 

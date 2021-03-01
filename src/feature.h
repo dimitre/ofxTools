@@ -458,3 +458,55 @@ public:
     void end() override { }
     void uiEvents(ofxMicroUI::element & e) override { }
 };
+
+
+
+
+#ifdef USESYPHON
+struct featureSyphonIn : public microFeature {
+public:
+    using microFeature::microFeature;
+    
+    ofxSyphonClient syphonIn;
+    ofxSyphonServerDirectory syphonList;
+
+    void setup() override {
+        syphonIn.setup();
+        syphonList.setup();
+        ofAddListener(syphonList.events.serverAnnounced, this, &featureSyphonIn::syphonUpdated);
+        ofAddListener(syphonList.events.serverRetired, this, &featureSyphonIn::syphonUpdated);
+//        ofAddListener(uiSyphon->uiEvent, this, &featureSyphonIn::syphonInUIEvent);
+    }
+    void begin() override { }
+    void end() override { }
+    void uiEvents(ofxMicroUI::element & e) override {
+        if (e.name == "syphon") {
+            vector <string> sp = ofSplitString(*e.s, "--");
+            if (sp.size()>1) {
+                string server = sp[0];
+                string app = sp[1];
+                cout << "connecting to syphonIn :: "<< server << " -- " << app << endl;
+                syphonIn.set(server,app);
+            }
+        }
+    }
+    
+    void syphonUpdated(ofxSyphonServerDirectoryEventArgs &arg) {
+        cout << "::::::::::::: syphon updated list " << endl;
+        ui->clear();
+        vector <string> options;
+        for (auto & s : syphonList.getServerList()) {
+            cout << "-------" << endl;
+            cout << s.appName << endl;
+            cout << s.serverName << endl;
+            string nome = s.serverName + "--" + s.appName;
+            options.push_back(nome);
+        }	
+        vector <string> lines = { "radioPipeNoLabel	syphon	" + ofJoinString(options, "|")};
+//        ui->createFromLines(lines);
+        ui->createFromLines(lines,true);
+//        ui->redraw();
+    }
+};
+
+#endif
