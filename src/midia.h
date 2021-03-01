@@ -140,63 +140,66 @@ public:
     struct sceneTest : public sceneMidi {
         public:
         using sceneMidi::sceneMidi;
-        
-        void uiEvents(ofxMicroUI::element & e) override {
-//            cout << "sceneTest uiEvents" << endl;
-//            cout << uiC->pInt["numero"] << endl;
-            if (e.name == "numero") {
-                intervals.clear();
-                for (int a=0; a<uiC->pInt["numero"]; a++) {
-                    intervals.emplace_back(interval());
-                }
-            }
-        }
 
-        struct interval {
+		struct interval {
         public:
             //uint64_t ofGetElapsedTimeMillis();
             uint64_t intervalo;
             uint64_t jump = 0;
             float n, intervaloFloat, vel;
             interval() {
+				setup();
+				// salta();
+            }
+
+			void setup() {
                 n = ofRandom(0,1);
                 intervaloFloat = ofRandom(0,1);
                 vel = ofRandom(0,1);
-                intervalo = ofRandom(150,500);
-                
-            }
+                // intervalo = ofRandom(150,500);
+			}
+
+			void salta() {
+				// jump = ofGetElapsedTimeMillis() + ofMap(intervaloFloat, 0, 1, uiC->pInt["intervalMin"], uiC->pInt["intervalMax"]);
+			}
         };
         
         vector <interval> intervals;
         
+        void uiEvents(ofxMicroUI::element & e) override {
+            if (e.name == "numero") {
+				if (intervals.size() < *e.i) {
+					for (int a=0; a<(*e.i - intervals.size()); a++) {
+						intervals.emplace_back(interval());
+					}
+				}
+				else if (*e.i < intervals.size()) {
+                    int willErase = intervals.size() - *e.i;
+                    intervals.erase(intervals.end() - willErase, intervals.end());
+				}
+            }
+        }
+
         void update() override {
-//            cout << "update" << endl;
-//            cout << intervals.size() << endl;
             for (auto & i : intervals) {
                 if (ofGetElapsedTimeMillis() > i.jump) {
-                    // dispara nota
-//                    cout << "DISPARA " << i.n << endl;
-//                    i.jump = ofGetElapsedTimeMillis() + i.intervalo;
-                    
-                    i.jump = ofGetElapsedTimeMillis() + ofMap(i.intervaloFloat, 0, 1, uiC->pInt["intervalMin"], uiC->pInt["intervalMax"]);
+					// i.salta();
+					float intF = i.intervaloFloat;
+					if (uiC->pInt["intervalSteps"] > 0) {
+						intF = int(intF * uiC->pInt["intervalSteps"]) / (float) uiC->pInt["intervalSteps"];
+					}
+					float intervalo = ofMap(intF, 0, 1, uiC->pInt["intervalMin"], uiC->pInt["intervalMax"]);
+
+                    i.jump = ofGetElapsedTimeMillis() + intervalo;
                     int vel = ofMap(i.vel, 0, 1, uiC->pInt["velMin"], uiC->pInt["velMax"]);
-//                    config->addNoteF(i.n, uiC->pInt["duracao"], uiC->pInt["vel"]);
                     config->addNoteF(i.n, uiC->pInt["duracao"], vel);
                 }
             }
         }
         
- 
-
         void bang() override {
-            //random apenas
-            cout << "!!! TEST" << endl;
-            for (int a=0; a<uiC->pInt["notas"]; a++) {
-                int note = config->scales[ofRandom(0, config->scales.size()-1)];
-                int duration = ofRandom(uiC->pInt["minDuration"], uiC->pInt["maxDuration"]);
-                int vel = ofRandom(uiC->pInt["minVel"], uiC->pInt["maxVel"]);
-                int delay = ofRandom(uiC->pInt["minDelay"], uiC->pInt["maxDelay"]);
-                config->notas.emplace_back(note, duration, vel, delay);
+            for (auto & i : intervals) {
+                i.setup();
             }
         }
     };
