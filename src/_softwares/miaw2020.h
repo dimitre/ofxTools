@@ -20,18 +20,25 @@ ofxSyphonServer syphonOut;
 #include "DmtrCairo.h"
 #include "shaders.h"
 #include "cam.h"
-//#include "scenes.h"
 #include "tools.h"
-//#include "feature.h"
+#include "feature.h"
 
 // talvez nao seja suficiente iniciar aqui antes da interface. pq ele fica com nome de master... isso eh ruim
 
-//featureShader shader2d2;
 
-featureShader shader2d = featureShader(&u.uis["ui"], &u.uis["shaders2d"], &soft);
-featureShader shader3d = featureShader(&u.uis["ui"], &u.uis["shaders3d"], &soft);
-featureShader shadergen = featureShader(&u.uis["ui"], &u.uis["shadersgen"], &soft);
-featureShader shaderfeed = featureShader(&u.uis["ui"], &u.uis["shadersfeed"], &soft);
+//featureShader shadersAll[4] = {
+//    featureShader(&u.uis["ui"], &u.uis["shaders2d"], &soft, "shaders2d"),
+//    featureShader(&u.uis["ui"], &u.uis["shaders3d"], &soft, "shaders3d"),
+//    featureShader(&u.uis["ui"], &u.uis["shadersgen"], &soft, "shadersgem"),
+//    featureShader(&u.uis["ui"], &u.uis["shadersfeed"], &soft, "shadersfeed"),
+//};
+
+//featureShader shader2d =    featureShader(&u.uis["shaders"], &u.uis["shaders2d"], &soft, "shaders2d");
+
+featureShader shaders2d =  featureShader(ui, &u.uis["shaders2d"], &soft, "shaders2d");
+//featureShader shader3d =   featureShader(ui, &u.uis["shaders3d"], &soft, "shaders3d");
+//featureShader shadergen =  featureShader(ui, &u.uis["shadersgen"], &soft, "shadersgem");
+//featureShader shaderfeed = featureShader(ui, &u.uis["shadersfeed"], &soft, "shadersfeed");
 
 ofxScenes scenes = ofxScenes(fbo, &u, ui->pString["scene"]);
 
@@ -187,6 +194,7 @@ void preSetupMiaw() {
 
 //	u._settings->useFixedLabel = true;
 	shadersSetup();
+    shaders2d.setup();
 }
 
 void setupMiaw() {

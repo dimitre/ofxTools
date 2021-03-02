@@ -297,7 +297,11 @@ public:
 	void setup() override { 
 	}
 
-	void begin() override { 
+	void begin() override {
+//        cout << name << " : begin() " << endl;
+//        cout << ui->pBool[name] << endl;
+//        cout << shader.isLoaded() << endl;
+        
 		if (isOk()) {
 			shader.begin();
 			shader.setUniform1f("time", ofGetElapsedTimef());
@@ -353,7 +357,9 @@ public:
 	// }
 
 	void uiEvents(ofxMicroUI::element & e) override {
-		if (e.tag == "shaderFile")
+        cout << "shader ui event " << e.name << endl;
+        cout << e.tag << endl;
+		if (e.tag == "shaderFile" && e.name == name)
 		{
 			if (ofxMicroUI::dirList * r = dynamic_cast<ofxMicroUI::dirList*>(&e)) {
 				string f = r->getFileName();
@@ -365,9 +371,9 @@ public:
                     } else {
                         shader.load(f);
                         shaderLoaded = f;
-//                        cout << "SHADERS LOAD " << e.name << " fileName :: " << f << endl;
-//                        cout << "shader loaded = " << shaderLoaded << endl;
-//                        cout << "this name " << name << endl;
+                        cout << "SHADERS LOAD " << e.name << " fileName :: " << f << endl;
+                        cout << "shader loaded = " << shaderLoaded << endl;
+                        cout << "this name " << name << endl;
                     }
 				}
 			} else {
@@ -521,7 +527,6 @@ public:
 //    cairo->setupMemoryOnly(ofCairoRenderer::IMAGE, false, false, rect);
 //}
 
-
     shared_ptr<ofBaseGLRenderer> opengl;
     shared_ptr<ofCairoRenderer> cairo;
     shared_ptr<ofCairoRenderer> cairoOut;
@@ -531,6 +536,8 @@ public:
     
     string savingCairoFilename = "";
     ofRectangle rect;
+    
+    string * cairoBlend = NULL;
     
     void setup() override {
 //    void setupCairo(int w, int h) {
@@ -614,61 +621,59 @@ public:
     
         
     #ifdef USECAIROBLENDING
+    //#CAIRO_OPERATOR_CLEAR
+    //#CAIRO_OPERATOR_SOURCE
+    //    ;     #CAIRO_OPERATOR_OVER
+    //    ;     #CAIRO_OPERATOR_IN
+    //    ;     #CAIRO_OPERATOR_OUT
+    //    ;     #CAIRO_OPERATOR_ATOP
+    //    ;     #CAIRO_OPERATOR_DEST
+    //    ;     #CAIRO_OPERATOR_DEST_OVER
+    //    ;     #CAIRO_OPERATOR_DEST_IN
+    //    ;     #CAIRO_OPERATOR_DEST_OUT
+    //    ;     #CAIRO_OPERATOR_DEST_ATOP
+    //    ;     #CAIRO_OPERATOR_XOR
+    //    ;     #CAIRO_OPERATOR_ADD
+    //    ;     #CAIRO_OPERATOR_SATURATE
+    //    ;     #CAIRO_OPERATOR_MULTIPLY
+    //    ;     #CAIRO_OPERATOR_SCREEN
+    //    ;     #CAIRO_OPERATOR_OVERLAY
+    //    ;     #CAIRO_OPERATOR_DARKEN
+    //    ;     #CAIRO_OPERATOR_LIGHTEN
+    //    ;     #CAIRO_OPERATOR_COLOR_DODGE
+    //    ;     #CAIRO_OPERATOR_COLOR_BURN
+    //    ;     #CAIRO_OPERATOR_HARD_LIGHT
+    //    ;     #CAIRO_OPERATOR_SOFT_LIGHT
+    //    ;     #CAIRO_OPERATOR_DIFFERENCE
+    //    ;     #CAIRO_OPERATOR_EXCLUSION
+    //    ;     #CAIRO_OPERATOR_HSL_HUE
+    //    ;     #CAIRO_OPERATOR_HSL_SATURATION
+    //    ;     #CAIRO_OPERATOR_HSL_COLOR
+    //    ;     #CAIRO_OPERATOR_HSL_LUMINOSITY
+    
+    
     void startCairoBlendingMode() {
-        if (cairoIsSetup) {
-            string * s = &uiColors->pString["blend"];
-            //#CAIRO_OPERATOR_CLEAR
-            //#CAIRO_OPERATOR_SOURCE
-            //    ;     #CAIRO_OPERATOR_OVER
-            //    ;     #CAIRO_OPERATOR_IN
-            //    ;     #CAIRO_OPERATOR_OUT
-            //    ;     #CAIRO_OPERATOR_ATOP
-            //    ;     #CAIRO_OPERATOR_DEST
-            //    ;     #CAIRO_OPERATOR_DEST_OVER
-            //    ;     #CAIRO_OPERATOR_DEST_IN
-            //    ;     #CAIRO_OPERATOR_DEST_OUT
-            //    ;     #CAIRO_OPERATOR_DEST_ATOP
-            //    ;     #CAIRO_OPERATOR_XOR
-            //    ;     #CAIRO_OPERATOR_ADD
-            //    ;     #CAIRO_OPERATOR_SATURATE
-            //    ;     #CAIRO_OPERATOR_MULTIPLY
-            //    ;     #CAIRO_OPERATOR_SCREEN
-            //    ;     #CAIRO_OPERATOR_OVERLAY
-            //    ;     #CAIRO_OPERATOR_DARKEN
-            //    ;     #CAIRO_OPERATOR_LIGHTEN
-            //    ;     #CAIRO_OPERATOR_COLOR_DODGE
-            //    ;     #CAIRO_OPERATOR_COLOR_BURN
-            //    ;     #CAIRO_OPERATOR_HARD_LIGHT
-            //    ;     #CAIRO_OPERATOR_SOFT_LIGHT
-            //    ;     #CAIRO_OPERATOR_DIFFERENCE
-            //    ;     #CAIRO_OPERATOR_EXCLUSION
-            //    ;     #CAIRO_OPERATOR_HSL_HUE
-            //    ;     #CAIRO_OPERATOR_HSL_SATURATION
-            //    ;     #CAIRO_OPERATOR_HSL_COLOR
-            //    ;     #CAIRO_OPERATOR_HSL_LUMINOSITY
-            
+        if (cairoIsSetup && cairoBlend != NULL) {
+//            string * s = &uiColors->pString["blend"];
             
             //CAIRO_OPERATOR_MULTIPLY //CAIRO_OPERATOR_SCREEN
-            if (*s == "add") {
+            if (*cairoBlend == "add") {
                 cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_ADD);
             }
-            
-            else if (*s == "screen") {
+            else if (*cairoBlend == "screen") {
                 cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_SCREEN);
             }
-            else if (*s == "multiply") {
+            else if (*cairoBlend == "multiply") {
                 cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_MULTIPLY);
             }
-            else if (*s == "subtract") {
-                //cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_SCREEN);
-            }
-            
-            else if (*s == "darken") {
+            else if (*cairoBlend == "darken") {
                 cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_DARKEN);
             }
-            
-            else if (*s == "lighten") {
+            else if (*cairoBlend == "lighten") {
                 cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_LIGHTEN);
+            }
+            else if (*cairoBlend == "subtract") {
+                //cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_SCREEN);
             }
         }
     }

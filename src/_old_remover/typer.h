@@ -169,3 +169,4 @@ void typerLoadFont() {
 		font.load(fontFile, fontSize, true, true);
 	}
 }
+
