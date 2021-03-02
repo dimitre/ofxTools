@@ -885,10 +885,12 @@ struct sceneStripOndas : public sceneMuti {
 	}
 
 	void draw() override {
-		float largura = uiC->pFloat["largura"];
+
 		for (auto & s : strips) {
 			ofSetColor(getCor(0));
-			float x = ofMap(sin(s.qual * uiC->pEasy["qual"] + ofGetElapsedTimef() * uiC->pFloat["tempo"]), -1, 1, 0, fbo->getWidth() - largura);
+			float seno = sin(s.qual * uiC->pEasy["qual"] + ofGetElapsedTimef() * uiC->pFloat["tempo"]);
+			float largura = uiC->pFloat["largura"] + ofMap(seno, -1, 1, 0, fbo->getWidth()) * uiC->pEasy["senoLargura"];
+			float x = ofMap(seno, -1, 1, 0, fbo->getWidth() - largura) * uiC->pEasy["senoAnda"];
 			ofDrawLine(x, s.pos, x+largura, s.pos);
 		}
 	}

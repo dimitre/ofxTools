@@ -23,9 +23,8 @@ public:
 	}
     
     void internalSetup() {
-        
-        name = ui->uiName;
-        cout << "new feature with the name " << name << endl;
+//        name = ui->uiName;
+//        cout << "new feature with the name " << name << endl;
         ofAddListener(ui->uiEvent, this, &microFeature::uiEvents);
     }
 
@@ -43,6 +42,12 @@ public:
         internalSetup();
 		setup();
 	}
+    
+    microFeature(ofxMicroUI * _ui, ofxMicroUI * _ui2, ofxMicroUISoftware * _soft, string n) :
+    ui(_ui), ui2(_ui2), soft(_soft), name(n) {
+        internalSetup();
+        setup();
+    }
 };
 
 
@@ -278,34 +283,25 @@ public:
 
 
 
-
-
-
-
-
 struct featureShader : public microFeature {
 public:
 	using microFeature::microFeature;
 
 	ofShader shader;
 	string shaderLoaded = "";
-	// map <string, ofShader> shadersMap;
-	// map <string, string> shadersMapLoaded;
-//	string name = "shaders2d";
-
+    
+    bool isOk() {
+        return shader.isLoaded() && ui->pBool[name];
+    }
 
 	void setup() override { 
 	}
 
 	void begin() override { 
-		if (shader.isLoaded()) {
-		// if (ui2->pBool[name + "_on"] && shadersMap[name].isLoaded()) {			
-			
+		if (isOk()) {
 			shader.begin();
 			shader.setUniform1f("time", ofGetElapsedTimef());
-	//		cout << fbo->getWidth() << "x" << fbo->getHeight() << endl;
 			shader.setUniform2f("outputDimensions", soft->fboFinal->getWidth(), soft->fboFinal->getHeight());
-			// ofxMicroUI * ui = &u.uis[name]; //"ui"+
 			
 			for (auto & p : ui2->pFloat) {
 				float val = ui2->pEasy[p.first];
@@ -334,8 +330,6 @@ public:
 					shader.setUniformTexture(p.first, p.second.getTexture(), 1);
 				}
 			}
-			
-
 	//		for (auto & p : ui2->pPoint) {
 	//            shader.setUniform2f(p.first, p.second.x, p.second.y);
 	//		}
@@ -343,8 +337,7 @@ public:
 	}
 
 	void end() override { 
-		if (shader.isLoaded()) {
-		// if (ui2->pBool[name + "_on"] && shadersMap[name].isLoaded()) {
+		if (isOk()) {
 			shader.end();
 		}
 	}
@@ -360,24 +353,22 @@ public:
 	// }
 
 	void uiEvents(ofxMicroUI::element & e) override {
-
-		if (
-		e.name == "shaders2d" ||
-		e.name == "shaders3d" ||
-		e.name == "shadersgen" ||
-		e.name == "shadersGen" ||
-		e.name == "shaders2d2"
-		) 
+		if (e.tag == "shaderFile")
 		{
-//            cout << "dentro : " << e.name << endl;
 			if (ofxMicroUI::dirList * r = dynamic_cast<ofxMicroUI::dirList*>(&e)) {
 				string f = r->getFileName();
-				if (f != "" && f != shaderLoaded) {
-					shader.load(f);
-					shaderLoaded = f;
-                    cout << "SHADERS LOAD " << e.name << " fileName :: " << f << endl;
-                    cout << "shader loaded = " << shaderLoaded << endl;
-                    cout << "this name " << name << endl;
+				if (*e.s != "" && f != shaderLoaded) {
+                    if (*e.s == "_") {
+//                        cout << "shader unload" << endl;
+                        shader.unload();
+                        shaderLoaded = "";
+                    } else {
+                        shader.load(f);
+                        shaderLoaded = f;
+//                        cout << "SHADERS LOAD " << e.name << " fileName :: " << f << endl;
+//                        cout << "shader loaded = " << shaderLoaded << endl;
+//                        cout << "this name " << name << endl;
+                    }
 				}
 			} else {
 				
@@ -397,8 +388,6 @@ public:
 
 	ofShader shader;
 	bool * _on = NULL;
-	// string shaderLoaded = "";
-	// string name = "shaders2d";
 
 	void setup() override { 
 	}
@@ -492,7 +481,7 @@ public:
     }
     
     void syphonUpdated(ofxSyphonServerDirectoryEventArgs &arg) {
-        cout << "::::::::::::: syphon updated list " << endl;
+//        cout << "::::::::::::: syphon updated list " << endl;
         ui->clear();
         vector <string> options;
         for (auto & s : syphonList.getServerList()) {
@@ -510,3 +499,181 @@ public:
 };
 
 #endif
+
+
+
+
+struct featureCairo : public microFeature {
+public:
+    using microFeature::microFeature;
+    
+    bool useCairo = false;
+    
+    
+#define SVGCAIRO 1
+//#define USECAIROBLENDING 1
+
+//void setupCairo() {
+//    opengl = ofGetGLRenderer();
+//    cairo = make_shared<ofCairoRenderer>();
+//    cairoOut = make_shared<ofCairoRenderer>();
+//    ofRectangle rect = ofRectangle(0,0, fbo->getWidth(), fbo->getHeight());
+//    cairo->setupMemoryOnly(ofCairoRenderer::IMAGE, false, false, rect);
+//}
+
+
+    shared_ptr<ofBaseGLRenderer> opengl;
+    shared_ptr<ofCairoRenderer> cairo;
+    shared_ptr<ofCairoRenderer> cairoOut;
+    bool savingCairo = false;
+    ofTexture render;
+    bool cairoIsSetup = false;
+    
+    string savingCairoFilename = "";
+    ofRectangle rect;
+    
+    void setup() override {
+//    void setupCairo(int w, int h) {
+        rect = ofRectangle(0,0,soft->fboFinal->getWidth(), soft->fboFinal->getHeight());
+        cout << "setupCairo :: " << rect << endl;
+        opengl = ofGetGLRenderer();
+        cairo = make_shared<ofCairoRenderer>();
+        cairoOut = make_shared<ofCairoRenderer>();
+        cairo->setupMemoryOnly(ofCairoRenderer::IMAGE, false, false, rect);
+        cairoIsSetup = true;
+    }
+    
+    
+    void begin() override {
+        if (cairoIsSetup) {
+            if (savingCairo) {
+                cout << "SAVINGCAIRO!" << endl;
+        #ifdef SVGCAIRO
+                savingCairoFilename = "_output/syntype_"+ofGetTimestampString()+".svg";
+                cout << "SAVING " << savingCairoFilename << endl;
+                cairoOut->setup(savingCairoFilename, ofCairoRenderer::SVG, false, false, rect);
+                ofSetCurrentRenderer(cairoOut);
+                ofGetCurrentRenderer()->setupGraphicDefaults();
+                ofStyle style = ofGetCurrentRenderer()->getStyle();
+                ofGetCurrentRenderer()->setStyle(style);
+                cairo_set_miter_limit(cairoOut->getCairoContext(), 2);
+                cairo_set_line_join(cairoOut->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+                cairo_set_line_cap(cairoOut->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
+        #endif
+            } else {
+                
+                ofSetCurrentRenderer(cairo);
+                ofGetCurrentRenderer()->setupGraphicDefaults();
+                ofStyle style = ofGetCurrentRenderer()->getStyle();
+                ofGetCurrentRenderer()->setStyle(style);
+                cairo_set_miter_limit(cairo->getCairoContext(), 2);
+    //            cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+    //            cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
+                cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_BEVEL); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+                cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_BUTT); // ROUND SQUARE
+                
+
+                if (ui->pBool["cairoStroked"]) {
+                    static const double dashes[] = { 100.0,  /* ink */
+                        40.0,  /* skip */
+                        20.0,  /* ink */
+                        40.0   /* skip*/
+                    };
+                    int    ndash  = sizeof (dashes)/sizeof(dashes[0]);
+                    double offset = -50.0;
+                    cairo_set_dash(cairo->getCairoContext(), dashes, ndash, offset);
+                } else {
+                    static const double nodash[] = { 0.0 };
+                    cairo_set_dash(cairo->getCairoContext(), nodash, 0, 0);
+                }
+
+                cairo->clearAlpha();
+            }
+            ofPushMatrix();
+        }
+    }
+    void end() override {
+        if (cairoIsSetup) {
+            ofPopMatrix();
+            ofSetCurrentRenderer(opengl, true);
+            
+            if (savingCairo) {
+                render.loadData(cairoOut->getImageSurfacePixels());
+                cairoOut->close();
+                savingCairo = false;
+                string resultado = ofSystem("open " + ofToDataPath(savingCairoFilename));
+
+            } else {
+                render.loadData(cairo->getImageSurfacePixels());
+                ofSetColor(255);
+                render.draw(0,0);
+            }
+        }
+    }
+    void uiEvents(ofxMicroUI::element & e) override { }
+    
+        
+    #ifdef USECAIROBLENDING
+    void startCairoBlendingMode() {
+        if (cairoIsSetup) {
+            string * s = &uiColors->pString["blend"];
+            //#CAIRO_OPERATOR_CLEAR
+            //#CAIRO_OPERATOR_SOURCE
+            //    ;     #CAIRO_OPERATOR_OVER
+            //    ;     #CAIRO_OPERATOR_IN
+            //    ;     #CAIRO_OPERATOR_OUT
+            //    ;     #CAIRO_OPERATOR_ATOP
+            //    ;     #CAIRO_OPERATOR_DEST
+            //    ;     #CAIRO_OPERATOR_DEST_OVER
+            //    ;     #CAIRO_OPERATOR_DEST_IN
+            //    ;     #CAIRO_OPERATOR_DEST_OUT
+            //    ;     #CAIRO_OPERATOR_DEST_ATOP
+            //    ;     #CAIRO_OPERATOR_XOR
+            //    ;     #CAIRO_OPERATOR_ADD
+            //    ;     #CAIRO_OPERATOR_SATURATE
+            //    ;     #CAIRO_OPERATOR_MULTIPLY
+            //    ;     #CAIRO_OPERATOR_SCREEN
+            //    ;     #CAIRO_OPERATOR_OVERLAY
+            //    ;     #CAIRO_OPERATOR_DARKEN
+            //    ;     #CAIRO_OPERATOR_LIGHTEN
+            //    ;     #CAIRO_OPERATOR_COLOR_DODGE
+            //    ;     #CAIRO_OPERATOR_COLOR_BURN
+            //    ;     #CAIRO_OPERATOR_HARD_LIGHT
+            //    ;     #CAIRO_OPERATOR_SOFT_LIGHT
+            //    ;     #CAIRO_OPERATOR_DIFFERENCE
+            //    ;     #CAIRO_OPERATOR_EXCLUSION
+            //    ;     #CAIRO_OPERATOR_HSL_HUE
+            //    ;     #CAIRO_OPERATOR_HSL_SATURATION
+            //    ;     #CAIRO_OPERATOR_HSL_COLOR
+            //    ;     #CAIRO_OPERATOR_HSL_LUMINOSITY
+            
+            
+            //CAIRO_OPERATOR_MULTIPLY //CAIRO_OPERATOR_SCREEN
+            if (*s == "add") {
+                cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_ADD);
+            }
+            
+            else if (*s == "screen") {
+                cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_SCREEN);
+            }
+            else if (*s == "multiply") {
+                cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_MULTIPLY);
+            }
+            else if (*s == "subtract") {
+                //cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_SCREEN);
+            }
+            
+            else if (*s == "darken") {
+                cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_DARKEN);
+            }
+            
+            else if (*s == "lighten") {
+                cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_LIGHTEN);
+            }
+        }
+    }
+    #endif
+};
+
+
+
