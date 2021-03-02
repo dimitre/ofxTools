@@ -2,7 +2,8 @@
 
 class ofxMidia : public ofBaseApp {
 public:
-	ofxMidiOut midiOut;
+
+	ofFbo * fbo = NULL;
 	string midiDevicesLastDev = "";
 	ofxMicroUI * uiMidi = NULL;
 	ofxMicroUI * uiNotes = NULL;
@@ -13,9 +14,10 @@ public:
         return ofClamp(ofMap(val, 0.0, 1.0, -mult, 1.0+mult), 0, 1);
     }
     
-
 	struct configMidi {
 	public:
+        ofxMidiOut midiOut;
+
 		ofFbo * fbo = NULL;
         ofxMicroUI * u = NULL;
 		ofxMicroUI * uiC = NULL;
@@ -44,8 +46,11 @@ public:
 			bool end = true;
 			
 			nota(int n, uint64_t d, int v, uint64_t del = 0) : note(n), vel(v), duration(d), delay(del) { //, uint64_t d
-				tempo = ofGetElapsedTimeMillis() + del;
-				tempoOff = tempo + d;
+//				tempo = ofGetElapsedTimeMillis() + del;
+//                tempo = ofGetElapsedTimeMicros() + del;
+//                tempoOff = tempo + duration;
+                tempo = ofGetElapsedTimeMicros() + 1000 * del;
+                tempoOff = tempo + duration * 1000;
 				note = n;
 				
 				played = false;
@@ -59,8 +64,35 @@ public:
 		vector <nota> notas;
         
         void addNoteF(float n, float duration, float vel, float delay = 0) {
-            int note = scales[n * scales.size()];
-            notas.emplace_back(note, duration, vel, delay);
+            if (scales.size()) {
+//                cout << "----" << endl;
+//                cout << n << endl;
+//                cout << scales.size() << endl;
+//                cout << n * scales.size() << endl;
+                int note = scales[n * scales.size()];
+                notas.emplace_back(note, duration, vel, delay);
+            }
+        }
+        
+        void update() {
+            uint64_t tempo = ofGetElapsedTimeMicros();
+            for (auto & n : notas) {
+                if (!n.played) {
+//                    if (n.tempo <= ofGetElapsedTimeMillis()) {
+                    if (n.tempo <= tempo) {
+                        midiOut.sendNoteOn(1, n.note, n.vel);
+    //                    cout << "send note " << n.note << endl;
+                        n.played = true;
+                    }
+                }
+                else {
+                    if (!n.end && n.tempoOff <= tempo) {
+                        midiOut.sendNoteOff(1, n.note, n.vel);
+    //                    cout << "send note off" << n.note << endl;
+                        n.end = true;
+                    }
+                }
+            }
         }
 
 	} config;
@@ -94,6 +126,7 @@ public:
 		virtual void setup() {}
 		virtual void update() {}
 		virtual void bang() {}
+		virtual void bang2() {}
 		virtual void uiEvents(ofxMicroUI::element & e) {}
 
 		virtual void draw() {
@@ -125,19 +158,21 @@ public:
 
 		void bang() override {
 			//random apenas
-			cout << "!!! TEST" << endl;
+//			cout << "!!! TEST" << endl;
 			for (int a=0; a<uiC->pInt["notas"]; a++) {
-				int note = config->scales[ofRandom(0, config->scales.size()-1)];
-				int duration = ofRandom(uiC->pInt["minDuration"], uiC->pInt["maxDuration"]);
-				int vel = ofRandom(uiC->pInt["minVel"], uiC->pInt["maxVel"]);
-				int delay = ofRandom(uiC->pInt["minDelay"], uiC->pInt["maxDelay"]);
-				config->notas.emplace_back(note, duration, vel, delay);
+                if (config->scales.size()) {
+                    int note = config->scales[ofRandom(0, config->scales.size()-1)];
+                    int duration = ofRandom(uiC->pInt["minDuration"], uiC->pInt["maxDuration"]);
+                    int vel = ofRandom(uiC->pInt["minVel"], uiC->pInt["maxVel"]);
+                    int delay = ofRandom(uiC->pInt["minDelay"], uiC->pInt["maxDelay"]);
+                    config->notas.emplace_back(note, duration, vel, delay);
+                }
 			}
 		}
     };
     
     
-    struct sceneTest : public sceneMidi {
+    struct scenePhasingR : public sceneMidi {
         public:
         using sceneMidi::sceneMidi;
 
@@ -146,7 +181,7 @@ public:
             //uint64_t ofGetElapsedTimeMillis();
             uint64_t intervalo;
             uint64_t jump = 0;
-            float n, intervaloFloat, vel;
+            double n, intervaloFloat, vel;
             interval() {
 				setup();
 				// salta();
@@ -182,15 +217,17 @@ public:
 
         void update() override {
             for (auto & i : intervals) {
-                if (ofGetElapsedTimeMillis() > i.jump) {
+                if (ofGetElapsedTimeMicros() > i.jump) {
 					// i.salta();
-					float intF = i.intervaloFloat;
+					double intF = i.intervaloFloat;
+                    float intervalo;
 					if (uiC->pInt["intervalSteps"] > 0) {
-						intF = int(intF * uiC->pInt["intervalSteps"]) / (float) uiC->pInt["intervalSteps"];
-					}
-					float intervalo = ofMap(intF, 0, 1, uiC->pInt["intervalMin"], uiC->pInt["intervalMax"]);
-
-                    i.jump = ofGetElapsedTimeMillis() + intervalo;
+						int intVal = int(intF * (double)uiC->pInt["intervalSteps"]);
+                        intervalo = ofMap(intVal, 0, uiC->pInt["intervalSteps"], uiC->pInt["intervalMin"] * 1000, uiC->pInt["intervalMax"] * 1000);
+                    } else {
+                        intervalo = ofMap(intF, 0, 1, uiC->pInt["intervalMin"] * 1000, uiC->pInt["intervalMax"] * 1000);
+                    }
+                    i.jump = ofGetElapsedTimeMicros() + intervalo;
                     int vel = ofMap(i.vel, 0, 1, uiC->pInt["velMin"], uiC->pInt["velMax"]);
                     config->addNoteF(i.n, uiC->pInt["duracao"], vel);
                 }
@@ -202,6 +239,13 @@ public:
                 i.setup();
             }
         }
+
+		void bang2() override {
+			for (auto & i : intervals) {
+				i.vel = ofRandom(0,1);
+			}
+
+		}
     };
 
 
@@ -220,27 +264,30 @@ public:
 //				// cout << e.first << endl;
 //			}
 
-			for (int a=0; a<uiC->pInt["notas"]; a++) {
-				// cout << a << endl;
-				float noisenota = expand(ofNoise(uiC->pFloat["notaNoiseMult"] * a + uiC->pFloat["notaNoiseStart"]), uiC->pFloat["notaNoiseExpand"]);
-				// noisenota = ofClamp(noisenota, 0.0, 1.0);
-				float noise = noisenota * config->scales.size();
-				int note = config->scales[int(noise)];
+            // mudar tudo isso pra addNoteF
+            if (config->scales.size()) {
+                for (int a=0; a<uiC->pInt["notas"]; a++) {
+                    // cout << a << endl;
+                    float noisenota = expand(ofNoise(uiC->pFloat["notaNoiseMult"] * a + uiC->pFloat["notaNoiseStart"]), uiC->pFloat["notaNoiseExpand"]);
+                    // noisenota = ofClamp(noisenota, 0.0, 1.0);
+                    float noise = noisenota * config->scales.size();
+                    int note = config->scales[int(noise)];
 
-				float d = expand(ofNoise(uiC->pFloat["durationNoiseMult"] * a + uiC->pFloat["durationNoiseStart"]), uiC->pFloat["durationNoiseExpand"]);
-				int duration = ofMap(d, 0, 1, uiC->pInt["minDuration"], uiC->pInt["maxDuration"]);
-				// int duration = ofRandom(uiC->pInt["minDuration"], uiC->pInt["maxDuration"]);
+                    float d = expand(ofNoise(uiC->pFloat["durationNoiseMult"] * a + uiC->pFloat["durationNoiseStart"]), uiC->pFloat["durationNoiseExpand"]);
+                    int duration = ofMap(d, 0, 1, uiC->pInt["minDuration"], uiC->pInt["maxDuration"]);
+                    // int duration = ofRandom(uiC->pInt["minDuration"], uiC->pInt["maxDuration"]);
 
-				float v = expand(ofNoise(uiC->pFloat["velNoiseMult"] * a + uiC->pFloat["velNoiseStart"]), uiC->pFloat["velNoiseExpand"]);
-				int vel = ofMap(v, 0, 1, uiC->pInt["minVel"], uiC->pInt["maxVel"]);
+                    float v = expand(ofNoise(uiC->pFloat["velNoiseMult"] * a + uiC->pFloat["velNoiseStart"]), uiC->pFloat["velNoiseExpand"]);
+                    int vel = ofMap(v, 0, 1, uiC->pInt["minVel"], uiC->pInt["maxVel"]);
 
-				float del = expand(ofNoise(uiC->pFloat["delayNoiseMult"] * a + uiC->pFloat["delayNoiseStart"]), uiC->pFloat["delayNoiseExpand"]);
-				int delay = ofMap(del, 0, 1, uiC->pInt["minDelay"], uiC->pInt["maxDelay"]);
+                    float del = expand(ofNoise(uiC->pFloat["delayNoiseMult"] * a + uiC->pFloat["delayNoiseStart"]), uiC->pFloat["delayNoiseExpand"]);
+                    int delay = ofMap(del, 0, 1, uiC->pInt["minDelay"], uiC->pInt["maxDelay"]);
 
-				// cout << d << " : " << v << " : " << del << endl;
-				// int delay = ofRandom(uiC->pInt["minDelay"], uiC->pInt["maxDelay"]);
-				config->notas.emplace_back(note, duration, vel, delay);			
-			}
+                    // cout << d << " : " << v << " : " << del << endl;
+                    // int delay = ofRandom(uiC->pInt["minDelay"], uiC->pInt["maxDelay"]);
+                    config->notas.emplace_back(note, duration, vel, delay);
+                }
+            }
 		}
 	};
 
@@ -254,7 +301,7 @@ public:
 
 	// renomear pra midiDevicesSetup
 	void midiDevicesUIList() {
-		string vals = ofJoinString(midiOut.getOutPortList(), "|");
+		string vals = ofJoinString(config.midiOut.getOutPortList(), "|");
 		vector <string> lines;
 		uiMidi->futureLines.push_back("radioPipeNoLabel	midiPort	"+vals);
 	}
@@ -272,52 +319,38 @@ public:
 		}
 	}
 	
-
-
-
 	void onUpdate(ofEventArgs &data) {
-
-		// este foi tirado do ofxScenes, nao sei se é o caso.
 		// nao sei se precisa update aqui.
 		if (scene != "" && scene != "_") {
 			if ( scenesMap.find(scene) != scenesMap.end() ) {
 				scenesMap[scene]->update();
 			}
 		}
-//		cout << "update midi" << endl;
-//		midiOut.sendNoteOn(m.channel, m.nota, vel);
 		update();
-		for (auto & n : config.notas) {
-			if (!n.played) {
-				if (n.tempo <= ofGetElapsedTimeMillis()) {
-					midiOut.sendNoteOn(1, n.note, n.vel);
-//					cout << "send note " << n.note << endl;
-					n.played = true;
-				}
-			}
-			else {
-				if (!n.end && n.tempoOff <= ofGetElapsedTimeMillis()) {
-					midiOut.sendNoteOff(1, n.note, n.vel);
-//					cout << "send note off" << n.note << endl;
-					n.end = true;
-				}
-			}
-		}
+        // checa as notas se foram tocadas ou nao
+        config.update();
 	}
 
 
-
-	ofFbo * fbo = NULL;
 	void bang() {
 		if (scene != "" && scene != "_") {
 			if ( scenesMap.find(scene) != scenesMap.end() ) {
-//				ofSetColor(getColor(0, uiColors));
 				scenesMap[scene]->bang();
 			} else {
 				cout << "Bang! scene not found " << scene << endl;
 			}
 		}
 	}
+
+	void bang2() {
+		if (scene != "" && scene != "_") {
+			if ( scenesMap.find(scene) != scenesMap.end() ) {
+				scenesMap[scene]->bang2();
+			} else {
+				cout << "Bang! scene not found " << scene << endl;
+			}
+		}
+	}	
 	
 	void draw() {
 //		ofSetLineWidth(ui->pEasy["lineWidth"]);
@@ -365,20 +398,18 @@ public:
 		if (e.name == "midiPort") {
 			string dev = *e.s;
 			if (midiDevicesLastDev != dev) {
-				if (midiOut.isOpen()) {
-					midiOut.closePort();
+				if (config.midiOut.isOpen()) {
+					config.midiOut.closePort();
 				}
 				cout << "midiOut open :: " << dev << endl;
-				midiOut.openPort(dev);
+                config.midiOut.openPort(dev);
 				midiDevicesLastDev = dev;
 			}
 		}
 	}
 	
 	void notesUIEvent(ofxMicroUI::element & e) {
-//		cout << "notesUIEvent " << e.name << endl;
 		if (e.tag == "scale") {
-			// booleano has to update notes
 			updateNotas();
 		}
 	}
