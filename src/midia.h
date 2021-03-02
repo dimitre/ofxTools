@@ -1,4 +1,7 @@
 // renomear de midia pra outra coisa?
+    static float expand(float val, float mult = 0.0) {
+        return ofClamp(ofMap(val, 0.0, 1.0, -mult, 1.0+mult), 0, 1);
+    }
 
 class ofxMidia : public ofBaseApp {
 public:
@@ -10,9 +13,6 @@ public:
 	ofxMicroUI * uiC = NULL;
     ofxMicroUI * u = NULL;
     
-    static float expand(float val, float mult = 0.0) {
-        return ofClamp(ofMap(val, 0.0, 1.0, -mult, 1.0+mult), 0, 1);
-    }
     
 	struct configMidi {
 	public:
@@ -148,146 +148,6 @@ public:
 				ofVertex(n.x, n.y);
 			}
 			ofEndShape();
-		}
-	};
-
-
-	struct sceneRandom : public sceneMidi {
-		public:
-		using sceneMidi::sceneMidi;
-
-		void bang() override {
-			//random apenas
-//			cout << "!!! TEST" << endl;
-			for (int a=0; a<uiC->pInt["notas"]; a++) {
-                if (config->scales.size()) {
-                    int note = config->scales[ofRandom(0, config->scales.size()-1)];
-                    int duration = ofRandom(uiC->pInt["minDuration"], uiC->pInt["maxDuration"]);
-                    int vel = ofRandom(uiC->pInt["minVel"], uiC->pInt["maxVel"]);
-                    int delay = ofRandom(uiC->pInt["minDelay"], uiC->pInt["maxDelay"]);
-                    config->notas.emplace_back(note, duration, vel, delay);
-                }
-			}
-		}
-    };
-    
-    
-    struct scenePhasingR : public sceneMidi {
-        public:
-        using sceneMidi::sceneMidi;
-
-		struct interval {
-        public:
-            //uint64_t ofGetElapsedTimeMillis();
-            uint64_t intervalo;
-            uint64_t jump = 0;
-            double n, intervaloFloat, vel;
-            interval() {
-				setup();
-				// salta();
-            }
-
-			void setup() {
-                n = ofRandom(0,1);
-                intervaloFloat = ofRandom(0,1);
-                vel = ofRandom(0,1);
-                // intervalo = ofRandom(150,500);
-			}
-
-			void salta() {
-				// jump = ofGetElapsedTimeMillis() + ofMap(intervaloFloat, 0, 1, uiC->pInt["intervalMin"], uiC->pInt["intervalMax"]);
-			}
-        };
-        
-        vector <interval> intervals;
-        
-        void uiEvents(ofxMicroUI::element & e) override {
-            if (e.name == "numero") {
-				if (intervals.size() < *e.i) {
-					for (int a=0; a<(*e.i - intervals.size()); a++) {
-						intervals.emplace_back(interval());
-					}
-				}
-				else if (*e.i < intervals.size()) {
-                    int willErase = intervals.size() - *e.i;
-                    intervals.erase(intervals.end() - willErase, intervals.end());
-				}
-            }
-        }
-
-        void update() override {
-            for (auto & i : intervals) {
-                if (ofGetElapsedTimeMicros() > i.jump) {
-					// i.salta();
-					double intF = i.intervaloFloat;
-                    float intervalo;
-					if (uiC->pInt["intervalSteps"] > 0) {
-						int intVal = int(intF * (double)uiC->pInt["intervalSteps"]);
-                        intervalo = ofMap(intVal, 0, uiC->pInt["intervalSteps"], uiC->pInt["intervalMin"] * 1000, uiC->pInt["intervalMax"] * 1000);
-                    } else {
-                        intervalo = ofMap(intF, 0, 1, uiC->pInt["intervalMin"] * 1000, uiC->pInt["intervalMax"] * 1000);
-                    }
-                    i.jump = ofGetElapsedTimeMicros() + intervalo;
-                    int vel = ofMap(i.vel, 0, 1, uiC->pInt["velMin"], uiC->pInt["velMax"]);
-                    config->addNoteF(i.n, uiC->pInt["duracao"], vel);
-                }
-            }
-        }
-        
-        void bang() override {
-            for (auto & i : intervals) {
-                i.setup();
-            }
-        }
-
-		void bang2() override {
-			for (auto & i : intervals) {
-				i.vel = ofRandom(0,1);
-			}
-
-		}
-    };
-
-
-    
-    struct sceneMidi2 : public sceneMidi {
-		public:
-		using sceneMidi::sceneMidi;
-        
-        
-
-		void bang() override {
-			// cout << "!!! MIDI2" << endl;
-			// cout << uiC->pInt["notas"] << endl;
-
-//			for (auto & e : uiC->pInt) {
-//				// cout << e.first << endl;
-//			}
-
-            // mudar tudo isso pra addNoteF
-            if (config->scales.size()) {
-                for (int a=0; a<uiC->pInt["notas"]; a++) {
-                    // cout << a << endl;
-                    float noisenota = expand(ofNoise(uiC->pFloat["notaNoiseMult"] * a + uiC->pFloat["notaNoiseStart"]), uiC->pFloat["notaNoiseExpand"]);
-                    // noisenota = ofClamp(noisenota, 0.0, 1.0);
-                    float noise = noisenota * config->scales.size();
-                    int note = config->scales[int(noise)];
-
-                    float d = expand(ofNoise(uiC->pFloat["durationNoiseMult"] * a + uiC->pFloat["durationNoiseStart"]), uiC->pFloat["durationNoiseExpand"]);
-                    int duration = ofMap(d, 0, 1, uiC->pInt["minDuration"], uiC->pInt["maxDuration"]);
-                    // int duration = ofRandom(uiC->pInt["minDuration"], uiC->pInt["maxDuration"]);
-
-                    float v = expand(ofNoise(uiC->pFloat["velNoiseMult"] * a + uiC->pFloat["velNoiseStart"]), uiC->pFloat["velNoiseExpand"]);
-                    int vel = ofMap(v, 0, 1, uiC->pInt["minVel"], uiC->pInt["maxVel"]);
-
-                    float del = expand(ofNoise(uiC->pFloat["delayNoiseMult"] * a + uiC->pFloat["delayNoiseStart"]), uiC->pFloat["delayNoiseExpand"]);
-                    int delay = ofMap(del, 0, 1, uiC->pInt["minDelay"], uiC->pInt["maxDelay"]);
-
-                    // cout << d << " : " << v << " : " << del << endl;
-                    // int delay = ofRandom(uiC->pInt["minDelay"], uiC->pInt["maxDelay"]);
-                    config->notas.emplace_back(note, duration, vel, delay);
-                }
-            }
 		}
 	};
 
@@ -433,3 +293,176 @@ public:
 		}
 	}
 };
+
+
+
+struct sceneRandom : public ofxMidia::sceneMidi {
+    public:
+    using sceneMidi::sceneMidi;
+
+    void bang() override {
+        //random apenas
+//            cout << "!!! TEST" << endl;
+        for (int a=0; a<uiC->pInt["notas"]; a++) {
+            if (config->scales.size()) {
+                int note = config->scales[ofRandom(0, config->scales.size()-1)];
+                int duration = ofRandom(uiC->pInt["minDuration"], uiC->pInt["maxDuration"]);
+                int vel = ofRandom(uiC->pInt["minVel"], uiC->pInt["maxVel"]);
+                int delay = ofRandom(uiC->pInt["minDelay"], uiC->pInt["maxDelay"]);
+                config->notas.emplace_back(note, duration, vel, delay);
+            }
+        }
+    }
+};
+
+
+struct sceneMidi2 : public ofxMidia::sceneMidi {
+    public:
+    using sceneMidi::sceneMidi;
+    
+    
+
+    void bang() override {
+        // cout << "!!! MIDI2" << endl;
+        // cout << uiC->pInt["notas"] << endl;
+
+//            for (auto & e : uiC->pInt) {
+//                // cout << e.first << endl;
+//            }
+
+        // mudar tudo isso pra addNoteF
+        if (config->scales.size()) {
+            for (int a=0; a<uiC->pInt["notas"]; a++) {
+                // cout << a << endl;
+                float noisenota = expand(ofNoise(uiC->pFloat["notaNoiseMult"] * a + uiC->pFloat["notaNoiseStart"]), uiC->pFloat["notaNoiseExpand"]);
+                // noisenota = ofClamp(noisenota, 0.0, 1.0);
+                float noise = noisenota * config->scales.size();
+                int note = config->scales[int(noise)];
+
+                float d = expand(ofNoise(uiC->pFloat["durationNoiseMult"] * a + uiC->pFloat["durationNoiseStart"]), uiC->pFloat["durationNoiseExpand"]);
+                int duration = ofMap(d, 0, 1, uiC->pInt["minDuration"], uiC->pInt["maxDuration"]);
+                // int duration = ofRandom(uiC->pInt["minDuration"], uiC->pInt["maxDuration"]);
+
+                float v = expand(ofNoise(uiC->pFloat["velNoiseMult"] * a + uiC->pFloat["velNoiseStart"]), uiC->pFloat["velNoiseExpand"]);
+                int vel = ofMap(v, 0, 1, uiC->pInt["minVel"], uiC->pInt["maxVel"]);
+
+                float del = expand(ofNoise(uiC->pFloat["delayNoiseMult"] * a + uiC->pFloat["delayNoiseStart"]), uiC->pFloat["delayNoiseExpand"]);
+                int delay = ofMap(del, 0, 1, uiC->pInt["minDelay"], uiC->pInt["maxDelay"]);
+
+                // cout << d << " : " << v << " : " << del << endl;
+                // int delay = ofRandom(uiC->pInt["minDelay"], uiC->pInt["maxDelay"]);
+                config->notas.emplace_back(note, duration, vel, delay);
+            }
+        }
+    }
+};
+
+
+
+struct scenePhasingR : public ofxMidia::sceneMidi {
+    public:
+    using sceneMidi::sceneMidi;
+
+    struct interval {
+    public:
+        //uint64_t ofGetElapsedTimeMillis();
+        // uint64_t intervalo;
+        uint64_t jump = 0;
+        double note, intervalo, vel;
+		unsigned int index = 0;
+        interval() {
+            setup();
+            // salta();
+        }
+
+        void setup() {
+            note = ofRandom(0,1);
+            vel = ofRandom(0,1);
+            intervalo = ofRandom(0,1);
+            // intervalo = ofRandom(150,500);
+        }
+
+        void salta() {
+            // jump = ofGetElapsedTimeMillis() + ofMap(intervalo, 0, 1, uiC->pInt["intervalMin"], uiC->pInt["intervalMax"]);
+        }
+    };
+
+	float getNoise(int index, string v) {
+		return expand(ofNoise(index * uiC->pEasy[v+"Mult"] + uiC->pEasy[v+"Start"]), uiC->pEasy[v+"Expand"]);
+	}
+
+	void updateNoise() {
+		unsigned int index = 0;
+		for (auto & i : intervals) {
+			i.index = index;
+			i.note = getNoise(index, "note");
+			i.vel = getNoise(index, "vel");
+			i.intervalo = getNoise(index, "interval");
+
+//			cout << "-----" << endl;
+//			cout << i.note << endl;
+//			cout << i.vel << endl;
+//			cout << i.intervalo << endl;
+
+
+			// i.note = ofNoise(index * uiC->pFloat["noteMult"] + uiC->pFloat["noteOffset"]);
+			// i.vel = ofNoise(index * uiC->pFloat["velMult"] + uiC->pFloat["velOffset"]);
+			// i.vel = ofNoise(index * uiC->pFloat["velMult"] + uiC->pFloat["velOffset"]);
+			index++;
+		}
+	}
+    
+    vector <interval> intervals;
+    
+    void uiEvents(ofxMicroUI::element & e) override {
+        if (e.name == "numero") {
+            if (intervals.size() < *e.i) {
+                for (int a=0; a<(*e.i - intervals.size()); a++) {
+                    intervals.emplace_back(interval());
+                }
+            }
+            else if (*e.i < intervals.size()) {
+                int willErase = intervals.size() - *e.i;
+                intervals.erase(intervals.end() - willErase, intervals.end());
+            }
+        }
+
+
+    }
+
+    void update() override {
+        if (uiC->pBool["noise"]) {
+            updateNoise();
+        }
+        for (auto & i : intervals) {
+            if (ofGetElapsedTimeMicros() > i.jump) {
+                // i.salta();
+                double intF = i.intervalo;
+                float intervalo;
+                if (uiC->pInt["intervalSteps"] > 0) {
+                    int intVal = int(intF * (double)uiC->pInt["intervalSteps"]);
+                    intervalo = ofMap(intVal, 0, uiC->pInt["intervalSteps"], uiC->pInt["intervalMin"] * 1000, uiC->pInt["intervalMax"] * 1000);
+                } else {
+                    intervalo = ofMap(intF, 0, 1, uiC->pInt["intervalMin"] * 1000, uiC->pInt["intervalMax"] * 1000);
+                }
+                i.jump = ofGetElapsedTimeMicros() + intervalo;
+                int vel = ofMap(i.vel, 0, 1, uiC->pInt["velMin"], uiC->pInt["velMax"]);
+                config->addNoteF(i.note, uiC->pInt["duracao"], vel);
+            }
+        }
+    }
+    
+    void bang() override {
+        for (auto & i : intervals) {
+            i.setup();
+        }
+    }
+
+    void bang2() override {
+        for (auto & i : intervals) {
+            i.vel = ofRandom(0,1);
+        }
+
+    }
+};
+
