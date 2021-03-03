@@ -1,3 +1,6 @@
+//sceneImage, sceneNDI, sceneGen
+
+
 struct sceneImage : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
@@ -95,18 +98,22 @@ struct sceneGen : public ofxScenes::sceneDmtr {
 	float pos = 0;
 
 	void draw() {
+		
 		float distancia = uiC->pEasy["distancia"];
 		float largura = uiC->pEasy["largura"];
 		float vel = uiC->pEasy["vel"];
 		pos += vel;
 		pos = fmod(pos, distancia);
 		// cout << "-----" << endl;
-		ofSetColor(255);
+		ofSetColor(uiC->pColor["cor"]);
 
+		ofTranslate(middle);
+		ofRotateDeg(uiC->pEasy["rot"]);
+		ofTranslate(-middle);
 		for (float i=-fbo->getWidth() * .5; i<fbo->getWidth()* 1.5; i+=distancia) {
 			float x = pos + i;
 			// cout << x << endl;
-			ofDrawRectangle(x, 0, largura, fbo->getHeight());
+			ofDrawRectangle(x, -fbo->getWidth() * .5, largura, fbo->getWidth()*1.5);
 		}
 	}
 };
