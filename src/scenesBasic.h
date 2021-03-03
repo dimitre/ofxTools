@@ -113,7 +113,7 @@ struct sceneGen : public ofxScenes::sceneDmtr {
 		for (float i=-fbo->getWidth() * .5; i<fbo->getWidth()* 1.5; i+=distancia) {
 			float x = pos + i;
 			// cout << x << endl;
-			ofDrawRectangle(x, -fbo->getWidth() * .5, largura, fbo->getWidth()*1.5);
+			ofDrawRectangle(x, -fbo->getWidth() * .5, largura, fbo->getWidth()*2.5);
 		}
 	}
 };
