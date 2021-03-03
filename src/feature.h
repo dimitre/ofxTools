@@ -1,3 +1,7 @@
+// using namespace std;
+// #include "ofxMicroUI.h"
+// #include "ofxMicroUISoftware.h"
+
 struct microFeature {
 public:
 
@@ -55,6 +59,7 @@ public:
         setup();
     }
 };
+
 
 
 struct featureLight : public microFeature {
@@ -177,7 +182,8 @@ struct featureCam : public microFeature {
 public:
 	using microFeature::microFeature;
 
-	ofCamera camera3d;
+	ofCamera cam;
+	// ofEasyCam cam;
 	float pointsPerMeter = 100.0;
 	glm::vec3 cameraLook3d = { 0.0f, 0.0f, 0.0f };
 	glm::vec3 cameraLookUp = { 0.f, -1.0f, 0.0f };
@@ -185,8 +191,9 @@ public:
 	ofNode lookNode;
 	
 	void setup() override {
-		camera3d.setNearClip(0.01);
-		camera3d.setFarClip(160 * pointsPerMeter);
+		// cam.setNearClip(0.01);
+		cam.setNearClip(0.01 * pointsPerMeter);
+		cam.setFarClip(160 * pointsPerMeter);
 	}
 	
 	void begin() override {
@@ -197,8 +204,8 @@ public:
 		// }
 		ofEnableDepthTest();
 
-		float cameraX = ui->pEasy["cameraX"];
-		float cameraZ = ui->pEasy["cameraZ"];
+		float cameraX = ui->pEasy["cameraX"] * pointsPerMeter;
+		float cameraZ = ui->pEasy["cameraZ"] * pointsPerMeter;
 
 		// 1.70, a altura de um adulto em p�
 		if (ui->pBool["cameraPolar"]) {
@@ -212,7 +219,7 @@ public:
 
 		// if (!u.pBool["mouseCamera"])
 		{
-			camera3d.setPosition(cameraX,
+			cam.setPosition(cameraX,
 							ui->pEasy["cameraY"] * pointsPerMeter,
 							cameraZ);
 			
@@ -222,13 +229,12 @@ public:
 			
 			lookNode.setPosition(cameraLook3d);
 			
-			// camera3d.lookAt(lookNode, cameraLookUp);
-			camera3d.lookAt(lookNode, ui->pBool["up"] ? cameraLookUp : cameraLookUp2);
+			// cam.lookAt(lookNode, cameraLookUp);
+			cam.lookAt(lookNode, ui->pBool["up"] ? cameraLookUp : cameraLookUp2);
 		}
 
-		camera3d.setFov(ui->pEasy["cameraFov"]);
-		camera3d.begin();
-		ofPushMatrix();
+		cam.setFov(ui->pEasy["cameraFov"]);
+		cam.begin();
 
 		float rotX = ui->pEasy["accelX"];
 		float rotY = ui->pEasy["accelY"];
@@ -240,6 +246,7 @@ public:
 			ui->pFloat["rotZ_accum"] += ui->pFloat["rotCamZAuto"];
 		}
 
+		ofPushMatrix();
 		ofRotateXDeg(rotX + ui->pEasy["rotCamX"] + ui->pFloat["rotX_accum"]);
 		ofRotateYDeg(rotY + ui->pEasy["rotCamY"] + ui->pFloat["rotY_accum"]);
 		ofRotateZDeg(rotZ + ui->pEasy["rotCamZ"] + ui->pFloat["rotZ_accum"]);
@@ -247,7 +254,7 @@ public:
 
 	void end() override {
 		ofPopMatrix();
-		camera3d.end();
+		cam.end();
 		ofDisableDepthTest();
 	}
 
@@ -278,9 +285,9 @@ public:
 			
 		if (e.name == "ortho") {
 			if (*e.b) {
-				camera3d.enableOrtho();
+				cam.enableOrtho();
 			} else {
-				camera3d.disableOrtho();
+				cam.disableOrtho();
 			}
 		}		
 	}
@@ -304,10 +311,6 @@ public:
 	}
 
 	void begin() override {
-//        cout << name << " : begin() " << endl;
-//        cout << ui->pBool[name] << endl;
-//        cout << shader.isLoaded() << endl;
-        
 		if (isOk()) {
 			shader.begin();
 			shader.setUniform1f("time", ofGetElapsedTimef());
@@ -686,5 +689,16 @@ public:
     #endif
 };
 
+
+
+
+struct featureTest : public microFeature {
+	public:
+	using microFeature::microFeature;
+	void setup() override {}
+	void begin() override {}
+	void end() override { }
+	void uiEvents(ofxMicroUI::element & e) override {}
+};
 
 

@@ -1,3 +1,56 @@
+	static void calcNormals( ofMesh & mesh, bool bNormalize, bool mode){
+		for( int i=0; i < mesh.getIndices().size(); i+=3 ){
+			const int ia = mesh.getIndices()[i];
+			const int ib = mesh.getIndices()[i+1];
+			const int ic = mesh.getIndices()[i+2];
+			glm::vec3 e1 = mesh.getVertices()[ia] - mesh.getVertices()[ib];
+			glm::vec3 e2 = mesh.getVertices()[ic] - mesh.getVertices()[ib];
+			// depending on your clockwise / winding order, you might want to reverse the e2 / e1 above if your normals are flipped.
+			glm::vec3 no = mode ? glm::cross(e2, e1) : glm::cross(e1, e2);
+			mesh.getNormals()[ia] = no;
+			mesh.getNormals()[ib] = no;
+			mesh.getNormals()[ic] = no;
+		}
+
+		if (bNormalize) {
+			for (auto & n : mesh.getNormals()) {
+				n = glm::normalize(n);
+			}
+		}
+	}
+
+
+	static void drawMeshStatic(ofMesh * m, ofxMicroUI * ui) {
+		if (ui->pString["draw"] == "wire") {
+			m->drawWireframe();
+		}
+		else if (ui->pString["draw"] == "faces") {
+			m->drawFaces();
+		}
+		else if (ui->pString["draw"] == "points") {
+			//cout << "aqui " << endl;
+			glDisable(GL_POINT_SMOOTH);
+			glPointSize(ui->pEasy["pointSize"]);
+			m->draw(OF_MESH_POINTS);
+		}
+	}
+
+	static void drawMeshStatic(ofVboMesh * m, ofxMicroUI * ui) {
+		if (ui->pString["draw"] == "wire") {
+			m->drawWireframe();
+		}
+		else if (ui->pString["draw"] == "faces") {
+			m->drawFaces();
+		}
+		else if (ui->pString["draw"] == "points") {
+			//cout << "aqui " << endl;
+			glDisable(GL_POINT_SMOOTH);
+			glPointSize(ui->pEasy["pointSize"]);
+			m->draw(OF_MESH_POINTS);
+		}
+	}
+
+
 
 
 struct sceneOcean : public ofxScenes::sceneDmtr {
