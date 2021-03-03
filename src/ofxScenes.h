@@ -26,6 +26,7 @@ public:
 	public:
 
 		string name = "";
+		string * scene = NULL;
 		
 #ifdef USEFFT
 		ofxMicroUIFFT * fft = NULL;
@@ -39,24 +40,28 @@ public:
 //		int margem = 100;
 //		ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
         
+		void afterSetup() {
+			ui = &u->uis["ui"];
+			scene = &ui->pString["scene"];
+		}
+
 		sceneConfig() {} ;
 		sceneConfig(ofFbo * _fbo, ofxMicroUI * _u) :
 		fbo(_fbo), u(_u) {
-			ui = &u->uis["ui"];
 			uiC = &u->uis["scene"];
 			uiColors = &u->uis["colors"];
+			afterSetup();
 		};
 		
 		sceneConfig(ofFbo * _fbo, ofxMicroUI * _u, ofxMicroUI * _uiC) :
 		fbo(_fbo), u(_u), uiC(_uiC) {
-			ui = &u->uis["ui"];
 			uiColors = &u->uis["colors"];
+			afterSetup();
 		};
 		
 		sceneConfig(ofFbo * _fbo, ofxMicroUI * _u, ofxMicroUI * _uiC, ofxMicroUI * _uiColors) :
 		fbo(_fbo), u(_u), uiC(_uiC), uiColors(_uiColors) {
-			ui = &u->uis["ui"];
-//			uiColors = &u->uis["colors"];
+			afterSetup();
 		};
 	} config;
 	

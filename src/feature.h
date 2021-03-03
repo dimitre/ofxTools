@@ -33,6 +33,12 @@ public:
 		setup();
 	}
 
+	// novidade, vamos ver se rola.
+	microFeature(ofxMicroUISoftware * _soft) : soft(_soft) {
+        internalSetup();
+		setup();
+	}
+
 	microFeature(ofxMicroUI * _ui, ofxMicroUISoftware * _soft) : ui(_ui), soft(_soft) {
         internalSetup();
 		setup();

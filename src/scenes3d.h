@@ -1295,7 +1295,7 @@ struct sceneGraph : public ofxScenes::sceneDmtr {
 public:
     using sceneDmtr::sceneDmtr;
     
-		float min;
+	float min;
 	float max;
 	vector <float> vals;
 	vector <float> valsNorm;
@@ -1319,15 +1319,21 @@ public:
 		string url = "https://financialmodelingprep.com/api/v3/historical-chart/1hour/AAPL?apikey=562c36be10fce020d33f378be7ddc4bb";
 		cout << "json loading" << endl;
 		ofHttpResponse resp = ofLoadURL(url);
-		cout << "json loaded!" << endl;
-		js = ofJson::parse(resp.data.getText());
-		for (auto & k : js) {
-			vals.push_back(k["close"]);
+		if (resp.status == 200) {
+			cout << "json loaded!" << endl;
+			cout << resp.data.getText() << endl;
+			js = ofJson::parse(resp.data.getText());
+			for (auto & k : js) {
+				vals.push_back(k["close"]);
+			}
+			norm();
+			isLoaded = true;
+		} else {
+			cout << "no response. no internet?" << endl;
 		}
-		norm();
-		isLoaded = true;
 	}
     
+
     ofColor getColorRange(float n) {
         if (config->uiColors->pBool["usePalette"]) {
             return ((ofxMicroUI::colorPalette*)config->uiColors->getElement("colorPalette"))->getColor(n);
@@ -1348,27 +1354,56 @@ public:
 		}
 		load();
 	}
+
+	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "fontSize" && *config->scene == "graph") {
+			cout << "xxx" << e.name << endl;
+			ofxMicroUI::fontList * f = ((ofxMicroUI::fontList*)uiC->getElement("font"));
+			if (f != NULL) {
+				f->size = uiC->pInt["fontSize"];
+				cout << "font size set." << endl;
+			} else {
+				cout << "NULL" << endl;
+			}
+			// ((ofxMicroUI::fontList*)uiC->getElement("font"))->size = *e.i;
+		}
+	}
+	
     void draw() {
+        ofSetColor(255);
+        string s = uiC->pString["indice"] + " " + uiC->pString["range"];
+        uiC->pFont["font"].drawString(s, uiC->pFloat["textoX"], uiC->pFloat["textoY"]);
+
+        
         float cols = uiC->pEasy["cols"];
         float spacing = fbo->getWidth() / cols;
-        for (int x=0; x<cols; x++) {
-			float my = valsNorm[x] * uiC->pEasy["colsMult"];
-			// cout << my << endl;
-			for (int y=0; y<my; y++) {
-                
-				ofPushMatrix();
-				ofTranslate(x*spacing, fbo->getHeight()*uiC->pEasy["offY"] - y*spacing);
-				ofRotateXDeg(uiC->pEasy["rotX"]);
-				ofRotateYDeg(uiC->pEasy["rotY"]);
-				ofRotateZDeg(uiC->pEasy["rotZ"]);
-//				ofSetColor(255);
+		if (valsNorm.size()) {
+			for (int x=0; x<cols; x++) {
+				int index = valsNorm.size() - cols + x -1;
+				float my = uiC->pEasy["colsMin"] + valsNorm[index] * uiC->pEasy["colsMult"];
+				// cout << my << endl;
+				for (int y=0; y<my; y++) {
+					
+					ofPushMatrix();
+					ofTranslate((x-cols*.5)*spacing, fbo->getHeight()*uiC->pEasy["offY"] + y*spacing);
+					ofRotateXDeg(uiC->pEasy["rotX"]);
+					ofRotateYDeg(uiC->pEasy["rotY"]);
+					ofRotateZDeg(uiC->pEasy["rotZ"]);
+	//				ofSetColor(255);
 
-                ofSetColor(getColorRange(y/12.0));
-				ofDrawBox(spacing * uiC->pEasy["raio"]);
-				ofPopMatrix();
+					ofSetColor(getColorRange(y/12.0));
+//					ofDrawBox(spacing * uiC->pEasy["raio"]);
+                    ofDrawBox(spacing * uiC->pEasy["raioX"],
+                              spacing * uiC->pEasy["raioY"],
+                              spacing * uiC->pEasy["raioZ"]
+                              );
+					ofPopMatrix();
 
+				}
 			}
-        }
+		} else {
+
+		}
     }
 };
 

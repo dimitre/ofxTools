@@ -22,8 +22,6 @@ int main( ){
 //	  OF_TARGET_LINUXARMV7L
 //	}
 	
-
-
 	// WINDOW GUI
 	ofGLFWWindowSettings settings;
 	settings.resizable = true;
@@ -59,11 +57,8 @@ int main( ){
 		cout << "TARGET_LINUX64" << endl;
 	#endif
 
-		cout << glfwGetVersionString() << endl;
-	
+	cout << glfwGetVersionString() << endl;
     cout << "Screens Found: " << monitorCount << endl;
-	
-
 	
 	for (int a=0; a<monitorCount; a++) {
 		string output;
@@ -82,7 +77,6 @@ int main( ){
         glfwGetMonitorPos(monitors[a], &xM, &yM); // We take the second monitor
 		glm::vec2 pos = glm::vec2(xM, yM);
 		output += "position: " + ofToString(pos.x) + " x " + ofToString(pos.y) + "\r";
-
 //		glViewport(0, 0, width, height);
 		
         const GLFWvidmode * desktopMode = glfwGetVideoMode(monitors[a]);
@@ -101,7 +95,6 @@ int main( ){
 
 
 			if (a==1) {
-				// ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow1);
 				ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow1);
 			}
 			else if (a==2) {
@@ -117,48 +110,8 @@ int main( ){
 		}
 		
 		ofxMicroUI::messageBox(output);
-		// cout << output << endl;
-//        return true;
     }
-	// cout << "-------" << endl;
 
-//#endif
-
-//#ifdef TARGET_OSX
-//	CGDisplayCount displayCount;
-//	CGDirectDisplayID displays[32];
-//	CGGetActiveDisplayList(32, displays, &displayCount);
-//	int numDisplays = displayCount;
-//	for (int a=1; a<numDisplays; a++) {
-//		int displayHeight = CGDisplayPixelsHigh (displays[a]);
-//		int displayWidth = CGDisplayPixelsWide (displays[a]);
-//		CGRect displayBounds = CGDisplayBounds (displays[a]);
-//		glm::vec2 pos = glm::vec2(displayBounds.origin.x, displayBounds.origin.y);
-//		settings.setSize(displayWidth, displayHeight);
-//		settings.setPosition(pos);
-//		settings.windowMode = OF_FULLSCREEN;
-//		settings.shareContextWith = guiWindow;
-//
-////		ofApp->wins.emplace_back(glm::vec2(displayWidth, displayHeight), pos);
-//		newWindow = ofCreateWindow(settings);
-////		ofAddListener(newWindow->events().draw, mainApp.get(), eventos[a]);
-//
-//		if (a==1) {
-//			ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow1);
-//		}
-//		else if (a==2) {
-//			ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow2);
-//		}
-//		else if (a==3) {
-//			ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow3);
-//		}
-//		else if (a==4) {
-//			ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow4);
-//		}
-//		allWindows.emplace_back(newWindow);
-//	}
-//#endif
-	
 	ofRunApp(guiWindow, mainApp);
 	ofRunMainLoop();
 }

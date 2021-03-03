@@ -870,9 +870,8 @@ struct sceneStripOndas : public sceneMuti {
 			qual = x+y;
 		}
 	};
-
 	vector <strip> strips;
-
+    
 	void setup() override {
         cout << "setup sceneStripOndas" << endl;
 		int pos = 0;
@@ -885,10 +884,10 @@ struct sceneStripOndas : public sceneMuti {
 	}
 
 	void draw() override {
-
 		for (auto & s : strips) {
 			ofSetColor(getCor(0));
 			float seno = sin(s.qual * uiC->pEasy["qual"] + ofGetElapsedTimef() * uiC->pFloat["tempo"]);
+            seno = ofMap(seno, -1, 1, uiC->pEasy["senoMin"], uiC->pEasy["senoMax"]);
 			float largura = uiC->pFloat["largura"] + ofMap(seno, -1, 1, 0, fbo->getWidth()) * uiC->pEasy["senoLargura"];
 			float x = ofMap(seno, -1, 1, 0, fbo->getWidth() - largura) * uiC->pEasy["senoAnda"];
 			ofDrawLine(x, s.pos, x+largura, s.pos);
