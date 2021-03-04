@@ -1,9 +1,5 @@
 struct sceneDmtr {
 public:
-	
-	
-//	friend class sceneConfig;
-	// #include "polar.h"
 	sceneConfig * config = NULL;
 	string name = "";
 	
@@ -23,10 +19,8 @@ public:
 
 	sceneDmtr(sceneConfig * _c, string n) : config(_c), name(n) {
 		u = config->u;
-//		ui = &u->uis["ui"];
 		ui = config->ui;
 		uiC = config->uiC;
-//		uiColors = config->uiColors;
 		fbo = config->fbo;
 		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
 		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
@@ -35,24 +29,12 @@ public:
 	sceneDmtr(sceneConfig * _c) : config(_c) {
 		u = config->u;
 		ui = config->ui;
-//		ui = &u->uis["ui"];
-//		uiC = &u->uis["scene"];
 		uiC = config->uiC;
-
-//		uiColors = config->uiColors;
 		fbo = config->fbo;
 		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
 		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
 	}
-	
-//	sceneDmtr(ofxMicroUI * _u, ofFbo * _fbo) : u(_u), fbo(_fbo) {
-//		ui = &u->uis["ui"];
-//		uiC = &u->uis["scene"];
-//		uiColors = &u->uis["colors"];
-//		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
-//		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
-//	}
-	
+
 	// TODO
 	float getFreq(int index) {
 		return 0;
@@ -61,7 +43,6 @@ public:
 	virtual ofColor getCor(float n) {
 		return getColor(n, config->uiColors);
 	}
-
 
 	float incrementa(string qual) {
 		string uniqueId = uiC->uiName + qual;

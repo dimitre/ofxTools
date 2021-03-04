@@ -1,21 +1,3 @@
-
-
-struct sceneLines : public sceneDmtr {
-public:
-	using sceneDmtr::sceneDmtr;
-	// name = "lines";
-	
-	void draw() override {
-		checkSetup();
-		for (int a=0; a<100; a++) {
-			float x = ofRandom(0, fbo->getWidth());
-			float y = ofRandom(0, fbo->getHeight());
-			ofDrawLine(0,0,x,y);
-		}
-	}
-};
-
-
 struct sceneLiner : public sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;

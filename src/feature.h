@@ -29,19 +29,37 @@ public:
     void internalSetup() {
 //        name = ui->uiName;
 //        cout << "new feature with the name " << name << endl;
-        ofAddListener(ui->uiEvent, this, &microFeature::uiEvents);
+		if (ui != NULL) {
+			ofAddListener(ui->uiEvent, this, &microFeature::uiEvents);
+		}
     }
+	
+	bool isSetup = false;
+	virtual void checkSetup() {
+		if (!isSetup) {
+			setup();
+			isSetup = true;
+		}
+	}
+	
+	// novidade, vamos ver se rola.
+	microFeature(ofxMicroUISoftware * _soft) : soft(_soft) {
+        internalSetup();
+		setup();
+	}
+	
+	// novidade, vamos ver se rola.
+	microFeature(ofxMicroUISoftware * _soft, string n) : soft(_soft), name(n) {
+        internalSetup();
+		setup();
+	}
 
 	microFeature(ofxMicroUI * _ui) : ui(_ui) {
         internalSetup();
 		setup();
 	}
 
-	// novidade, vamos ver se rola.
-	microFeature(ofxMicroUISoftware * _soft) : soft(_soft) {
-        internalSetup();
-		setup();
-	}
+
 
 	microFeature(ofxMicroUI * _ui, ofxMicroUISoftware * _soft) : ui(_ui), soft(_soft) {
         internalSetup();
@@ -700,5 +718,6 @@ struct featureTest : public microFeature {
 	void end() override { }
 	void uiEvents(ofxMicroUI::element & e) override {}
 };
+
 
 

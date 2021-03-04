@@ -1,119 +1,51 @@
-//sceneImage, sceneNDI, sceneGen
 
-
-struct sceneImage : public ofxScenes::sceneDmtr {
+struct sceneLines : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	ofImage * i;
-	ofTexture * tex;
-
-	void setup() override {
-		tex = &uiC->pImage["image"].getTexture();
-		i = &uiC->pImage["image"];
-	}
-
-	void draw() override {
-		if (i->isAllocated()) {
-			ofSetColor(255);
-			float scale = uiC->pEasy["scale"];
-			float w = i->getWidth() * scale;
-			float h = i->getHeight() * scale;
-			ofTranslate(fbo->getWidth() * .5, fbo->getHeight() * .5);
-
-			float x = -w*.5 + uiC->pEasy["offX"];
-			float y = -h*.5 + uiC->pEasy["offY"];
-
-			i->draw(x, y, w, h);
-		}
-	}
+	// name = "lines";
 	
-	void uiEvents(ofxMicroUI::element & e) override {
-		if (!e._settings->presetIsLoading && e._ui->uiIsCreated) {
-			if (e.name == "resetOffset") {
-				uiC->getSlider("offX")->set(0.0);
-				uiC->getSlider("offY")->set(0.0);
-				// resetIncrementa("rotTime");
-			}
-		}
-	}
-};
-
-struct sceneNdi : public ofxScenes::sceneDmtr {
-	using sceneDmtr::sceneDmtr;
-
-#ifdef USENDI
-	ofxNDIreceiver ndiReceiver; // NDI receiver
-	ofTexture ndiTexture; // Texture to receive
-
-	void setup() override {
-		cout << ndiReceiver.GetNDIversion() << " (http://ndi.tv/)" << endl;
-		ndiTexture.allocate(fbo->getWidth(), fbo->getHeight(), GL_RGBA);
-	}
-
-	void update() override {
-//		cout << "update ndi" << endl;
-		ndiReceiver.ReceiveImage(ndiTexture);
-	}
-
-	void draw0()  {
-		ndiTexture.draw(0, 0, fbo->getWidth(), fbo->getHeight());
-	}
-
 	void draw() override {
-		// update();
-//		cout << "draw ndi" << endl;
-		ofSetColor(255);
-		// float scale = 1.0;
-		float scale = uiC->pEasy["scale"];
-		float w = ndiTexture.getWidth() * scale;
-		float h = ndiTexture.getHeight() * scale;
-		
-		ofTranslate(fbo->getWidth() * .5, fbo->getHeight() * .5);
-
-		float x = -w*.5 + uiC->pEasy["offX"];
-		float y = -h*.5 + uiC->pEasy["offY"];
-
-//		i->draw(x, y, w, h);
-
-		ndiTexture.draw(x, y, w, h);
-		
-		if (uiC->pBool["debug"]) {
-			cout << "DEBUG ----------" << endl;
-			char name[256];
-			int nsenders = ndiReceiver.GetSenderCount();
-			for (int i = 0; i < nsenders; i++) {
-				ndiReceiver.GetSenderName(name, 256, i);
-				cout << "    Sender " << i << " [" << name << "]" << endl;
-			}
-			ndiTexture.draw(0, 0, fbo->getWidth(), fbo->getHeight());
+		checkSetup();
+		for (int a=0; a<100; a++) {
+			float x = ofRandom(0, fbo->getWidth());
+			float y = ofRandom(0, fbo->getHeight());
+			ofDrawLine(0,0,x,y);
 		}
 	}
-#endif
+};
+
+struct sceneVaretas : public ofxScenes::sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	// name = "lines";
+	
+	void draw() override {
+		checkSetup();
+        for (int a=0; a<100; a++) {
+            ofSetColor(ofColor::fromHsb(ofRandom(0,255), 255, 255));
+            float x1 = ofRandom(0,fbo->getWidth());
+            float x2 = ofRandom(0,fbo->getWidth());
+            float y1 = ofRandom(0,fbo->getHeight());
+            float y2 = ofRandom(0,fbo->getHeight());
+            ofDrawLine(x1, y1, x2, y2);
+        }	
+    }
 };
 
 
-struct sceneGen : public ofxScenes::sceneDmtr {
+struct sceneCircles : public ofxScenes::sceneDmtr {
+public:
 	using sceneDmtr::sceneDmtr;
-
-	float pos = 0;
-
-	void draw() {
-		
-		float distancia = uiC->pEasy["distancia"];
-		float largura = uiC->pEasy["largura"];
-		float vel = uiC->pEasy["vel"];
-		pos += vel;
-		pos = fmod(pos, distancia);
-		// cout << "-----" << endl;
-		ofSetColor(uiC->pColor["cor"]);
-
-		ofTranslate(middle);
-		ofRotateDeg(uiC->pEasy["rot"]);
-		ofTranslate(-middle);
-		for (float i=-fbo->getWidth() * .5; i<fbo->getWidth()* 1.5; i+=distancia) {
-			float x = pos + i;
-			// cout << x << endl;
-			ofDrawRectangle(x, -fbo->getWidth() * .5, largura, fbo->getWidth()*2.5);
-		}
-	}
+	// name = "lines";
+	
+	void draw() override {
+		checkSetup();
+        float tempo = ofGetElapsedTimef();
+        for (int a=0; a<10; a++) {
+            float raio = ofNoise(tempo, a) * 200;
+            float x = ofNoise(tempo * .5, a * .5) * fbo->getWidth();
+            float y = ofNoise(tempo * .4, a * .3) * fbo->getHeight();
+            ofDrawCircle(x, y, raio, raio);
+        }	
+    }
 };
