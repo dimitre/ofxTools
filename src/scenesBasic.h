@@ -2,8 +2,6 @@
 struct sceneLines : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	// name = "lines";
-	
 	void draw() override {
 		checkSetup();
 		for (int a=0; a<100; a++) {
@@ -17,11 +15,10 @@ public:
 struct sceneVaretas : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	// name = "lines";
-	
 	void draw() override {
 		checkSetup();
-        for (int a=0; a<100; a++) {
+		ofSetLineWidth(4);
+        for (int a=0; a<60; a++) {
             ofSetColor(ofColor::fromHsb(ofRandom(0,255), 255, 255));
             float x1 = ofRandom(0,fbo->getWidth());
             float x2 = ofRandom(0,fbo->getWidth());
@@ -32,20 +29,36 @@ public:
     }
 };
 
-
 struct sceneCircles : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	// name = "lines";
+	
+	void setup() override
+	{
+		ofSetCircleResolution(64);
+	}
 	
 	void draw() override {
 		checkSetup();
         float tempo = ofGetElapsedTimef();
         for (int a=0; a<10; a++) {
-            float raio = ofNoise(tempo, a) * 200;
-            float x = ofNoise(tempo * .5, a * .5) * fbo->getWidth();
+			ofSetColor(ofColor::fromHsb(a*8, 255, 255));
+            float raio = ofNoise(tempo * .3, a * .3) * 200;
+            float x = ofNoise(tempo * .2, a * .2) * fbo->getWidth();
             float y = ofNoise(tempo * .4, a * .3) * fbo->getHeight();
             ofDrawCircle(x, y, raio, raio);
         }	
+    }
+};
+
+
+struct sceneCam : public ofxScenes::sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+	void draw() override {
+		checkSetup();
+		ofSetColor(255);
+		uiC->pCam["cam"].update();
+		uiC->pCam["cam"].draw(0,0);
     }
 };
