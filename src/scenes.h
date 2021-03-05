@@ -1085,64 +1085,60 @@ Mais pra frente ver direitinho se o elemento que carrega fonte funciona aqui. pF
 */
 
 
+
 #ifdef USEPOCO
 
-	static string ofUTF16DecToUtf8Char(int input) {
-		std::stringstream ss;
-		ss<< hex<<input;
-		unsigned short myVar;
-		sscanf(ss.str().c_str(),"%hx",&myVar);
+static string ofUTF16DecToUtf8Char(int input) {
+	std::stringstream ss;
+	ss<< hex<<input;
+	unsigned short myVar;
+	sscanf(ss.str().c_str(),"%hx",&myVar);
 
-		wchar_t  in = (wchar_t) myVar;
-		string out;
-		unsigned int codepoint = 0;
-		if (in >= 0xd800 && in <= 0xdbff)
-			codepoint = ((in - 0xd800) << 10) + 0x10000;
+	wchar_t  in = (wchar_t) myVar;
+	string out;
+	unsigned int codepoint = 0;
+	if (in >= 0xd800 && in <= 0xdbff)
+		codepoint = ((in - 0xd800) << 10) + 0x10000;
+	else
+	{
+		if (in >= 0xdc00 && in <= 0xdfff)
+			codepoint |= in - 0xdc00;
+		else
+			codepoint = in;
+
+		if (codepoint <= 0x7f)
+			out.append(1, static_cast<char>(codepoint));
+		else if (codepoint <= 0x7ff)
+		{
+			out.append(1, static_cast<char>(0xc0 | ((codepoint >> 6) & 0x1f)));
+			out.append(1, static_cast<char>(0x80 | (codepoint & 0x3f)));
+		}
+		else if (codepoint <= 0xffff)
+		{
+			out.append(1, static_cast<char>(0xe0 | ((codepoint >> 12) & 0x0f)));
+			out.append(1, static_cast<char>(0x80 | ((codepoint >> 6) & 0x3f)));
+			out.append(1, static_cast<char>(0x80 | (codepoint & 0x3f)));
+		}
 		else
 		{
-			if (in >= 0xdc00 && in <= 0xdfff)
-				codepoint |= in - 0xdc00;
-			else
-				codepoint = in;
-
-			if (codepoint <= 0x7f)
-				out.append(1, static_cast<char>(codepoint));
-			else if (codepoint <= 0x7ff)
-			{
-				out.append(1, static_cast<char>(0xc0 | ((codepoint >> 6) & 0x1f)));
-				out.append(1, static_cast<char>(0x80 | (codepoint & 0x3f)));
-			}
-			else if (codepoint <= 0xffff)
-			{
-				out.append(1, static_cast<char>(0xe0 | ((codepoint >> 12) & 0x0f)));
-				out.append(1, static_cast<char>(0x80 | ((codepoint >> 6) & 0x3f)));
-				out.append(1, static_cast<char>(0x80 | (codepoint & 0x3f)));
-			}
-			else
-			{
-				out.append(1, static_cast<char>(0xf0 | ((codepoint >> 18) & 0x07)));
-				out.append(1, static_cast<char>(0x80 | ((codepoint >> 12) & 0x3f)));
-				out.append(1, static_cast<char>(0x80 | ((codepoint >> 6) & 0x3f)));
-				out.append(1, static_cast<char>(0x80 | (codepoint & 0x3f)));
-			}
-			codepoint = 0;
+			out.append(1, static_cast<char>(0xf0 | ((codepoint >> 18) & 0x07)));
+			out.append(1, static_cast<char>(0x80 | ((codepoint >> 12) & 0x3f)));
+			out.append(1, static_cast<char>(0x80 | ((codepoint >> 6) & 0x3f)));
+			out.append(1, static_cast<char>(0x80 | (codepoint & 0x3f)));
 		}
-		return out;
+		codepoint = 0;
 	}
+	return out;
+}
 
-	
-
-struct sceneBaseType : public ofxScenes::sceneDmtr {
+struct sceneBasePoco :  public virtual ofxScenes::sceneDmtr {
 	public:
-	using sceneDmtr::sceneDmtr;
+//	using sceneDmtr::sceneDmtr;
     Poco::UTF8Encoding utf8Encoding;
-	ofTrueTypeFont * type = &uiC->pFont["type"];
     string texto = "";
     vector <string> letras;
 
-
-
-	void sceneTypeUIEvent(ofxMicroUI::element & e) {
+	void pocoUIEvent(ofxMicroUI::element & e) {
 		if (e.name == "texto") {
 			if (!e._settings->presetIsLoading) {
 				texto = uiC->pString["texto"];
@@ -1150,11 +1146,9 @@ struct sceneBaseType : public ofxScenes::sceneDmtr {
 					texto = ofToUpper(texto, "pt_BR.UTF-8");
 				}
 				uiC->getInspector("texto")->set(texto);
-				
 				string utf8String(texto);
 				Poco::TextIterator it(utf8String, utf8Encoding);
 				Poco::TextIterator end(utf8String);
-
 				letras.clear();
 				
 				while (it != end) {
@@ -1163,123 +1157,17 @@ struct sceneBaseType : public ofxScenes::sceneDmtr {
 				}
 			}
 		}
-
-		else if (e.name == "fontSize") {
-            ofxMicroUI::element* el = uiC->getElement("type");
-            if (el != NULL) {
-                ofxMicroUI::fontList* f = (ofxMicroUI::fontList*)el;
-                f->size = *e.i;
-                f->reload();
-            }
-		}
-	}
-
-};
-
-struct sceneTyper0 : public sceneBaseType {
-	public:
-	using sceneBaseType::sceneBaseType;
-
-	int tempo = 0;
-	int subTexto = 0;
-	float nextCharTime = 0;
-
-	//	void setup() override {}
-
-	void draw() override {
-		string utf8String(texto);
-		Poco::TextIterator it(utf8String, utf8Encoding);
-		Poco::TextIterator end(utf8String);
-
-		int numero = ofNoise(ofGetElapsedTimef()*uiC->pFloat["multNumberTime"]) * 10;
-
-		string textoOutput;
-		string textoOutput2;
-		
-		if (subTexto < texto.size() * uiC->pFloat["numbersDuration"]) {
-			// unused variable.
-			//float qual = subTexto / (float) texto.size();
-			if (ofGetElapsedTimef() > nextCharTime) {
-				subTexto ++;
-				nextCharTime = ofGetElapsedTimef() + uiC->pFloat["charSeconds"] + ofRandom(0,uiC->pFloat["charSecondsRand"]);
-			}
-
-			int contagem = 0;
-			while (it != end) {
-				// anima desenhando na tela.
-				if (subTexto > contagem) {
-					// coloca o tempo do proximo caracter a ser desenhado
-					if (ofGetElapsedTimef() > nextCharTime) {
-						subTexto ++;
-						nextCharTime = ofGetElapsedTimef() + uiC->pFloat["charSeconds"] + ofRandom(0,uiC->pFloat["charSecondsRand"]);
-					}
-
-					string s = ofUTF16DecToUtf8Char(*it);
-					if (ofNoise(contagem, ofGetElapsedTimef() * uiC->pFloat["tempoRandomChar"])>uiC->pFloat["numbersProbability"]
-						&& s != " "
-						&& s != "\r"
-						&& s != "\n"
-						)
-					{
-						s = ofToString(int(ofRandom(0,9)));
-						int numero = ofNoise(contagem, ofGetElapsedTimef() * uiC->pFloat["tempoNumero"])*10.0;
-						s = ofToString(int(numero));
-					}
-					textoOutput += s;
-				}
-				++it;
-				contagem++;
-			}
-
-		}
-
-		else {
-			textoOutput = texto;
-		}
-		
-		ofSetColor(255);
-		//XAXA
-		//ofSetColor(getCor(0,"cor1"));
-		type->drawString(textoOutput, uiC->pInt["textoX"], uiC->pInt["textoY"]);
-
-		// debug apenas
-		type->drawString(texto, uiC->pInt["textoX"], uiC->pInt["textoY"] + 100);
-
-		if (uiC->pBool["debugNumber"]) {
-			type->drawString(ofToString(numero), uiC->pInt["textoX"], uiC->pInt["textoY"] + 100);
-		}
-		
-		
-		float x = uiC->pInt["textoX"];
-		float y = uiC->pInt["textoY"];
-		for (auto & l : letras) {
-			ofSetColor(ofColor::fromHsb(x*uiC->pEasy["hue"], 255, 255));
-			// type->drawString(texto, x, y);
-			type->drawStringAsShapes(texto, x, y + 200);
-			x+= uiC->pEasy["espaco"];
-		}
-	}
-
-	void uiEvents(ofxMicroUI::element & e) override {
-		sceneTypeUIEvent(e);
-		if (e.name == "loadPreset" || e.name == "resetTempo" || e.name == "begin") {
-			subTexto = 0;
-		}
-		else if (e.name == "end") {
-			subTexto = 500;
-		}
 	}
 };
 
 
-struct sceneTyper : public sceneBaseType {
+
+struct sceneTyper :  public ofxScenes::sceneBaseType, public sceneBasePoco {
 	public:
 	using sceneBaseType::sceneBaseType;
-
     unsigned long startTime = 0;
 
 	void draw() override {
-        
         float msPerLetra = uiC->pEasy["msPerLetra"];
         int letrasDesenhadas = (ofGetElapsedTimeMillis() - startTime) / msPerLetra;
         string output = "";
@@ -1320,7 +1208,8 @@ struct sceneTyper : public sceneBaseType {
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
-		sceneTypeUIEvent(e);
+		typeUIEvent(e);
+        pocoUIEvent(e);
 		if (e.name == "loadPreset" || e.name == "begin") {
 			startTime = ofGetElapsedTimeMillis();
 		}
@@ -1328,3 +1217,146 @@ struct sceneTyper : public sceneBaseType {
 };
 
 #endif
+
+
+
+
+
+
+struct sceneBaseTypePoco :  public virtual ofxScenes::sceneDmtr {
+    public:
+    using sceneDmtr::sceneDmtr;
+    Poco::UTF8Encoding utf8Encoding;
+    ofTrueTypeFont * type = &uiC->pFont["type"];
+    string texto = "";
+    vector <string> letras;
+
+    void sceneTypeUIEvent(ofxMicroUI::element & e) {
+        if (e.name == "texto") {
+            if (!e._settings->presetIsLoading) {
+                texto = uiC->pString["texto"];
+                if (uiC->pBool["upper"]) {
+                    texto = ofToUpper(texto, "pt_BR.UTF-8");
+                }
+                uiC->getInspector("texto")->set(texto);
+                
+                string utf8String(texto);
+                Poco::TextIterator it(utf8String, utf8Encoding);
+                Poco::TextIterator end(utf8String);
+
+                letras.clear();
+                
+                while (it != end) {
+                    letras.emplace_back(ofUTF16DecToUtf8Char(*it));
+                    ++it;
+                }
+            }
+        }
+
+        else if (e.name == "fontSize") {
+            ofxMicroUI::element* el = uiC->getElement("type");
+            if (el != NULL) {
+                ofxMicroUI::fontList* f = (ofxMicroUI::fontList*)el;
+                f->size = *e.i;
+                f->reload();
+            }
+        }
+    }
+};
+
+
+
+//struct sceneTyper0 : public sceneBaseType {
+//    public:
+//    using sceneBaseType::sceneBaseType;
+//
+//    int tempo = 0;
+//    int subTexto = 0;
+//    float nextCharTime = 0;
+//
+//    //    void setup() override {}
+//
+//    void draw() override {
+//        string utf8String(texto);
+//        Poco::TextIterator it(utf8String, utf8Encoding);
+//        Poco::TextIterator end(utf8String);
+//
+//        int numero = ofNoise(ofGetElapsedTimef()*uiC->pFloat["multNumberTime"]) * 10;
+//
+//        string textoOutput;
+//        string textoOutput2;
+//
+//        if (subTexto < texto.size() * uiC->pFloat["numbersDuration"]) {
+//            // unused variable.
+//            //float qual = subTexto / (float) texto.size();
+//            if (ofGetElapsedTimef() > nextCharTime) {
+//                subTexto ++;
+//                nextCharTime = ofGetElapsedTimef() + uiC->pFloat["charSeconds"] + ofRandom(0,uiC->pFloat["charSecondsRand"]);
+//            }
+//
+//            int contagem = 0;
+//            while (it != end) {
+//                // anima desenhando na tela.
+//                if (subTexto > contagem) {
+//                    // coloca o tempo do proximo caracter a ser desenhado
+//                    if (ofGetElapsedTimef() > nextCharTime) {
+//                        subTexto ++;
+//                        nextCharTime = ofGetElapsedTimef() + uiC->pFloat["charSeconds"] + ofRandom(0,uiC->pFloat["charSecondsRand"]);
+//                    }
+//
+//                    string s = ofUTF16DecToUtf8Char(*it);
+//                    if (ofNoise(contagem, ofGetElapsedTimef() * uiC->pFloat["tempoRandomChar"])>uiC->pFloat["numbersProbability"]
+//                        && s != " "
+//                        && s != "\r"
+//                        && s != "\n"
+//                        )
+//                    {
+//                        s = ofToString(int(ofRandom(0,9)));
+//                        int numero = ofNoise(contagem, ofGetElapsedTimef() * uiC->pFloat["tempoNumero"])*10.0;
+//                        s = ofToString(int(numero));
+//                    }
+//                    textoOutput += s;
+//                }
+//                ++it;
+//                contagem++;
+//            }
+//
+//        }
+//
+//        else {
+//            textoOutput = texto;
+//        }
+//
+//        ofSetColor(255);
+//        //XAXA
+//        //ofSetColor(getCor(0,"cor1"));
+//        type->drawString(textoOutput, uiC->pInt["textoX"], uiC->pInt["textoY"]);
+//
+//        // debug apenas
+//        type->drawString(texto, uiC->pInt["textoX"], uiC->pInt["textoY"] + 100);
+//
+//        if (uiC->pBool["debugNumber"]) {
+//            type->drawString(ofToString(numero), uiC->pInt["textoX"], uiC->pInt["textoY"] + 100);
+//        }
+//
+//
+//        float x = uiC->pInt["textoX"];
+//        float y = uiC->pInt["textoY"];
+//        for (auto & l : letras) {
+//            ofSetColor(ofColor::fromHsb(x*uiC->pEasy["hue"], 255, 255));
+//            // type->drawString(texto, x, y);
+//            type->drawStringAsShapes(texto, x, y + 200);
+//            x+= uiC->pEasy["espaco"];
+//        }
+//    }
+//
+//    void uiEvents(ofxMicroUI::element & e) override {
+//        sceneTypeUIEvent(e);
+//        if (e.name == "loadPreset" || e.name == "resetTempo" || e.name == "begin") {
+//            subTexto = 0;
+//        }
+//        else if (e.name == "end") {
+//            subTexto = 500;
+//        }
+//    }
+//};

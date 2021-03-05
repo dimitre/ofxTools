@@ -1,54 +1,54 @@
-	static void calcNormals( ofMesh & mesh, bool bNormalize, bool mode){
-		for( int i=0; i < mesh.getIndices().size(); i+=3 ){
-			const int ia = mesh.getIndices()[i];
-			const int ib = mesh.getIndices()[i+1];
-			const int ic = mesh.getIndices()[i+2];
-			glm::vec3 e1 = mesh.getVertices()[ia] - mesh.getVertices()[ib];
-			glm::vec3 e2 = mesh.getVertices()[ic] - mesh.getVertices()[ib];
-			// depending on your clockwise / winding order, you might want to reverse the e2 / e1 above if your normals are flipped.
-			glm::vec3 no = mode ? glm::cross(e2, e1) : glm::cross(e1, e2);
-			mesh.getNormals()[ia] = no;
-			mesh.getNormals()[ib] = no;
-			mesh.getNormals()[ic] = no;
-		}
+static void calcNormals( ofMesh & mesh, bool bNormalize, bool mode){
+    for( int i=0; i < mesh.getIndices().size(); i+=3 ){
+        const int ia = mesh.getIndices()[i];
+        const int ib = mesh.getIndices()[i+1];
+        const int ic = mesh.getIndices()[i+2];
+        glm::vec3 e1 = mesh.getVertices()[ia] - mesh.getVertices()[ib];
+        glm::vec3 e2 = mesh.getVertices()[ic] - mesh.getVertices()[ib];
+        // depending on your clockwise / winding order, you might want to reverse the e2 / e1 above if your normals are flipped.
+        glm::vec3 no = mode ? glm::cross(e2, e1) : glm::cross(e1, e2);
+        mesh.getNormals()[ia] = no;
+        mesh.getNormals()[ib] = no;
+        mesh.getNormals()[ic] = no;
+    }
 
-		if (bNormalize) {
-			for (auto & n : mesh.getNormals()) {
-				n = glm::normalize(n);
-			}
-		}
-	}
+    if (bNormalize) {
+        for (auto & n : mesh.getNormals()) {
+            n = glm::normalize(n);
+        }
+    }
+}
 
 
-	static void drawMeshStatic(ofMesh * m, ofxMicroUI * ui) {
-		if (ui->pString["draw"] == "wire") {
-			m->drawWireframe();
-		}
-		else if (ui->pString["draw"] == "faces") {
-			m->drawFaces();
-		}
-		else if (ui->pString["draw"] == "points") {
-			//cout << "aqui " << endl;
-			glDisable(GL_POINT_SMOOTH);
-			glPointSize(ui->pEasy["pointSize"]);
-			m->draw(OF_MESH_POINTS);
-		}
-	}
+static void drawMeshStatic(ofMesh * m, ofxMicroUI * ui) {
+    if (ui->pString["draw"] == "wire") {
+        m->drawWireframe();
+    }
+    else if (ui->pString["draw"] == "faces") {
+        m->drawFaces();
+    }
+    else if (ui->pString["draw"] == "points") {
+        //cout << "aqui " << endl;
+        glDisable(GL_POINT_SMOOTH);
+        glPointSize(ui->pEasy["pointSize"]);
+        m->draw(OF_MESH_POINTS);
+    }
+}
 
-	static void drawMeshStatic(ofVboMesh * m, ofxMicroUI * ui) {
-		if (ui->pString["draw"] == "wire") {
-			m->drawWireframe();
-		}
-		else if (ui->pString["draw"] == "faces") {
-			m->drawFaces();
-		}
-		else if (ui->pString["draw"] == "points") {
-			//cout << "aqui " << endl;
-			glDisable(GL_POINT_SMOOTH);
-			glPointSize(ui->pEasy["pointSize"]);
-			m->draw(OF_MESH_POINTS);
-		}
-	}
+static void drawMeshStatic(ofVboMesh * m, ofxMicroUI * ui) {
+    if (ui->pString["draw"] == "wire") {
+        m->drawWireframe();
+    }
+    else if (ui->pString["draw"] == "faces") {
+        m->drawFaces();
+    }
+    else if (ui->pString["draw"] == "points") {
+        //cout << "aqui " << endl;
+        glDisable(GL_POINT_SMOOTH);
+        glPointSize(ui->pEasy["pointSize"]);
+        m->draw(OF_MESH_POINTS);
+    }
+}
 
 
 
@@ -176,10 +176,10 @@ public:
 			if (!mesh.getNormals().size()) {
 				addNormals();
 			}
-			ofxScenes::calcNormals(mesh, uiC->pBool["normalize"], uiC->pBool["winding"]);
+			calcNormals(mesh, uiC->pBool["normalize"], uiC->pBool["winding"]);
 		}
 
-        ofxScenes::drawMeshStatic(&mesh, ui);
+        drawMeshStatic(&mesh, ui);
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
@@ -379,12 +379,12 @@ public:
 
 						if (uiC->pBool["bundinha"]) {
 							ofTranslate(-raio*0.65, 0);
-							ofxScenes::drawMeshStatic(&m, ui);
+							drawMeshStatic(&m, ui);
 							ofTranslate(raio*1.3, 0);
-                            ofxScenes::drawMeshStatic(&m, ui);
+                            drawMeshStatic(&m, ui);
 						}
 						else {
-                            ofxScenes::drawMeshStatic(&m, ui);
+                            drawMeshStatic(&m, ui);
 						}
 						ofPopMatrix();
 					}
@@ -688,7 +688,7 @@ public:
 //			ofDisableDepthTest();
 			uiC->pImage["pointSprite"+ ofToString(i)].getTexture().bind();
 //			glBegin(GL_POINTS);
-            ofxScenes::drawMeshStatic(&c, ui);
+            drawMeshStatic(&c, ui);
 //			glEnd();
 			uiC->pImage["pointSprite"+ ofToString(i)].getTexture().unbind();
 
@@ -812,7 +812,7 @@ public:
 				ofPushMatrix();
 				ofRotateYDeg(aa);
 //				drawMesh(&mesh);
-                ofxScenes::drawMeshStatic(&mesh, ui);
+                drawMeshStatic(&mesh, ui);
 
 				ofPopMatrix();
 			}
@@ -1341,122 +1341,4 @@ public:
 // 	scenes.push_back(new scenePoeira(&config, "poeira"));
 
 // }
-
-
-
-struct sceneGraph : public ofxScenes::sceneDmtr {
-public:
-    using sceneDmtr::sceneDmtr;
-    
-	float min;
-	float max;
-	vector <float> vals;
-	vector <float> valsNorm;
-	ofJson js;
-	bool isLoaded = false;
-
-	void norm() {
-		min = *std::min_element(vals.begin(), vals.end());
-		max = *std::max_element(vals.begin(), vals.end());
-		cout << "norm() min element = " << min << ", max element =" << max << endl;
-		valsNorm.clear();
-		for(auto & v : vals) {
-			float newVal = ofMap(v, min, max, 0, 1);
-			// cout << newVal << endl;
-			valsNorm.push_back(newVal);
-		}
-	}
-
-	void load() {
-		// string url = "https://financialmodelingprep.com/api/v3/quote/AAPL?apikey=demo";
-		string url = "https://financialmodelingprep.com/api/v3/historical-chart/1hour/AAPL?apikey=562c36be10fce020d33f378be7ddc4bb";
-		cout << "json loading" << endl;
-		ofHttpResponse resp = ofLoadURL(url);
-		if (resp.status == 200) {
-			cout << "json loaded!" << endl;
-			cout << resp.data.getText() << endl;
-			js = ofJson::parse(resp.data.getText());
-			for (auto & k : js) {
-				vals.push_back(k["close"]);
-			}
-			norm();
-			isLoaded = true;
-		} else {
-			cout << "no response. no internet?" << endl;
-		}
-	}
-    
-
-    ofColor getColorRange(float n) {
-        if (config->uiColors->pBool["usePalette"]) {
-            return ((ofxMicroUI::colorPalette*)config->uiColors->getElement("colorPalette"))->getColor(n);
-        } else {
-            return ((ofxMicroUI::colorHsv*)config->uiColors->getElement("color"))->getColor(n);
-            // return uiColors->pColorEasy["color"];
-        }
-    }
-    // name = "ocean";
-
-	vector <int> ys;
-
-	void setup() {
-		int y = 3;
-		for (int a=0; a<12; a++) {
-			y += ofRandom(-2,2);
-			ys.emplace_back(y);
-		}
-		load();
-	}
-
-	void uiEvents(ofxMicroUI::element & e) override {
-		if (e.name == "fontSize" && *config->scene == "graph") {
-			cout << "xxx" << e.name << endl;
-			ofxMicroUI::fontList * f = ((ofxMicroUI::fontList*)uiC->getElement("font"));
-			if (f != NULL) {
-				f->size = uiC->pInt["fontSize"];
-				cout << "font size set." << endl;
-			} else {
-				cout << "NULL" << endl;
-			}
-			// ((ofxMicroUI::fontList*)uiC->getElement("font"))->size = *e.i;
-		}
-	}
-	
-    void draw() {
-        ofSetColor(255);
-        string s = uiC->pString["indice"] + " " + uiC->pString["range"];
-        uiC->pFont["font"].drawString(s, uiC->pFloat["textoX"], uiC->pFloat["textoY"]);
-
-        
-        float cols = uiC->pEasy["cols"];
-        float spacing = fbo->getWidth() / cols;
-		if (valsNorm.size()) {
-			for (int x=0; x<cols; x++) {
-				int index = valsNorm.size() - cols + x -1;
-				float my = uiC->pEasy["colsMin"] + valsNorm[index] * uiC->pEasy["colsMult"];
-				// cout << my << endl;
-				for (int y=0; y<my; y++) {
-					
-					ofPushMatrix();
-					ofTranslate((x-cols*.5)*spacing, fbo->getHeight()*uiC->pEasy["offY"] + y*spacing);
-					ofRotateXDeg(uiC->pEasy["rotX"]);
-					ofRotateYDeg(uiC->pEasy["rotY"]);
-					ofRotateZDeg(uiC->pEasy["rotZ"]);
-	//				ofSetColor(255);
-
-					ofSetColor(getColorRange(y/12.0));
-//					ofDrawBox(spacing * uiC->pEasy["raio"]);
-                    ofDrawBox(spacing * uiC->pEasy["raioX"],
-                              spacing * uiC->pEasy["raioY"],
-                              spacing * uiC->pEasy["raioZ"]
-                              );
-					ofPopMatrix();
-
-				}
-			}
-		} else {
-
-		}
-    }
-};
 

@@ -129,7 +129,7 @@ public:
 		virtual void bang2() {}
 		virtual void uiEvents(ofxMicroUI::element & e) {}
 
-		virtual void draw() {
+		virtual void primitiveDraw() {
 			for (auto & n : config->notas) {
 				float raio = n.vel * .5;
 				n.x = ofMap(n.delay, uiC->pInt["minDelay"],  uiC->pInt["maxDelay"], 0, config->fbo->getWidth());
@@ -148,6 +148,10 @@ public:
 				ofVertex(n.x, n.y);
 			}
 			ofEndShape();
+		}
+
+		virtual void draw() {
+			primitiveDraw();
 		}
 	};
 

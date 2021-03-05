@@ -5,8 +5,8 @@ public:
 	
 	bool isSetup = false;
 	ofxMicroUI * u = NULL;
-	ofxMicroUI * uiC = NULL;
 	ofxMicroUI * ui = NULL;
+    ofxMicroUI * uiC = NULL;
 //	ofxMicroUI * uiColors = NULL;
 	ofFbo * fbo = NULL;
 	glm::vec2 middle;
@@ -77,5 +77,27 @@ public:
 	
 	virtual void draw() {
 		checkSetup();
+	}
+};
+
+
+struct sceneBaseType : public virtual ofxScenes::sceneDmtr {
+	public:
+	using sceneDmtr::sceneDmtr;
+	ofTrueTypeFont * type = &uiC->pFont["type"];
+
+	void uiEvents(ofxMicroUI::element & e) override {
+		typeUIEvent(e);
+	}
+
+	void typeUIEvent(ofxMicroUI::element & e) {
+		if (e.name == "fontSize") {
+			ofxMicroUI::element* el = uiC->getElement("type");
+			if (el != NULL) {
+				ofxMicroUI::fontList* f = (ofxMicroUI::fontList*)el;
+				f->size = *e.i;
+				f->reload();
+			}
+		}
 	}
 };
