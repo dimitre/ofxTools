@@ -40,14 +40,14 @@ public:
 	
 	void draw() override {
 		checkSetup();
-        float tempo = ofGetElapsedTimef();
-        for (int a=0; a<10; a++) {
+		float tempo = ofGetElapsedTimef();
+		for (int a=0; a<10; a++) {
 			ofSetColor(ofColor::fromHsb(a*8, 255, 255));
-            float raio = ofNoise(tempo * .3, a * .3) * 200;
-            float x = ofNoise(tempo * .2, a * .2) * fbo->getWidth();
-            float y = ofNoise(tempo * .4, a * .3) * fbo->getHeight();
-            ofDrawCircle(x, y, raio, raio);
-        }	
+			float raio = ofNoise(tempo * .3, a * .3) * 200;
+			float x = ofNoise(tempo * .2, a * .2) * fbo->getWidth();
+			float y = ofNoise(tempo * .4, a * .3) * fbo->getHeight();
+			ofDrawCircle(x, y, raio, raio);
+		}	
     }
 };
 

@@ -525,7 +525,7 @@ public:
                 cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_BUTT); // ROUND SQUARE
                 
 
-                if (ui->pBool["cairoStroked"]) {
+                if (ui != NULL && ui->pBool["cairoStroked"]) {
                     static const double dashes[] = { 100.0,  /* ink */
                         40.0,  /* skip */
                         20.0,  /* ink */

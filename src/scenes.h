@@ -1086,21 +1086,8 @@ Mais pra frente ver direitinho se o elemento que carrega fonte funciona aqui. pF
 
 
 #ifdef USEPOCO
-struct sceneTyper : public ofxScenes::sceneDmtr {
-	public:
-	using sceneDmtr::sceneDmtr;
 
-	vector <string> frases;
-	// TYPER vars
-	ofTrueTypeFont font;
-
-	int tempo = 0;
-	int subTexto = 0;
-	float nextCharTime = 0;
-	string fontFile = "";
-	int fontSize = 20;
-
-	string ofUTF16DecToUtf8Char(int input) {
+	static string ofUTF16DecToUtf8Char(int input) {
 		std::stringstream ss;
 		ss<< hex<<input;
 		unsigned short myVar;
@@ -1143,31 +1130,64 @@ struct sceneTyper : public ofxScenes::sceneDmtr {
 		return out;
 	}
 
-	void setup() override {
-		cout << "setupTyper" << endl;
-		font.load("_type/Simetrica-Light_20190719T113225.otf", 40);
-		frases = ofxMicroUI::textToVector("frases.txt");
-		for (auto & f : frases) {
-			cout << f << endl;
+	
+
+struct sceneBaseType : public ofxScenes::sceneDmtr {
+	public:
+	using sceneDmtr::sceneDmtr;
+    Poco::UTF8Encoding utf8Encoding;
+	ofTrueTypeFont * type = &uiC->pFont["type"];
+    string texto = "";
+    vector <string> letras;
+
+
+
+	void sceneTypeUIEvent(ofxMicroUI::element & e) {
+		if (e.name == "texto") {
+			if (!e._settings->presetIsLoading) {
+				texto = uiC->pString["texto"];
+				if (uiC->pBool["upper"]) {
+					texto = ofToUpper(texto, "pt_BR.UTF-8");
+				}
+				uiC->getInspector("texto")->set(texto);
+				
+				string utf8String(texto);
+				Poco::TextIterator it(utf8String, utf8Encoding);
+				Poco::TextIterator end(utf8String);
+
+				letras.clear();
+				
+				while (it != end) {
+					letras.emplace_back(ofUTF16DecToUtf8Char(*it));
+					++it;
+				}
+			}
+		}
+
+		else if (e.name == "fontSize") {
+            ofxMicroUI::element* el = uiC->getElement("type");
+            if (el != NULL) {
+                ofxMicroUI::fontList* f = (ofxMicroUI::fontList*)el;
+                f->size = *e.i;
+                f->reload();
+            }
 		}
 	}
 
+};
+
+struct sceneTyper0 : public sceneBaseType {
+	public:
+	using sceneBaseType::sceneBaseType;
+
+	int tempo = 0;
+	int subTexto = 0;
+	float nextCharTime = 0;
+
+	//	void setup() override {}
+
 	void draw() override {
-		string texto = "";
-		if (frases.size() > 0) {
-			texto = frases[uiC->pInt["frase"] % frases.size()];
-		}
-
-		Poco::UTF8Encoding utf8Encoding;
-			if (uiC->pBool["upper"]) {
-		//		texto = ofToUpper(texto, "en_US.iso885915");
-				texto = ofToUpper(texto, "pt_BR.UTF-8");
-			}
 		string utf8String(texto);
-
-		uiC->getInspector("texto")->set(texto);
-		
-
 		Poco::TextIterator it(utf8String, utf8Encoding);
 		Poco::TextIterator end(utf8String);
 
@@ -1177,7 +1197,8 @@ struct sceneTyper : public ofxScenes::sceneDmtr {
 		string textoOutput2;
 		
 		if (subTexto < texto.size() * uiC->pFloat["numbersDuration"]) {
-			float qual = subTexto / (float) texto.size();
+			// unused variable.
+			//float qual = subTexto / (float) texto.size();
 			if (ofGetElapsedTimef() > nextCharTime) {
 				subTexto ++;
 				nextCharTime = ofGetElapsedTimef() + uiC->pFloat["charSeconds"] + ofRandom(0,uiC->pFloat["charSecondsRand"]);
@@ -1219,35 +1240,91 @@ struct sceneTyper : public ofxScenes::sceneDmtr {
 		ofSetColor(255);
 		//XAXA
 		//ofSetColor(getCor(0,"cor1"));
-		font.drawString(textoOutput, uiC->pInt["textoX"], uiC->pInt["textoY"]);
+		type->drawString(textoOutput, uiC->pInt["textoX"], uiC->pInt["textoY"]);
+
+		// debug apenas
+		type->drawString(texto, uiC->pInt["textoX"], uiC->pInt["textoY"] + 100);
 
 		if (uiC->pBool["debugNumber"]) {
-			font.drawString(ofToString(numero), uiC->pInt["textoX"], uiC->pInt["textoY"] + 100);
+			type->drawString(ofToString(numero), uiC->pInt["textoX"], uiC->pInt["textoY"] + 100);
+		}
+		
+		
+		float x = uiC->pInt["textoX"];
+		float y = uiC->pInt["textoY"];
+		for (auto & l : letras) {
+			ofSetColor(ofColor::fromHsb(x*uiC->pEasy["hue"], 255, 255));
+			// type->drawString(texto, x, y);
+			type->drawStringAsShapes(texto, x, y + 200);
+			x+= uiC->pEasy["espaco"];
 		}
 	}
-		
+
 	void uiEvents(ofxMicroUI::element & e) override {
+		sceneTypeUIEvent(e);
 		if (e.name == "loadPreset" || e.name == "resetTempo" || e.name == "begin") {
 			subTexto = 0;
 		}
 		else if (e.name == "end") {
 			subTexto = 500;
 		}
-		else if (e.name == "fontSize") {
-			fontSize = *e.i;
-			typerLoadFont();
-		}
-		else if (e.name == "type") {
-			fontFile = ((ofxMicroUI::dirList*)&e)->getFileName();
-			typerLoadFont();
+	}
+};
+
+
+struct sceneTyper : public sceneBaseType {
+	public:
+	using sceneBaseType::sceneBaseType;
+
+    unsigned long startTime = 0;
+
+	void draw() override {
+        
+        float msPerLetra = uiC->pEasy["msPerLetra"];
+        int letrasDesenhadas = (ofGetElapsedTimeMillis() - startTime) / msPerLetra;
+        string output = "";
+        
+        if (letrasDesenhadas < letras.size()) {
+            for (int a=0; a<letrasDesenhadas; a++) {
+                string esta = letras[a];
+                if (esta != " ") {
+                    if (ofRandom(0,1) > uiC->pFloat["randomNumeros"]) {
+                        esta = ofToString(int(ofRandom(0,9)));
+                    }
+                    if (ofRandom(0,1) > uiC->pFloat["randomLetras"]) {
+                        esta = letras[int(ofRandom(0,letras.size()-1))];
+                    }
+                }
+                output += esta;
+            }
+            output += ofToString(int(ofRandom(0,9)));
+        } else {
+            output = texto;
+        }
+        
+		int numero = ofNoise(ofGetElapsedTimef()*uiC->pFloat["multNumberTime"]) * 10;
+
+		ofSetColor(255);
+		type->drawString(output, uiC->pInt["textoX"], uiC->pInt["textoY"]);
+
+		// debug apenas
+		type->drawString(texto, uiC->pInt["textoX"], uiC->pInt["textoY"] + 100);
+		
+		float x = uiC->pInt["textoX"];
+		float y = uiC->pInt["textoY"];
+		for (auto & l : letras) {
+			ofSetColor(ofColor::fromHsb(x*uiC->pEasy["hue"], 255, 255));
+			type->drawStringAsShapes(texto, x, y + 200);
+			x+= uiC->pEasy["espaco"];
 		}
 	}
 
-	void typerLoadFont() {
-		if (fontFile != "") {
-			cout << fontFile << endl;
-			font.load(fontFile, fontSize, true, true);
+	void uiEvents(ofxMicroUI::element & e) override {
+		sceneTypeUIEvent(e);
+		if (e.name == "loadPreset" || e.name == "begin") {
+			startTime = ofGetElapsedTimeMillis();
 		}
 	}
 };
+
 #endif
