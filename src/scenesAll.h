@@ -491,7 +491,7 @@ public:
 
 
 
-struct sceneOndas : public ofxScenes::sceneDmtr {
+struct sceneOndas : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "ondas";
@@ -584,7 +584,7 @@ public:
 
 
 
-struct sceneLatquad2 : public ofxScenes::sceneDmtr {
+struct sceneLatquad2 : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "latquad2";
@@ -722,7 +722,7 @@ public:
 
 
 
-struct sceneLatquad3 : public ofxScenes::sceneDmtr {
+struct sceneLatquad3 : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "latquad3";
@@ -1020,7 +1020,7 @@ public:
 };
 
 
-struct sceneLeparc : public ofxScenes::sceneDmtr {
+struct sceneLeparc : public ofxScenes::sceneDmtr, ofxScenes::sceneIncrementa {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "leparc";
@@ -1110,7 +1110,7 @@ public:
 
 
 
-struct sceneRadial : public ofxScenes::sceneDmtr {
+struct sceneRadial : public ofxScenes::sceneDmtr, ofxScenes::sceneIncrementa {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "radial"; 

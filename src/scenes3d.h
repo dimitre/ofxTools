@@ -53,7 +53,7 @@ static void drawMeshStatic(ofVboMesh * m, ofxMicroUI * ui) {
 
 
 
-struct sceneOcean : public ofxScenes::sceneDmtr {
+struct sceneOcean : public ofxScenes::sceneDmtr, ofxScenes::sceneIncrementa  {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "ocean";
@@ -313,7 +313,7 @@ public:
 
 
 
-struct sceneNovelo : public ofxScenes::sceneDmtr {
+struct sceneNovelo : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "novelo";
@@ -343,7 +343,7 @@ public:
 
 
 
-struct scene3d : public ofxScenes::sceneDmtr {
+struct scene3d : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
 public:
 	using sceneDmtr::sceneDmtr;
 	// xaxa revisar se é isso mesmo?
@@ -398,53 +398,9 @@ public:
 
 
 
-struct sceneGridbox : public ofxScenes::sceneDmtr {
-public:
-	using sceneDmtr::sceneDmtr;
-	// name = "gridbox";
-
-	void draw() override {
-		ofSetColor(255);
-		// ofSetLineWidth(uiC->pEasy["linewidth"]);
-		int numero = 0;
-		float aresta = uiC->pEasy["aresta"];
-		float limite = uiC->pInt["nx"] * aresta * .5;
-		
-		float w = uiC->pEasy["w"] * aresta;
-		float h = uiC->pEasy["h"] * aresta;
-		float d = uiC->pEasy["d"] * aresta;
-		
-		if (ui->pString["draw"] == "wire") {
-			ofNoFill();
-		} else {
-			ofFill();
-		}
-		
-		float total = uiC->pInt["nx"] * uiC->pInt["ny"];
-		
-		for (int a=0; a<uiC->pInt["nx"]; a++) {
-			for (int b=0; b<uiC->pInt["ny"]; b++) {
-				float x = ofMap(a, 0, uiC->pInt["nx"], -limite, limite);
-				float y = ofMap(b, 0, uiC->pInt["ny"], -limite, limite);
-				if (uiC->pBool["color"]) {
-					float hue = fmod(numero*uiC->pEasy["hueMult"] + uiC->pEasy["hue"], 255);
-					ofSetColor(ofColor::fromHsb(hue, uiC->pEasy["sat"], 255));
-				} else {
-					float n = (float)numero / total;
-//					cout << n << endl;
-					ofSetColor(ofxScenes::getColor(n, config->uiColors));
-				}
-				ofDrawBox(x, 0, y, w, h, d);
-				numero ++;
-			}
-		}
-	}
-};
 
 
-
-
-struct sceneSolidos : public ofxScenes::sceneDmtr {
+struct sceneSolidos : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "solidos";
@@ -525,7 +481,7 @@ public:
 
 
 
-struct scenePulsar : public ofxScenes::sceneDmtr {
+struct scenePulsar : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "pulsar";
@@ -707,7 +663,7 @@ public:
 
 
 
-struct sceneGalaxia : public ofxScenes::sceneDmtr {
+struct sceneGalaxia : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "galaxia";
@@ -824,11 +780,10 @@ public:
 
 
 
-struct sceneBox : public ofxScenes::sceneDmtr {
+struct sceneBox : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "box";
-
 	ofPlanePrimitive plane;
 
 	void setup() override {
@@ -838,6 +793,7 @@ public:
 	}
 
 	void draw() override {
+//        cout << "draw box scene" << endl;
 		checkSetup();
 		float aresta = uiC->pEasy["aresta"] + updown * uiC->pEasy["arestaAudio"];
 		if (uiC->pBool["plane"]) {
@@ -847,6 +803,53 @@ public:
 			ofDrawBox(aresta);
 		}
 	}
+};
+
+
+
+struct sceneGridbox : public ofxScenes::sceneDmtr {
+public:
+    using sceneDmtr::sceneDmtr;
+    // name = "gridbox";
+
+    void draw() override {
+//        cout << "draw gridbox scene" << endl;
+
+        ofSetColor(255);
+        // ofSetLineWidth(uiC->pEasy["linewidth"]);
+        int numero = 0;
+        float aresta = uiC->pEasy["aresta"];
+        float limite = uiC->pInt["nx"] * aresta * .5;
+        
+        float w = uiC->pEasy["w"] * aresta;
+        float h = uiC->pEasy["h"] * aresta;
+        float d = uiC->pEasy["d"] * aresta;
+        
+        if (ui->pString["draw"] == "wire") {
+            ofNoFill();
+        } else {
+            ofFill();
+        }
+        
+        float total = uiC->pInt["nx"] * uiC->pInt["ny"];
+        
+        for (int a=0; a<uiC->pInt["nx"]; a++) {
+            for (int b=0; b<uiC->pInt["ny"]; b++) {
+                float x = ofMap(a, 0, uiC->pInt["nx"], -limite, limite);
+                float y = ofMap(b, 0, uiC->pInt["ny"], -limite, limite);
+                if (uiC->pBool["color"]) {
+                    float hue = fmod(numero*uiC->pEasy["hueMult"] + uiC->pEasy["hue"], 255);
+                    ofSetColor(ofColor::fromHsb(hue, uiC->pEasy["sat"], 255));
+                } else {
+                    float n = (float)numero / total;
+//                    cout << n << endl;
+                    ofSetColor(ofxScenes::getColor(n, config->uiColors));
+                }
+                ofDrawBox(x, 0, y, w, h, d);
+                numero ++;
+            }
+        }
+    }
 };
 
 

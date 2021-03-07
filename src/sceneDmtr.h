@@ -1,4 +1,4 @@
-struct sceneDmtr {
+struct sceneDmtrBasic {
 public:
 	sceneConfig * config = NULL;
 	string name = "";
@@ -10,51 +10,32 @@ public:
 //	ofxMicroUI * uiColors = NULL;
 	ofFbo * fbo = NULL;
 	glm::vec2 middle;
-	map <string, float> incrementadorTemporal;
 	
-	// apenas pra nao causar furor
-	float updown = 0.5;
+    sceneDmtrBasic() { }
 
-	sceneDmtr() { }
-
-	sceneDmtr(sceneConfig * _c, string n) : config(_c), name(n) {
+    sceneDmtrBasic(sceneConfig * _c, string n = "") : config(_c), name(n) {
 		u = config->u;
 		ui = config->ui;
 		uiC = config->uiC;
 		fbo = config->fbo;
 		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
-		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
 	}
 
-	sceneDmtr(sceneConfig * _c) : config(_c) {
-		u = config->u;
-		ui = config->ui;
-		uiC = config->uiC;
-		fbo = config->fbo;
-		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
-		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
-	}
+    bool hasListener = false;
 
-	// TODO
-	float getFreq(int index) {
-		return 0;
-	}
-	
+    void select() {
+        ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
+        hasListener = true;
+    }
+    
+    void unselect() {
+        if (hasListener) {
+            ofRemoveListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
+        }
+    }
+
 	virtual ofColor getCor(float n) {
 		return getColor(n, config->uiColors);
-	}
-
-	float incrementa(string qual) {
-		string uniqueId = uiC->uiName + qual;
-//		incrementadorTemporal[uniqueId] += uiC->pFloat[qual];
-		// 07/09/2020
-		incrementadorTemporal[uniqueId] += uiC->pEasy[qual];
-		return incrementadorTemporal[uniqueId];
-	}
-
-	void resetIncrementa(string qual) {
-		string uniqueId = uiC->uiName + qual;
-		incrementadorTemporal[uniqueId] = 0;
 	}
 
 	virtual void checkSetup() {
@@ -81,9 +62,48 @@ public:
 };
 
 
-struct sceneBaseType : public virtual ofxScenes::sceneDmtr {
+struct sceneDmtr : public virtual ofxScenes::sceneDmtrBasic {
+public:
+    using sceneDmtrBasic::sceneDmtrBasic;
+};
+
+struct sceneUpdown : public virtual ofxScenes::sceneDmtrBasic {
+public:
+using sceneDmtrBasic::sceneDmtrBasic;
+
+// apenas pra nao causar furor
+    float updown = 0.5;
+// TODO
+    float getFreq(int index) {
+        return 0;
+    }
+};
+
+
+
+struct sceneIncrementa : public virtual ofxScenes::sceneDmtrBasic {
+public:
+using sceneDmtrBasic::sceneDmtrBasic;
+    map <string, float> incrementadorTemporal;
+
+    float incrementa(string qual) {
+        string uniqueId = uiC->uiName + qual;
+//        incrementadorTemporal[uniqueId] += uiC->pFloat[qual];
+        // 07/09/2020
+        incrementadorTemporal[uniqueId] += uiC->pEasy[qual];
+        return incrementadorTemporal[uniqueId];
+    }
+
+    void resetIncrementa(string qual) {
+        string uniqueId = uiC->uiName + qual;
+        incrementadorTemporal[uniqueId] = 0;
+    }
+};
+
+
+struct sceneBaseType : public virtual ofxScenes::sceneDmtrBasic {
 	public:
-	using sceneDmtr::sceneDmtr;
+	using sceneDmtrBasic::sceneDmtrBasic;
 	ofTrueTypeFont * type = &uiC->pFont["type"];
 
 	void uiEvents(ofxMicroUI::element & e) override {

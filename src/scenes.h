@@ -183,12 +183,9 @@ public:
 #endif
 
 
-
-
-
-struct sceneImage : public ofxScenes::sceneDmtr {
+struct sceneImage : public ofxScenes::sceneUpdown, ofxScenes::sceneIncrementa {
 public:
-	using sceneDmtr::sceneDmtr;
+	using sceneUpdown::sceneUpdown;
 	// name = "image";
 
 	ofImage * i;
@@ -303,7 +300,7 @@ public:
 };
 
 
-struct sceneVideo : public ofxScenes::sceneDmtr {
+struct sceneVideo : public ofxScenes::sceneDmtr, ofxScenes::sceneIncrementa {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "video";
@@ -565,7 +562,7 @@ public:
 };
 
 
-struct sceneConfetti : public ofxScenes::sceneDmtr {
+struct sceneConfetti : public ofxScenes::sceneDmtr, ofxScenes::sceneIncrementa {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "confetti";
@@ -768,7 +765,7 @@ public:
 
 
 
-struct sceneRandom : public ofxScenes::sceneDmtr {
+struct sceneRandom : public ofxScenes::sceneDmtr, ofxScenes::sceneIncrementa {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "random";

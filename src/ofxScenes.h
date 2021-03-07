@@ -18,7 +18,6 @@ class ofxScenes { // : public ofBaseApp
 public:
 	struct sceneConfig {
 	public:
-
 		string name = "";
 		string * scene = NULL;
 		
@@ -68,31 +67,60 @@ public:
 	ofxMicroUI * uiC = NULL;
 	ofxMicroUI * uiColors = NULL;
 	string & scene;
-
 	ofxMicroUI * ui = NULL;
-	
+    
+//    ofxMicroUI::element * _sceneElement = NULL;
+    sceneDmtr * _scene = NULL;
+    vector <sceneDmtr *> scenes;
+    map <string, sceneDmtr *> scenesMap;
+
+    void uiEvents(ofxMicroUI::element & e) {
+        if (e.name == "scene") {
+            string scene = *e.s;
+            cout << "change scene, name = " << scene << endl;
+            if (scene != "" && scene != "_") {
+                if ( scenesMap.find(scene) != scenesMap.end() ) {
+                    if (_scene != NULL) {
+                        _scene->unselect();
+                    }
+                    _scene = scenesMap[scene];
+                    _scene->select();
+                }
+            }
+            else {
+                _scene = NULL;
+                cout << "scene not found " << scene << endl;
+            }
+        }
+    }
 	// teste 17 nov 2020, nao sei se vai dar certo.
 	// mais tarde aplicar essa como parametro de todas as sceneDmtr, como construtor passando como ponteiro.
 	// com isso poder extender os parametros sem precisar mais mudar nada de sceneDmtr::sceneDmtr
 	
 //	ofxScenes() {}
+    void afterSetup() {
+        ofAddListener(ui->uiEvent, this, &ofxScenes::uiEvents);
+    }
 	
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, string & s) : fbo(_f), u(_u), scene(s) {
 		config = sceneConfig(fbo, u);
 		uiColors = &u->uis["colors"];
 		ui = &u->uis["ui"];
+        afterSetup();
 	}
 	
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, ofxMicroUI * _uiC, string & s) : fbo(_f), u(_u), uiC(_uiC), scene(s) {
 		config = sceneConfig(fbo, u, uiC);
 		uiColors = &u->uis["colors"];
 		ui = &u->uis["ui"];
+        afterSetup();
 	}
 
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, ofxMicroUI * _uiC, ofxMicroUI * _uiColors, string & s) :
 	fbo(_f), u(_u), uiC(_uiC), uiColors(_uiColors), scene(s) {
 		config = sceneConfig(fbo, u, uiC, uiColors);
 		ui = &u->uis["ui"];
+        afterSetup();
 	}
 	
 	static ofColor getColor(float n, ofxMicroUI * uiColors) {
@@ -102,17 +130,17 @@ public:
 			return uiColors->pColorEasy["color"];
 		}
 	}
-    
-	vector <sceneDmtr *> scenes;
-	map <string, sceneDmtr *> scenesMap;
-
 
 	void onUpdate(ofEventArgs &data) {
-		if (scene != "" && scene != "_") {
-			if ( scenesMap.find(scene) != scenesMap.end() ) {
-				scenesMap[scene]->update();
-			}
-		}
+        if (_scene != NULL) {
+            _scene->update();
+        }
+        
+//		if (scene != "" && scene != "_") {
+//			if ( scenesMap.find(scene) != scenesMap.end() ) {
+//				scenesMap[scene]->update();
+//			}
+//		}
 	}
 
 	void setup() {
@@ -128,14 +156,19 @@ public:
 
 	void draw() {
 		ofSetLineWidth(ui->pEasy["lineWidth"]);
-		if (scene != "" && scene != "_") {
-			if ( scenesMap.find(scene) != scenesMap.end() ) {
-				ofSetColor(getColor(0, uiColors));
-				scenesMap[scene]->draw();
-			} else {
-				
-				cout << "scene not found " << scene << endl;
-			}
-		}
+        
+        if (_scene != NULL) {
+            _scene->draw();
+        }
+
+//		if (scene != "" && scene != "_") {
+//			if ( scenesMap.find(scene) != scenesMap.end() ) {
+//				ofSetColor(getColor(0, uiColors));
+//				scenesMap[scene]->draw();
+//			} else {
+//
+//				cout << "scene not found " << scene << endl;
+//			}
+//		}
 	}
 };
