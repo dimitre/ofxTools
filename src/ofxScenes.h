@@ -30,6 +30,8 @@ public:
 		ofxMicroUI * ui = NULL;
 		ofxMicroUI * uiC = NULL;
 		ofxMicroUI * uiColors = NULL;
+        
+
 
 //		int margem = 100;
 //		ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
@@ -92,7 +94,6 @@ public:
 		config = sceneConfig(fbo, u, uiC, uiColors);
 		ui = &u->uis["ui"];
 	}
-
 	
 	static ofColor getColor(float n, ofxMicroUI * uiColors) {
 		if (uiColors->pBool["usePalette"]) {
@@ -101,7 +102,7 @@ public:
 			return uiColors->pColorEasy["color"];
 		}
 	}
-
+    
 	vector <sceneDmtr *> scenes;
 	map <string, sceneDmtr *> scenesMap;
 

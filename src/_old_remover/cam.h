@@ -394,13 +394,13 @@ void begin3d0() {
 		beginMaterial_3d();
 		beginIlumina_3d();
 		beginGl();
-		beginShader("shaders3d");
+        shaders3d.begin();
 	}
 }
 
 void end3d0() {
 	if (uiC->pBool["is3d"]) {
-		endShader("shaders3d");
+        shaders3d.end();
 		endGl();
 		endIlumina_3d();
 		endMaterial_3d();
@@ -422,13 +422,15 @@ void begin3d() {
 		beginMaterial_3d();
 		beginIlumina_3d();
 		beginGl();
-		beginShader("shaders3d");
+        shaders3d.begin();
+//		beginShader("shaders3d");
 	}
 }
 
 void end3d() {
 	if (!useCairo) {
-		endShader("shaders3d");
+        shaders3d.end();
+//		endShader("shaders3d");
 		endGl();
 		endIlumina_3d();
 		endMaterial_3d();

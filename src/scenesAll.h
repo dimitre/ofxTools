@@ -1,4 +1,4 @@
-struct sceneLiner : public sceneDmtr {
+struct sceneLiner : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	
@@ -15,7 +15,7 @@ public:
 		for (float a=0; a<uiC->pEasy["numLines"]; a++) {
 			ofSetLineWidth( a * uiC->pEasy["lineWidthA"] + ui->pEasy["lineWidth"]);
 			float qual = a / uiC->pEasy["numLines"];
-			ofSetColor(getColor(qual, config->uiColors));
+			ofSetColor(getCor(qual));
 
 			
 			poly.clear();
@@ -82,7 +82,7 @@ public:
 
 
 
-struct sceneMinhoca : public sceneDmtr {
+struct sceneMinhoca : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "minhoca";
@@ -181,7 +181,7 @@ public:
 	void draw() override {
 		checkSetup();
 
-		ofSetColor(getColor(0, config->uiColors));
+        ofSetColor(ofxScenes::getColor(0, config->uiColors));
 
 		for (auto & w : worms) {
 			if (w.index < uiC->pInt["numero"]) {
@@ -200,7 +200,7 @@ public:
 
 
 
-struct scenePunchcard : public sceneDmtr {
+struct scenePunchcard : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "punchcard";
@@ -228,7 +228,7 @@ public:
 
 
 
-struct sceneMicroscenes : public sceneDmtr {
+struct sceneMicroscenes : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "microScenes";
@@ -282,7 +282,15 @@ public:
 			float tempo = ofGetElapsedTimef();
 			fbo.begin();
 //			ofClear(127,255);
-			ofClear(getColor(0, uiColors));
+            
+//            ofSetColor();
+
+            
+            // XAXA RESOLVER
+//            ofColor c = getCor(0);
+//			ofClear(c);
+            ofClear(ofColor(0));
+            
 //			ofClear(getCor(0));
 //			ofClear(0,255,0,255);
 			if (s==0) {
@@ -358,7 +366,7 @@ public:
 
 
 // CocaCymatics
-struct sceneWave : public sceneDmtr {
+struct sceneWave : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "wave";
@@ -392,7 +400,7 @@ public:
 
 
 
-struct sceneBola2 : public sceneDmtr {
+struct sceneBola2 : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "bola2";
@@ -483,7 +491,7 @@ public:
 
 
 
-struct sceneOndas : public sceneDmtr {
+struct sceneOndas : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "ondas";
@@ -576,7 +584,7 @@ public:
 
 
 
-struct sceneLatquad2 : public sceneDmtr {
+struct sceneLatquad2 : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "latquad2";
@@ -675,7 +683,7 @@ public:
 
 
 
-struct sceneMoire : public sceneDmtr {
+struct sceneMoire : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "moire";
@@ -714,7 +722,7 @@ public:
 
 
 
-struct sceneLatquad3 : public sceneDmtr {
+struct sceneLatquad3 : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "latquad3";
@@ -831,7 +839,7 @@ public:
 
 
 
-struct sceneLatquad : public sceneDmtr {
+struct sceneLatquad : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "latquad";	
@@ -880,7 +888,7 @@ public:
 
 
 
-struct sceneRedes : public sceneDmtr {
+struct sceneRedes : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "redes";
@@ -1012,7 +1020,7 @@ public:
 };
 
 
-struct sceneLeparc : public sceneDmtr {
+struct sceneLeparc : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "leparc";
@@ -1102,7 +1110,7 @@ public:
 
 
 
-struct sceneRadial : public sceneDmtr {
+struct sceneRadial : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "radial"; 
@@ -1170,7 +1178,7 @@ public:
 
 
 // not working yet
-struct scenePlexus : public sceneDmtr {
+struct scenePlexus : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "plexus";
@@ -1214,7 +1222,7 @@ public:
 };
 
 
-struct sceneRedes0 : public sceneDmtr {
+struct sceneRedes0 : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "redes0";
@@ -1251,7 +1259,7 @@ public:
 
 
 
-struct sceneSyntype : public sceneDmtr {
+struct sceneSyntype : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "syntype";
@@ -1419,7 +1427,11 @@ public:
 			for (auto & p : polylines) {
 				ofPolyline pp = p.getResampledBySpacing(space);
 				for (auto & v : pp.getVertices()) {
-					ofSetColor(getColor(ofRandom(0,1), uiColors));
+//					ofSetColor(getCor(ofRandom(0,1)));
+                    //ofSetColor(ofxScenes::getColor(ofRandom(0,1), ofxScenes::config.uiColors));
+                    
+                    // xaxa getcolor
+                    ofSetColor(255);
 					ofDrawCircle(v.x, v.y, radius);
 				}
 			}
@@ -1570,7 +1582,7 @@ public:
 
 
 // future user interface
-struct scenePirose : public sceneDmtr {
+struct scenePirose : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "pirose";
@@ -1636,7 +1648,7 @@ public:
 
 // #include "sceneGirinos.h"
 
-struct sceneGirinos : public sceneDmtr {
+struct sceneGirinos : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "girinos";
@@ -1823,7 +1835,7 @@ public:
 
 			for (auto & g : girinosDraw) {
 				if (uiColors != NULL) {
-					ofSetColor(getColor(g.qual, uiColors));
+					ofSetColor(ofxScenes::getColor(g.qual, uiColors));
 				}
 				g.draw();
 			}
@@ -1967,7 +1979,7 @@ public:
 
 
 #ifdef USESVG
-struct sceneSvg0 : public sceneDmtr {
+struct sceneSvg0 : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "svg0";
@@ -2181,7 +2193,7 @@ public:
 
 
 #ifdef USEASSIMP
-struct sceneModel : public sceneDmtr {
+struct sceneModel : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "model";
@@ -2368,6 +2380,8 @@ public:
 #endif
 
 
+#ifdef INSIDE
+
 void setupScenesAll() {
 	scenes.push_back(new sceneLines(&config, "lines"));
 	scenes.push_back(new sceneLiner(&config, "liner"));
@@ -2394,3 +2408,5 @@ void setupScenesAll() {
 	scenes.push_back(new scenePirose(&config, "pirose"));
 	scenes.push_back(new sceneSyntype(&config, "syntype"));
 }
+
+#endif

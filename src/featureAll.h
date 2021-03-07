@@ -230,8 +230,6 @@ public:
 };
 
 
-
-
 struct featureShader : public microFeature {
 public:
 	using microFeature::microFeature;
@@ -678,13 +676,14 @@ struct featureTest : public microFeature {
 	struct featureSyphonOut : public microFeature {
 		public:
 		using microFeature::microFeature;
-		
+        ofxSyphonServer syphonOut;
+
 		void setup() override {
 			syphonOut.setName(name);
 		}
 		void begin() override {}
 		void end() override {
-			syphonOut.publishTexture(&soft->fbo->getTexture());
+			syphonOut.publishTexture(&soft->fboFinal->getTexture());
 		}
 		void uiEvents(ofxMicroUI::element & e) override {}
 	};

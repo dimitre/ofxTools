@@ -1321,24 +1321,25 @@ public:
 
 
 
+#ifdef INSIDE
+void setupScenes3d() {
+		// 3d
+	scenes.push_back(new sceneOcean(&config, "ocean"));
+	scenes.push_back(new sceneGridbox(&config, "gridbox"));
+	scenes.push_back(new sceneSolidos(&config, "solidos"));
+	scenes.push_back(new scenePulsar(&config, "pulsar"));
+	scenes.push_back(new sceneLuan(&config, "luan"));
+	scenes.push_back(new sceneBox(&config, "box"));
+	scenes.push_back(new sceneNovelo(&config, "novelo"));
+	//xaxa
+	scenes.push_back(new scene3d(&config, "3d"));
+	scenes.push_back(new sceneGalaxia(&config, "galaxia"));
+	scenes.push_back(new sceneGirinos3d(&config, "girinos3d"));
+#ifdef USEASSIMP
+	scenes.push_back(new sceneModel(&config, "model"));
+#endif
+	scenes.push_back(new scenePoeira(&config, "poeira"));
 
-// void setupScenes3d() {
-// 		// 3d
-// 	scenes.push_back(new sceneOcean(&config, "ocean"));
-// 	scenes.push_back(new sceneGridbox(&config, "gridbox"));
-// 	scenes.push_back(new sceneSolidos(&config, "solidos"));
-// 	scenes.push_back(new scenePulsar(&config, "pulsar"));
-// 	scenes.push_back(new sceneLuan(&config, "luan"));
-// 	scenes.push_back(new sceneBox(&config, "box"));
-// 	scenes.push_back(new sceneNovelo(&config, "novelo"));
-// 	//xaxa
-// 	scenes.push_back(new scene3d(&config, "3d"));
-// 	scenes.push_back(new sceneGalaxia(&config, "galaxia"));
-// 	scenes.push_back(new sceneGirinos3d(&config, "girinos3d"));
-// #ifdef USEASSIMP
-// 	scenes.push_back(new sceneModel(&config, "model"));
-// #endif
-// 	scenes.push_back(new scenePoeira(&config, "poeira"));
+}
 
-// }
-
+#endif

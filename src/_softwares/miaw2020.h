@@ -13,18 +13,22 @@ string & scene = ui->pString["scene"];
 ofxMicroUIRemote uiRemote;
 #endif
 
-#ifdef USESYPHON
-ofxSyphonServer syphonOut;
-#endif
+
 
 #include "DmtrCairo.h"
-#include "shaders.h"
+//#include "shaders.h"
 #include "cam.h"
 #include "tools.h"
 #include "feature.h"
+#include "featureAll.h"
+
+
+#ifdef USESYPHON
+//ofxSyphonServer syphonOut;
+featureSyphonOut syphonOut =  featureSyphonOut(&soft, "MIAWsyphonOut");
+#endif
 
 // talvez nao seja suficiente iniciar aqui antes da interface. pq ele fica com nome de master... isso eh ruim
-
 
 //featureShader shadersAll[4] = {
 //    featureShader(&u.uis["ui"], &u.uis["shaders2d"], &soft, "shaders2d"),
@@ -35,14 +39,52 @@ ofxSyphonServer syphonOut;
 
 //featureShader shader2d =    featureShader(&u.uis["shaders"], &u.uis["shaders2d"], &soft, "shaders2d");
 
-featureShader shaders2d =  featureShader(ui, &u.uis["shaders2d"], &soft, "shaders2d");
-//featureShader shader3d =   featureShader(ui, &u.uis["shaders3d"], &soft, "shaders3d");
-//featureShader shadergen =  featureShader(ui, &u.uis["shadersgen"], &soft, "shadersgem");
-//featureShader shaderfeed = featureShader(ui, &u.uis["shadersfeed"], &soft, "shadersfeed");
+ofxMicroUI * uiShaders = &u.uis["shaders"];
+featureShader shaders2d =  featureShader(uiShaders, &u.uis["shaders2d"], &soft, "shaders2d");
+featureShader shaders2d2 =  featureShader(uiShaders, &u.uis["shaders2d2"], &soft, "shaders2d2");
+featureShader shaders3d =   featureShader(uiShaders, &u.uis["shaders3d"], &soft, "shaders3d");
+featureShader shadersgen =  featureShader(uiShaders, &u.uis["shadersgen"], &soft, "shadersgem");
+featureShader shadersfeed = featureShader(uiShaders, &u.uis["shadersfeed"], &soft, "shadersfeed");
 
 ofxScenes scenes = ofxScenes(fbo, &u, ui->pString["scene"]);
 
 int contagemRandomPreset = 0;
+
+
+
+void preSetupMiaw() {
+    shaders2d.setup();
+    shaders3d.setup();
+    shadersgen.setup();
+    shadersfeed.setup();
+//    ofxMicroUI::expires(1598719562, 60);
+    ofSetEscapeQuitsApp(false);
+    scenes.setup();
+//    u._settings->useFixedLabel = true;
+}
+
+void setupMiaw() {
+    setupCam_3d();
+    soft.fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+    soft.fbo2.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+    soft.fbo3.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
+    
+    soft.fboFinal = &soft.fbo3;
+    soft.setUI(&u);
+    
+#ifdef USEREMOTE
+    uiRemote.loadConfig("_osc.txt");
+    uiRemote.oscInfo = ((ofxMicroUI::inspector*)u.getElement("oscInfo"));//()
+    uiRemote.oscInfoReceive = ((ofxMicroUI::inspector*)u.getElement("oscInfoReceive"));//()
+    ofAddListener(uiRemote.eventMessage, this, &ofApp::remoteMessage);
+    uiRemote.setupServer();
+    uiRemote.addUI(&u);
+    for (auto & u : u.allUIs) {
+        uiRemote.addUI(u);
+    }
+#endif
+}
+
 
 // preset part from OSC
 void remoteMessage(string & e) {
@@ -153,7 +195,6 @@ void beginMiaw(bool background = true) {
 		}
 	}
 	ofSetLineWidth(ui->pEasy["lineWidth"]);
-
 }
 
 void endMiaw() {
@@ -186,46 +227,6 @@ void endMiaw() {
 
 
 
-void preSetupMiaw() {
-	
-//	ofxMicroUI::expires(1598719562, 60);
-	ofSetEscapeQuitsApp(false);
-	scenes.setup();
-
-//	u._settings->useFixedLabel = true;
-	shadersSetup();
-    shaders2d.setup();
-}
-
-void setupMiaw() {
-	setupCam_3d();
-	soft.fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
-	soft.fbo2.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
-	soft.fbo3.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
-	
-	soft.fboFinal = &soft.fbo3;
-	soft.setUI(&u);
-	
-#ifdef USEREMOTE
-	uiRemote.loadConfig("_osc.txt");
-	uiRemote.oscInfo = ((ofxMicroUI::inspector*)u.getElement("oscInfo"));//()
-	uiRemote.oscInfoReceive = ((ofxMicroUI::inspector*)u.getElement("oscInfoReceive"));//()
-	ofAddListener(uiRemote.eventMessage, this, &ofApp::remoteMessage);
-	uiRemote.setupServer();
-	uiRemote.addUI(&u);
-	for (auto & u : u.allUIs) {
-		uiRemote.addUI(u);
-	}
-#endif
-}
-
-#ifdef USENDI
-	private:
-	ofPixels videoPixels;
-	
-	ofxNDISender sender_;
-	ofxNDISendVideo video_;
-#endif
 
 	// WINDOW
 	void drawWindow(int pos=0) {

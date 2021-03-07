@@ -1216,54 +1216,9 @@ struct sceneTyper :  public ofxScenes::sceneBaseType, public sceneBasePoco {
 	}
 };
 
+
+
 #endif
-
-
-
-
-
-
-struct sceneBaseTypePoco :  public virtual ofxScenes::sceneDmtr {
-    public:
-    using sceneDmtr::sceneDmtr;
-    Poco::UTF8Encoding utf8Encoding;
-    ofTrueTypeFont * type = &uiC->pFont["type"];
-    string texto = "";
-    vector <string> letras;
-
-    void sceneTypeUIEvent(ofxMicroUI::element & e) {
-        if (e.name == "texto") {
-            if (!e._settings->presetIsLoading) {
-                texto = uiC->pString["texto"];
-                if (uiC->pBool["upper"]) {
-                    texto = ofToUpper(texto, "pt_BR.UTF-8");
-                }
-                uiC->getInspector("texto")->set(texto);
-                
-                string utf8String(texto);
-                Poco::TextIterator it(utf8String, utf8Encoding);
-                Poco::TextIterator end(utf8String);
-
-                letras.clear();
-                
-                while (it != end) {
-                    letras.emplace_back(ofUTF16DecToUtf8Char(*it));
-                    ++it;
-                }
-            }
-        }
-
-        else if (e.name == "fontSize") {
-            ofxMicroUI::element* el = uiC->getElement("type");
-            if (el != NULL) {
-                ofxMicroUI::fontList* f = (ofxMicroUI::fontList*)el;
-                f->size = *e.i;
-                f->reload();
-            }
-        }
-    }
-};
-
 
 
 //struct sceneTyper0 : public sceneBaseType {
