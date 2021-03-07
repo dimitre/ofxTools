@@ -29,6 +29,8 @@ bool savingCairo = false;
 featureSyphonOut syphonOut =  featureSyphonOut(&soft, "MIAWsyphonOut");
 featureCairo cairo = featureCairo(&soft, "Cairo");
 
+featureCam cam = featureCam(&soft, "cam");
+
 #endif
 
 ofxMicroUI * uiShaders = &u.uis["shaders"];

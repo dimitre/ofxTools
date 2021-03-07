@@ -67,18 +67,15 @@ public:
     using sceneDmtrBasic::sceneDmtrBasic;
 };
 
+
 struct sceneUpdown : public virtual ofxScenes::sceneDmtrBasic {
 public:
 using sceneDmtrBasic::sceneDmtrBasic;
-
-// apenas pra nao causar furor
     float updown = 0.5;
-// TODO
     float getFreq(int index) {
         return 0;
     }
 };
-
 
 
 struct sceneIncrementa : public virtual ofxScenes::sceneDmtrBasic {
@@ -88,8 +85,6 @@ using sceneDmtrBasic::sceneDmtrBasic;
 
     float incrementa(string qual) {
         string uniqueId = uiC->uiName + qual;
-//        incrementadorTemporal[uniqueId] += uiC->pFloat[qual];
-        // 07/09/2020
         incrementadorTemporal[uniqueId] += uiC->pEasy[qual];
         return incrementadorTemporal[uniqueId];
     }
@@ -105,6 +100,7 @@ struct sceneBaseType : public virtual ofxScenes::sceneDmtrBasic {
 	public:
 	using sceneDmtrBasic::sceneDmtrBasic;
 	ofTrueTypeFont * type = &uiC->pFont["type"];
+    int lastSize = 0;
 
 	void uiEvents(ofxMicroUI::element & e) override {
 		typeUIEvent(e);
@@ -112,12 +108,15 @@ struct sceneBaseType : public virtual ofxScenes::sceneDmtrBasic {
 
 	void typeUIEvent(ofxMicroUI::element & e) {
 		if (e.name == "fontSize") {
-			ofxMicroUI::element* el = uiC->getElement("type");
-			if (el != NULL) {
-				ofxMicroUI::fontList* f = (ofxMicroUI::fontList*)el;
-				f->size = *e.i;
-				f->reload();
-			}
+            if (*e.i != lastSize) {
+                ofxMicroUI::element* el = uiC->getElement("type");
+                if (el != NULL) {
+                    ofxMicroUI::fontList* f = (ofxMicroUI::fontList*)el;
+                    f->size = *e.i;
+                    f->reload();
+                }
+                lastSize = *e.i;
+            }
 		}
 	}
 };

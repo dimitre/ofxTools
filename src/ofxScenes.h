@@ -69,27 +69,27 @@ public:
 	string & scene;
 	ofxMicroUI * ui = NULL;
     
-//    ofxMicroUI::element * _sceneElement = NULL;
     sceneDmtr * _scene = NULL;
     vector <sceneDmtr *> scenes;
-    map <string, sceneDmtr *> scenesMap;
 
+    string lastScene = "";
+    
     void uiEvents(ofxMicroUI::element & e) {
         if (e.name == "scene") {
             string scene = *e.s;
-            cout << "change scene, name = " << scene << endl;
-            if (scene != "" && scene != "_") {
-                if ( scenesMap.find(scene) != scenesMap.end() ) {
-                    if (_scene != NULL) {
-                        _scene->unselect();
-                    }
-                    _scene = scenesMap[scene];
-                    _scene->select();
+            if (scene != lastScene) {
+                cout << "change scene, name = " << scene << endl;
+                if (_scene != NULL) {
+                    _scene->unselect();
                 }
-            }
-            else {
                 _scene = NULL;
-                cout << "scene not found " << scene << endl;
+                for (auto & s : scenes) {
+                    if (s->name == scene) {
+                        _scene = s;
+                        _scene->select();
+                    }
+                }
+                lastScene = scene;
             }
         }
     }
@@ -131,28 +131,23 @@ public:
 		}
 	}
 
-	void onUpdate(ofEventArgs &data) {
-        if (_scene != NULL) {
-            _scene->update();
-        }
-        
-//		if (scene != "" && scene != "_") {
-//			if ( scenesMap.find(scene) != scenesMap.end() ) {
-//				scenesMap[scene]->update();
-//			}
-//		}
-	}
+
 
 	void setup() {
 		ofAddListener(ofEvents().update, this, &ofxScenes::onUpdate);
 		cout << "------" << endl;
 		for (auto & s : scenes) {
-			cout << ":: adding " << s->name << endl;
-			scenesMap[s->name] = s;
-			scenesMap[s->name]->setup();
+			cout << "ofxScenes :: adding " << s->name << endl;
+            s->setup();
 		}
 		cout << "------" << endl;
 	}
+    
+    void onUpdate(ofEventArgs &data) {
+        if (_scene != NULL) {
+            _scene->update();
+        }
+    }
 
 	void draw() {
 		ofSetLineWidth(ui->pEasy["lineWidth"]);
@@ -160,15 +155,5 @@ public:
         if (_scene != NULL) {
             _scene->draw();
         }
-
-//		if (scene != "" && scene != "_") {
-//			if ( scenesMap.find(scene) != scenesMap.end() ) {
-//				ofSetColor(getColor(0, uiColors));
-//				scenesMap[scene]->draw();
-//			} else {
-//
-//				cout << "scene not found " << scene << endl;
-//			}
-//		}
 	}
 };
