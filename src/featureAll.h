@@ -595,7 +595,7 @@ public:
     //    ;     #CAIRO_OPERATOR_HSL_LUMINOSITY
     
     
-    void startCairoBlendingMode() {
+    void startBlendingMode() {
         if (cairoIsSetup && cairoBlend != NULL) {
 //            string * s = &uiColors->pString["blend"];
             

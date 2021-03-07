@@ -13,31 +13,23 @@ string & scene = ui->pString["scene"];
 ofxMicroUIRemote uiRemote;
 #endif
 
-
-
-#include "DmtrCairo.h"
-//#include "shaders.h"
+// resquicios do DmtrCairo.h finado
+bool useCairo = false;
+bool savingCairo = false;
+//#include "DmtrCairo.h"
 #include "cam.h"
+
+// eliminar este aqui.
 #include "tools.h"
 #include "feature.h"
 #include "featureAll.h"
 
-
 #ifdef USESYPHON
 //ofxSyphonServer syphonOut;
 featureSyphonOut syphonOut =  featureSyphonOut(&soft, "MIAWsyphonOut");
+featureCairo cairo = featureCairo(&soft);
+
 #endif
-
-// talvez nao seja suficiente iniciar aqui antes da interface. pq ele fica com nome de master... isso eh ruim
-
-//featureShader shadersAll[4] = {
-//    featureShader(&u.uis["ui"], &u.uis["shaders2d"], &soft, "shaders2d"),
-//    featureShader(&u.uis["ui"], &u.uis["shaders3d"], &soft, "shaders3d"),
-//    featureShader(&u.uis["ui"], &u.uis["shadersgen"], &soft, "shadersgem"),
-//    featureShader(&u.uis["ui"], &u.uis["shadersfeed"], &soft, "shadersfeed"),
-//};
-
-//featureShader shader2d =    featureShader(&u.uis["shaders"], &u.uis["shaders2d"], &soft, "shaders2d");
 
 ofxMicroUI * uiShaders = &u.uis["shaders"];
 featureShader shaders2d =  featureShader(uiShaders, &u.uis["shaders2d"], &soft, "shaders2d");
@@ -48,22 +40,10 @@ featureShader shadersfeed = featureShader(uiShaders, &u.uis["shadersfeed"], &sof
 
 ofxScenes scenes = ofxScenes(fbo, &u, ui->pString["scene"]);
 
-int contagemRandomPreset = 0;
-
-
-
-void preSetupMiaw() {
-    shaders2d.setup();
-    shaders3d.setup();
-    shadersgen.setup();
-    shadersfeed.setup();
-//    ofxMicroUI::expires(1598719562, 60);
+void setupMiaw() {
+    cairo.setup();
     ofSetEscapeQuitsApp(false);
     scenes.setup();
-//    u._settings->useFixedLabel = true;
-}
-
-void setupMiaw() {
     setupCam_3d();
     soft.fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
     soft.fbo2.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
@@ -85,40 +65,9 @@ void setupMiaw() {
 #endif
 }
 
-
 // preset part from OSC
 void remoteMessage(string & e) {
 	cout << "remote message !" << endl;
-	vector <string> partes = ofSplitString(e, "/");
-	if (partes.size() > 2) {
-		string v = partes[2];
-		if (partes[1] == "p") {
-			if (v == "r") {
-				string randomPresetString = ofToString(contagemRandomPreset);
-				contagemRandomPreset = (contagemRandomPreset+1)%10;
-//				u._settings->presetIsLoading = true;
-				u.presetElement->set(randomPresetString);
-//				u._settings->presetIsLoading = false;
-			} else {
-//				u._settings->presetIsLoading = true;
-				u.presetElement->set(v);
-//				u._settings->presetIsLoading = false;
-			}
-		}
-		else if (partes[1] == "f") {
-			u.set("presetsFolder", v);
-		}
-
-		else if (partes[1] == "r") {
-			if (v == "c") {
-				float v = ofRandom(0,50);
-				cout << v << endl;
-				uiCam->getSlider("cameraDist")->set(v);
-				v = ofRandom(-180, 180);
-				uiCam->getSlider("cameraAngle")->set(v);
-			}
-		}
-	}
 }
 
 
@@ -184,9 +133,11 @@ void beginMiaw(bool background = true) {
 	useCairo = (ui->pBool["useCairo"] || savingCairo) && !uiC->pBool["is3d"];
 	if (background) {
 		if (useCairo) {
-			beginCairo();
+            cairo.begin();
 			miawBg();
-			startCairoBlendingMode();
+            
+            // todo - atualizar
+			cairo.startBlendingMode();
 		} else {
 			if (!uiColors->pBool["bgAfter"]) {
 				miawBg();
@@ -201,7 +152,7 @@ void endMiaw() {
 	ofDisableBlendMode();
 
 	if (useCairo) {
-		endCairo();
+        cairo.end();
 	} else {
 		
 	}
@@ -240,8 +191,6 @@ void endMiaw() {
 				  soft.fboFinal->getWidth() * u.pFloat["fboScaleOut"],
 				  soft.fboFinal->getHeight() * u.pFloat["fboScaleOut"]
 			);
-		
-		
 		soft.fboFinal->draw(fboRect);
 	}
 	
