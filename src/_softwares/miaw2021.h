@@ -16,18 +16,18 @@ ofxMicroUIRemote uiRemote;
 // resquicios do DmtrCairo.h finado
 bool useCairo = false;
 bool savingCairo = false;
-//#include "DmtrCairo.h"
+// substituir por modular em brevissimo
 #include "cam.h"
 
 // eliminar este aqui.
 #include "tools.h"
+
 #include "feature.h"
 #include "featureAll.h"
 
 #ifdef USESYPHON
-//ofxSyphonServer syphonOut;
 featureSyphonOut syphonOut =  featureSyphonOut(&soft, "MIAWsyphonOut");
-featureCairo cairo = featureCairo(&soft);
+featureCairo cairo = featureCairo(&soft, "Cairo");
 
 #endif
 

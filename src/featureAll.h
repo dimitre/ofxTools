@@ -300,8 +300,8 @@ public:
 	// }
 
 	void uiEvents(ofxMicroUI::element & e) override {
-        cout << "shader ui event " << e.name << endl;
-        cout << e.tag << endl;
+//        cout << "shader ui event " << e.name << endl;
+//        cout << e.tag << endl;
 		if (e.tag == "shaderFile" && e.name == name)
 		{
 			if (ofxMicroUI::dirList * r = dynamic_cast<ofxMicroUI::dirList*>(&e)) {
@@ -314,9 +314,9 @@ public:
                     } else {
                         shader.load(f);
                         shaderLoaded = f;
-                        cout << "SHADERS LOAD " << e.name << " fileName :: " << f << endl;
-                        cout << "shader loaded = " << shaderLoaded << endl;
-                        cout << "this name " << name << endl;
+                        cout << "SHADERS LOAD " << e.name << " :: " << *e.s << endl;
+//                        cout << "shader loaded = " << shaderLoaded << endl;
+//                        cout << "this name " << name << endl;
                     }
 				}
 			} else {

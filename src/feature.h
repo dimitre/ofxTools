@@ -17,7 +17,7 @@ public:
 		cout << "end in primitive feature" << endl;
 	};
 	virtual void setup() {
-		cout << "setup in primitive feature" << endl;
+		cout << "setup in primitive feature " << name << endl;
 	};
 	virtual void update() {
 		cout << "update in primitive feature" << endl;

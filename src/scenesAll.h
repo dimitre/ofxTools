@@ -399,7 +399,7 @@ public:
 
 
 
-
+// este ta bugadão. testei no miaw e nada.
 struct sceneBola2 : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
@@ -407,13 +407,13 @@ public:
 
 	struct objeto {
 	public:
-		ofVec2f pos;
+        glm::vec2 pos;
 		float raio;
 		float angle;
 		float mag;
 		float index;
 
-		objeto(ofVec2f p, float r, float a, float m, float i) : pos(p), raio(r), angle(a), mag(m), index(i) {}
+		objeto(glm::vec2 p, float r, float a, float m, float i) : pos(p), raio(r), angle(a), mag(m), index(i) {}
 
 		float r2x (float a, float m) { return m * cos(M_PI * a / 180.0f); }
 		float r2y (float a, float m) { return m * sin(M_PI * a / 180.0f); }
@@ -439,9 +439,7 @@ public:
 	};
 	vector <objeto> objetos;
 
-	
 	void setup() override {
-		
 	}
 	
 	void draw() override {
@@ -468,21 +466,23 @@ public:
 			mag += raio*2 + spacing;
 			raio *= reduce;
 			spacing *= reduce;
-			ofVec2f p1 = ofVec2f(r2x(0,mag), r2y(0,mag));
-			ofVec2f p2 = ofVec2f(r2x(0,mag), r2y(0,mag));
+			glm::vec2 p1 = glm::vec2(r2x(0,mag), r2y(0,mag));
+            glm::vec2 p2 = glm::vec2(r2x(0,mag), r2y(0,mag));
 			float d = 0;
 			float testAngle = 0;
 			while (d < (raio*2+spacing)) {
 				testAngle+=.1;
-				p2 = ofVec2f(r2x(testAngle,mag), r2y(testAngle,mag));
-				d = p1.distance(p2);
+				p2 = glm::vec2(r2x(testAngle,mag), r2y(testAngle,mag));
+                
+//				d = p1.distance(p2);
+                d = glm::distance(p1, p2);
 			}
 			int divisoes = (360.0 / testAngle);
 			for (int a=0; a<divisoes; a++) {
 				float ang = 360.0/(float)divisoes * a + 90;
 				float x = r2x(ang, mag);
 				float y = r2y(ang, mag);
-				objetos.push_back(objeto(ofVec2f(x,y),raio, ang, mag,i));
+				objetos.push_back(objeto(glm::vec2(x,y),raio, ang, mag,i));
 				i++;
 			}
 		}
@@ -1866,9 +1866,9 @@ public:
 		girinoSet.boundsRect = boundsRect;
 		girinoSet.fboRect = fboRect;
 		
-		cout << boundsRect << endl;
-		cout << fboRect << endl;
-		cout << "-------" << endl;
+//		cout << boundsRect << endl;
+//		cout << fboRect << endl;
+//		cout << "-------" << endl;
 //		girinoSet2.boundsRect = boundsRect;
 //		girinoSet2.fboRect = fboRect;
 		
