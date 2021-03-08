@@ -69,8 +69,8 @@ public:
 	string & scene;
 	ofxMicroUI * ui = NULL;
     
-    sceneDmtr * _scene = NULL;
-    vector <sceneDmtr *> scenes;
+    sceneDmtrBasic * _scene = NULL;
+    vector <sceneDmtrBasic *> scenes;
 
     string lastScene = "";
     
