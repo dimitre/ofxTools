@@ -10,6 +10,8 @@ public:
 	ofxMicroUISoftware * soft = NULL;
     string name = "";
     
+    bool * use = NULL;
+    
 	virtual void begin() {
 		cout << "begin in primitive feature" << endl;
 	};
@@ -51,6 +53,11 @@ public:
         internalSetup();
 		setup();
 	}
+    
+    microFeature(ofxMicroUISoftware * _soft, string n, bool * u) : soft(_soft), name(n), use(u) {
+        internalSetup();
+        setup();
+    }
 
 	microFeature(ofxMicroUI * _ui) : ui(_ui) {
         internalSetup();

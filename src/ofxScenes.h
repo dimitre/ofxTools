@@ -83,12 +83,17 @@ public:
                     _scene->unselect();
                 }
                 _scene = NULL;
+				bool found = false;
                 for (auto & s : scenes) {
                     if (s->name == scene) {
                         _scene = s;
                         _scene->select();
+						found = true;
                     }
                 }
+				if (!found) {
+					cout << "|||||||||||||||||||| ofxScenes not found :: " << scene << endl;
+				}
                 lastScene = scene;
             }
         }

@@ -490,12 +490,14 @@ public:
         cairo = make_shared<ofCairoRenderer>();
         cairoOut = make_shared<ofCairoRenderer>();
         cairo->setupMemoryOnly(ofCairoRenderer::IMAGE, false, false, rect);
-        cairoIsSetup = true;
     }
     
+    bool isOk() {
+        return use == NULL || *use;
+    }
     
     void begin() override {
-        if (cairoIsSetup) {
+        if (isOk()) {
             if (savingCairo) {
                 cout << "SAVINGCAIRO!" << endl;
         #ifdef SVGCAIRO
@@ -543,7 +545,7 @@ public:
         }
     }
     void end() override {
-        if (cairoIsSetup) {
+        if (isOk()) {
             ofPopMatrix();
             ofSetCurrentRenderer(opengl, true);
             
@@ -562,7 +564,7 @@ public:
     }
     void uiEvents(ofxMicroUI::element & e) override { }
     
-        
+#define USECAIROBLENDING 1        
     #ifdef USECAIROBLENDING
     //#CAIRO_OPERATOR_CLEAR
     //#CAIRO_OPERATOR_SOURCE

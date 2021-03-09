@@ -1,13 +1,18 @@
+#include "feature.h"
+#include "featureAll.h"
+
 ofxMicroUI u;
 ofxMicroUI *ui = &u.uis["ui"];
 ofxMicroUI *uiC  = &u.uis["scene"];
 ofxMicroUI *uiColors  = &u.uis["colors"];
 ofxMicroUISoftware soft;
 ofFbo * fbo = &soft.fbo;//
+string & scene = ui->pString["scene"];
+
+
 ofFbo * fbo2 = &soft.fbo2;
 ofFbo * fbo3 = &soft.fbo3;
 
-string & scene = ui->pString["scene"];
 
 #ifdef USEREMOTE
 ofxMicroUIRemote uiRemote;
@@ -21,16 +26,13 @@ bool savingCairo = false;
 
 // eliminar este aqui.
 #include "tools.h"
+ofxScenes scenes = ofxScenes(fbo, &u, ui->pString["scene"]);
 
-#include "feature.h"
-#include "featureAll.h"
+featureCairo cairo = featureCairo(&soft, "Cairo");
+featureCam cam = featureCam(&soft, "cam");
 
 #ifdef USESYPHON
 featureSyphonOut syphonOut =  featureSyphonOut(&soft, "MIAWsyphonOut");
-featureCairo cairo = featureCairo(&soft, "Cairo");
-
-featureCam cam = featureCam(&soft, "cam");
-
 #endif
 
 ofxMicroUI * uiShaders = &u.uis["shaders"];
@@ -40,7 +42,6 @@ featureShader shaders3d =   featureShader(uiShaders, &u.uis["shaders3d"], &soft,
 featureShader shadersgen =  featureShader(uiShaders, &u.uis["shadersgen"], &soft, "shadersgem");
 featureShader shadersfeed = featureShader(uiShaders, &u.uis["shadersfeed"], &soft, "shadersfeed");
 
-ofxScenes scenes = ofxScenes(fbo, &u, ui->pString["scene"]);
 
 void setupMiaw() {
     cairo.setup();

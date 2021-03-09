@@ -46,7 +46,6 @@ public:
 	map <string, svgPoly> svgMap;
 
 
-//#include "DmtrCairo.h"
 	
 	void setup() override {
 

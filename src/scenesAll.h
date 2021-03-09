@@ -82,7 +82,7 @@ public:
 
 
 
-struct sceneMinhoca : public ofxScenes::sceneDmtr {
+struct sceneMinhoca : ofxScenes::sceneDmtr, ofxScenes::polarVec2 {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "minhoca";
@@ -491,7 +491,7 @@ public:
 
 
 
-struct sceneOndas : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
+struct sceneOndas : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown, ofxScenes::polarVec2, ofxScenes::polar {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "ondas";
@@ -584,7 +584,7 @@ public:
 
 
 
-struct sceneLatquad2 : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
+struct sceneLatquad2 : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown, ofxScenes::polar {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "latquad2";
@@ -722,7 +722,7 @@ public:
 
 
 
-struct sceneLatquad3 : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
+struct sceneLatquad3 : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown, ofxScenes::polar {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "latquad3";
@@ -839,7 +839,7 @@ public:
 
 
 
-struct sceneLatquad : public ofxScenes::sceneDmtr {
+struct sceneLatquad : public ofxScenes::sceneDmtr, ofxScenes::polar {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "latquad";	
@@ -945,8 +945,7 @@ public:
 			tempo = ofGetElapsedTimef() * .2;
 			tempo2 = ofGetElapsedTimef() * .25;
 		}
-
-		
+	
 		void draw() {
 			ofPushMatrix();
 			ofTranslate(pos);
@@ -1113,7 +1112,6 @@ public:
 struct sceneRadial : public ofxScenes::sceneDmtr, ofxScenes::sceneIncrementa {
 public:
 	using sceneDmtr::sceneDmtr;
-	// name = "radial"; 
 
 	void draw() override {
 		checkSetup();
@@ -1181,7 +1179,6 @@ public:
 struct scenePlexus : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	// name = "plexus";
 	
 	void draw() override {
 		checkSetup();
@@ -1190,11 +1187,9 @@ public:
 		float tempo2 = ofGetElapsedTimef() * uiC->pFloat["tempoY"];
 
 		vector <glm::vec2> pontos;
-		float numero = uiC->pEasy["numero"];
-
 		float margin = uiC->pFloat["margin"];
 
-		for (int a=0; a<numero; a++) {
+		for (int a=0; a<uiC->pEasy["numero"]; a++) {
 			float qx = a * uiC->pFloat["qx"];
 			float qy = a * uiC->pFloat["qy"];
 			float x = (ofNoise(qx, tempo)*margin*2.0 - margin ) * fbo->getWidth() ;
@@ -1203,21 +1198,26 @@ public:
 		}
 
 		float distance = uiC->pEasy["distance"];
-		int index = 0;
 		
 //		cout << pontos.size() << endl;
-		ofSetColor(255);
+		ofSetColor(getCor(0));
+
+        int index = 0;
+        ofNoFill();
 		for (auto & p : pontos) {
+//            cout << p.x << endl;
 			for (auto & pp : pontos) {
 				if (ABS(pp.x - p.x) < distance && ABS(pp.y - p.y) < distance) {
-					
 //					ofSetColor(index > numero *.5 ? ofColor(255,0,0,ui->pFloat["alpha"]) : ofColor(0,0,255,ui->pFloat["alpha"]));
 					ofDrawLine(p, pp);
+                    if (uiC->pBool["circles"]) {
+                        ofDrawCircle(p.x, p.y, 20);
+                        ofDrawCircle(pp.x, pp.y, 20);
+                    }
 				}
 			}
 			index++;
 		}
-
 	}
 };
 
@@ -1648,7 +1648,7 @@ public:
 
 // #include "sceneGirinos.h"
 
-struct sceneGirinos : public ofxScenes::sceneDmtr {
+struct sceneGirinos : public ofxScenes::sceneDmtr, ofxScenes::polarVec2 {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "girinos";
