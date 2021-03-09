@@ -639,7 +639,7 @@ public:
 			// Optionally set NDI asynchronous sending
 			// instead of clocked at the specified frame rate (60fps default)
 			ndiSender.SetAsync();
-			ndiSender.CreateSender(name.c_str(), soft->fbo.getWidth(), soft->fbo.getHeight());
+			ndiSender.CreateSender(soft->name.c_str(), soft->fbo.getWidth(), soft->fbo.getHeight());
 		}
 		void begin() override {
 		}
