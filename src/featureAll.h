@@ -455,63 +455,89 @@ public:
 struct featureCairo : public microFeature {
 public:
     using microFeature::microFeature;
-    
-    bool useCairo = false;
-    
-    
-#define SVGCAIRO 1
-//#define USECAIROBLENDING 1
-
-//void setupCairo() {
-//    opengl = ofGetGLRenderer();
-//    cairo = make_shared<ofCairoRenderer>();
-//    cairoOut = make_shared<ofCairoRenderer>();
-//    ofRectangle rect = ofRectangle(0,0, fbo->getWidth(), fbo->getHeight());
-//    cairo->setupMemoryOnly(ofCairoRenderer::IMAGE, false, false, rect);
-//}
-
     shared_ptr<ofBaseGLRenderer> opengl;
     shared_ptr<ofCairoRenderer> cairo;
     shared_ptr<ofCairoRenderer> cairoOut;
     bool savingCairo = false;
     ofTexture render;
-    bool cairoIsSetup = false;
-    
     string savingCairoFilename = "";
     ofRectangle rect;
-    
     string * cairoBlend = NULL;
     
+    //#CAIRO_OPERATOR_CLEAR
+    //#CAIRO_OPERATOR_SOURCE
+    //    ;     #CAIRO_OPERATOR_OVER
+    //    ;     #CAIRO_OPERATOR_IN
+    //    ;     #CAIRO_OPERATOR_OUT
+    //    ;     #CAIRO_OPERATOR_ATOP
+    //    ;     #CAIRO_OPERATOR_DEST
+    //    ;     #CAIRO_OPERATOR_DEST_OVER
+    //    ;     #CAIRO_OPERATOR_DEST_IN
+    //    ;     #CAIRO_OPERATOR_DEST_OUT
+    //    ;     #CAIRO_OPERATOR_DEST_ATOP
+    //    ;     #CAIRO_OPERATOR_XOR
+    //    ;     #CAIRO_OPERATOR_ADD
+    //    ;     #CAIRO_OPERATOR_SATURATE
+    //    ;     #CAIRO_OPERATOR_MULTIPLY
+    //    ;     #CAIRO_OPERATOR_SCREEN
+    //    ;     #CAIRO_OPERATOR_OVERLAY
+    //    ;     #CAIRO_OPERATOR_DARKEN
+    //    ;     #CAIRO_OPERATOR_LIGHTEN
+    //    ;     #CAIRO_OPERATOR_COLOR_DODGE
+    //    ;     #CAIRO_OPERATOR_COLOR_BURN
+    //    ;     #CAIRO_OPERATOR_HARD_LIGHT
+    //    ;     #CAIRO_OPERATOR_SOFT_LIGHT
+    //    ;     #CAIRO_OPERATOR_DIFFERENCE
+    //    ;     #CAIRO_OPERATOR_EXCLUSION
+    //    ;     #CAIRO_OPERATOR_HSL_HUE
+    //    ;     #CAIRO_OPERATOR_HSL_SATURATION
+    //    ;     #CAIRO_OPERATOR_HSL_COLOR
+    //    ;     #CAIRO_OPERATOR_HSL_LUMINOSITY
+    
+    map <string, _cairo_operator> cairoBlendModes = {
+        { "add", CAIRO_OPERATOR_ADD },
+        { "screen", CAIRO_OPERATOR_SCREEN },
+        { "multiply", CAIRO_OPERATOR_MULTIPLY },
+        { "darken", CAIRO_OPERATOR_DARKEN },
+        { "lighten", CAIRO_OPERATOR_LIGHTEN },
+    };
+    
     void setup() override {
-//    void setupCairo(int w, int h) {
         rect = ofRectangle(0,0,soft->fboFinal->getWidth(), soft->fboFinal->getHeight());
         cout << "setupCairo :: " << rect << endl;
         opengl = ofGetGLRenderer();
         cairo = make_shared<ofCairoRenderer>();
         cairoOut = make_shared<ofCairoRenderer>();
         cairo->setupMemoryOnly(ofCairoRenderer::IMAGE, false, false, rect);
+//        bool useCairo = soft->_ui->uis["ui"].pBool["useCairo"];
+
     }
     
-    bool isOk() {
-        return use == NULL || *use;
+    void beginSave() {
+        cout << "SAVINGCAIRO!" << endl;
+        savingCairoFilename = "_output/syntype_"+ofGetTimestampString()+".svg";
+        cout << "SAVING " << savingCairoFilename << endl;
+        cairoOut->setup(savingCairoFilename, ofCairoRenderer::SVG, false, false, rect);
+        ofSetCurrentRenderer(cairoOut);
+        ofGetCurrentRenderer()->setupGraphicDefaults();
+        ofStyle style = ofGetCurrentRenderer()->getStyle();
+        ofGetCurrentRenderer()->setStyle(style);
+        cairo_set_miter_limit(cairoOut->getCairoContext(), 2);
+        cairo_set_line_join(cairoOut->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+        cairo_set_line_cap(cairoOut->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
+    }
+    
+    void endSave() {
+        render.loadData(cairoOut->getImageSurfacePixels());
+        cairoOut->close();
+        savingCairo = false;
+        string resultado = ofSystem("open " + ofToDataPath(savingCairoFilename));
     }
     
     void begin() override {
         if (isOk()) {
             if (savingCairo) {
-                cout << "SAVINGCAIRO!" << endl;
-        #ifdef SVGCAIRO
-                savingCairoFilename = "_output/syntype_"+ofGetTimestampString()+".svg";
-                cout << "SAVING " << savingCairoFilename << endl;
-                cairoOut->setup(savingCairoFilename, ofCairoRenderer::SVG, false, false, rect);
-                ofSetCurrentRenderer(cairoOut);
-                ofGetCurrentRenderer()->setupGraphicDefaults();
-                ofStyle style = ofGetCurrentRenderer()->getStyle();
-                ofGetCurrentRenderer()->setStyle(style);
-                cairo_set_miter_limit(cairoOut->getCairoContext(), 2);
-                cairo_set_line_join(cairoOut->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
-                cairo_set_line_cap(cairoOut->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
-        #endif
+                beginSave();
             } else {
                 
                 ofSetCurrentRenderer(cairo);
@@ -543,105 +569,38 @@ public:
             }
             ofPushMatrix();
         }
+        startBlendingMode();
     }
+
+    
     void end() override {
         if (isOk()) {
             ofPopMatrix();
             ofSetCurrentRenderer(opengl, true);
             
             if (savingCairo) {
-                render.loadData(cairoOut->getImageSurfacePixels());
-                cairoOut->close();
-                savingCairo = false;
-                string resultado = ofSystem("open " + ofToDataPath(savingCairoFilename));
-
+                endSave();
             } else {
                 render.loadData(cairo->getImageSurfacePixels());
+//                render.loadData(cairo->getImageSurfacePixels(), GL_RGBA);
                 ofSetColor(255);
                 render.draw(0,0);
             }
         }
     }
+    
     void uiEvents(ofxMicroUI::element & e) override { }
     
-#define USECAIROBLENDING 1        
-    #ifdef USECAIROBLENDING
-    //#CAIRO_OPERATOR_CLEAR
-    //#CAIRO_OPERATOR_SOURCE
-    //    ;     #CAIRO_OPERATOR_OVER
-    //    ;     #CAIRO_OPERATOR_IN
-    //    ;     #CAIRO_OPERATOR_OUT
-    //    ;     #CAIRO_OPERATOR_ATOP
-    //    ;     #CAIRO_OPERATOR_DEST
-    //    ;     #CAIRO_OPERATOR_DEST_OVER
-    //    ;     #CAIRO_OPERATOR_DEST_IN
-    //    ;     #CAIRO_OPERATOR_DEST_OUT
-    //    ;     #CAIRO_OPERATOR_DEST_ATOP
-    //    ;     #CAIRO_OPERATOR_XOR
-    //    ;     #CAIRO_OPERATOR_ADD
-    //    ;     #CAIRO_OPERATOR_SATURATE
-    //    ;     #CAIRO_OPERATOR_MULTIPLY
-    //    ;     #CAIRO_OPERATOR_SCREEN
-    //    ;     #CAIRO_OPERATOR_OVERLAY
-    //    ;     #CAIRO_OPERATOR_DARKEN
-    //    ;     #CAIRO_OPERATOR_LIGHTEN
-    //    ;     #CAIRO_OPERATOR_COLOR_DODGE
-    //    ;     #CAIRO_OPERATOR_COLOR_BURN
-    //    ;     #CAIRO_OPERATOR_HARD_LIGHT
-    //    ;     #CAIRO_OPERATOR_SOFT_LIGHT
-    //    ;     #CAIRO_OPERATOR_DIFFERENCE
-    //    ;     #CAIRO_OPERATOR_EXCLUSION
-    //    ;     #CAIRO_OPERATOR_HSL_HUE
-    //    ;     #CAIRO_OPERATOR_HSL_SATURATION
-    //    ;     #CAIRO_OPERATOR_HSL_COLOR
-    //    ;     #CAIRO_OPERATOR_HSL_LUMINOSITY
-    
-    
     void startBlendingMode() {
-        if (cairoIsSetup && cairoBlend != NULL) {
-//            string * s = &uiColors->pString["blend"];
-            
-            //CAIRO_OPERATOR_MULTIPLY //CAIRO_OPERATOR_SCREEN
-            if (*cairoBlend == "add") {
-                cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_ADD);
-            }
-            else if (*cairoBlend == "screen") {
-                cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_SCREEN);
-            }
-            else if (*cairoBlend == "multiply") {
-                cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_MULTIPLY);
-            }
-            else if (*cairoBlend == "darken") {
-                cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_DARKEN);
-            }
-            else if (*cairoBlend == "lighten") {
-                cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_LIGHTEN);
-            }
-            else if (*cairoBlend == "subtract") {
-                //cairo_set_operator(cairo->getCairoContext(),CAIRO_OPERATOR_SCREEN);
-            }
+        cairoBlend = &soft->_ui->uis["colors"].pString["blend"];
+        if (cairoBlend != NULL && *cairoBlend != "" && *cairoBlend != "no") {
+//            cout << *cairoBlend << endl;
+            cairo_set_operator(cairo->getCairoContext(), cairoBlendModes[*cairoBlend]);
         }
     }
-    #endif
 };
 
 
-
-
-struct featureTest : public microFeature {
-	public:
-	using microFeature::microFeature;
-	void setup() override {}
-	void begin() override {}
-	void end() override { }
-	void uiEvents(ofxMicroUI::element & e) override {}
-};
-
-
-
-
-
-	
 #ifdef USENDI
 	struct featureSendNDI : public microFeature {
 		public:
@@ -692,3 +651,77 @@ struct featureTest : public microFeature {
 	featureSyphonOut senderSyphon = featureSyphonOut(&soft, "senderSyphon");
 
 #endif
+
+
+
+struct featureTest : public microFeature {
+    public:
+    using microFeature::microFeature;
+    void setup() override {}
+    void begin() override {}
+    void end() override { }
+    void uiEvents(ofxMicroUI::element & e) override {}
+};
+
+
+
+struct featureMiawBg : public microFeature {
+    public:
+    using microFeature::microFeature;
+	ofMesh fundoMesh;
+
+	void bgMesh(ofColor & c1, ofColor & c2) {
+		fundoMesh.clear();
+		fundoMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+		fundoMesh.addVertex(glm::vec3(0, 0, 0));
+		// fundoMesh.addColor(ui->pColorEasy["bg"]);
+		fundoMesh.addColor(c1);
+		fundoMesh.addVertex(glm::vec3(soft->fboFinal->getWidth(), 0, 0));
+		fundoMesh.addColor(c1);
+		fundoMesh.addVertex(glm::vec3(0, soft->fboFinal->getHeight(), 0));
+		fundoMesh.addColor(c2);
+		fundoMesh.addVertex(glm::vec3(soft->fboFinal->getWidth(), soft->fboFinal->getHeight(), 0));
+		fundoMesh.addColor(c2);
+		fundoMesh.draw();
+	}
+
+    void setup() override {}
+
+	void begin() override {
+        
+//        bool useCairo = soft->_ui->uis["ui"].pBool["useCairo"];
+        bool useCairo = false;
+		if (ui->pString["background"] == "solid") {
+			ofClear(ui->pColorEasy["bg"]);
+		}
+		else if (ui->pString["background"] == "gradient") {
+			if (!useCairo) {
+				ofClear(0,0);
+				bgMesh(ui->pColorEasy["bg"], ui->pColorEasy["bg2"]);
+			} else {
+				
+			}
+		}
+		else if (ui->pString["background"] == "black") {
+			ofClear(0,255);
+		}
+		else if (ui->pString["background"] == "no" || ui->pString["background"] == "") {
+			ofClear(0,0);
+		}
+		else if (ui->pString["background"] == "palette") {
+			ofClear(ui->pColorEasy["bgPalette"]);
+		}
+
+		else if (ui->pString["background"] == "gradpal") {
+			if (!useCairo) {
+				ofClear(0,0);
+				bgMesh(ui->pColorEasy["bgPalette"], ui->pColorEasy["bgPalette2"]);
+			} else {
+				
+			}
+		}
+    }
+	void end() override { }
+	void uiEvents(ofxMicroUI::element & e) override {}
+};
+

@@ -146,3 +146,6 @@ struct sceneBaseType : public virtual ofxScenes::sceneDmtrBasic {
 		}
 	}
 };
+
+
+

@@ -813,7 +813,7 @@ public:
     // name = "gridbox";
 
     void draw() override {
-//        cout << "draw gridbox scene" << endl;
+       cout << "draw gridbox scene" << endl;
 
         ofSetColor(255);
         // ofSetLineWidth(uiC->pEasy["linewidth"]);
@@ -844,6 +844,7 @@ public:
                     float n = (float)numero / total;
 //                    cout << n << endl;
                     ofSetColor(ofxScenes::getColor(n, config->uiColors));
+					ofSetColor(getCor(n));
                 }
                 ofDrawBox(x, 0, y, w, h, d);
                 numero ++;
@@ -1346,3 +1347,29 @@ void setupScenes3d() {
 }
 
 #endif
+
+
+
+
+struct sceneVbo : public virtual ofxScenes::sceneDmtrBasic {
+	public:
+	using sceneDmtrBasic::sceneDmtrBasic;
+
+	ofVboMesh mesh;
+	int max = 400;
+	void setup() {
+		for (int a=0; a<600; a++) {
+			mesh.addVertex(glm::vec3(
+					ofRandom(-max, max),
+					ofRandom(-max, max),
+					ofRandom(-max, max)
+				));
+		}
+		mesh.setMode(OF_PRIMITIVE_LINES);
+	}
+
+	void draw() {
+		ofSetColor(255);
+		mesh.draw();
+	}
+};

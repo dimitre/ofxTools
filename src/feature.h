@@ -5,10 +5,10 @@
 struct microFeature {
 public:
 
+    ofxMicroUISoftware * soft = NULL;
+    string name = "";
 	ofxMicroUI * ui = NULL;
 	ofxMicroUI * ui2 = NULL;
-	ofxMicroUISoftware * soft = NULL;
-    string name = "";
     
     bool * use = NULL;
     
@@ -27,6 +27,10 @@ public:
 	virtual void uiEvents(ofxMicroUI::element & e) {
 		cout << "uiEvents in primitive feature" << endl;
 	}
+    
+    virtual bool isOk() {
+        return use == NULL || *use;
+    }
     
     void internalSetup() {
 //        name = ui->uiName;
@@ -64,18 +68,18 @@ public:
 		setup();
 	}
 
-	microFeature(ofxMicroUI * _ui, ofxMicroUISoftware * _soft) : ui(_ui), soft(_soft) {
+	microFeature(ofxMicroUISoftware * _soft, ofxMicroUI * _ui) : soft(_soft), ui(_ui) {
         internalSetup();
 		setup();
 	}
 
-	microFeature(ofxMicroUI * _ui, ofxMicroUI * _ui2, ofxMicroUISoftware * _soft) : ui(_ui), ui2(_ui2), soft(_soft) {
+	microFeature(ofxMicroUISoftware * _soft, ofxMicroUI * _ui, ofxMicroUI * _ui2) : soft(_soft), ui(_ui), ui2(_ui2) {
         internalSetup();
 		setup();
 	}
     
-    microFeature(ofxMicroUI * _ui, ofxMicroUI * _ui2, ofxMicroUISoftware * _soft, string n) :
-    ui(_ui), ui2(_ui2), soft(_soft), name(n) {
+    microFeature(ofxMicroUISoftware * _soft, string n, ofxMicroUI * _ui, ofxMicroUI * _ui2 = NULL) :
+    soft(_soft), name(n), ui(_ui), ui2(_ui2) {
         internalSetup();
         setup();
     }

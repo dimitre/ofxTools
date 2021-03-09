@@ -1404,7 +1404,9 @@ public:
 			ofPushMatrix();
 			ofTranslate(-cursorX/2, -alturaTotalFrase/2);
 //			cout << polylines.size() << endl;
+            
 			for (auto & p : polylines) {
+//                ofSetColor(getCor(0));
 				p.draw();
 			}
 			ofPopMatrix();
@@ -1427,11 +1429,11 @@ public:
 			for (auto & p : polylines) {
 				ofPolyline pp = p.getResampledBySpacing(space);
 				for (auto & v : pp.getVertices()) {
-//					ofSetColor(getCor(ofRandom(0,1)));
                     //ofSetColor(ofxScenes::getColor(ofRandom(0,1), ofxScenes::config.uiColors));
                     
                     // xaxa getcolor
-                    ofSetColor(255);
+//                    ofSetColor(255);
+//                    ofSetColor(getCor(ofRandom(0,1)));
 					ofDrawCircle(v.x, v.y, radius);
 				}
 			}
