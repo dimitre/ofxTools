@@ -403,8 +403,6 @@ public:
 };
 
 
-
-
 #ifdef USESYPHON
 struct featureSyphonOut : public microFeature {
     public:
