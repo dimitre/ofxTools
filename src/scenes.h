@@ -182,9 +182,9 @@ public:
 #endif
 
 
-struct sceneImage : public ofxScenes::sceneUpdown, ofxScenes::sceneIncrementa {
+struct sceneImage : public ofxScenes::sceneAudio, ofxScenes::sceneIncrementa {
 public:
-	using sceneUpdown::sceneUpdown;
+	using sceneAudio::sceneAudio;
 	// name = "image";
 
 	ofImage * i;

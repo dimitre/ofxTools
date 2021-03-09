@@ -58,12 +58,12 @@ public:
 		setup();
 	}
     
-    microFeature(ofxMicroUISoftware * _soft, string n, bool * u) : soft(_soft), name(n), use(u) {
+    microFeature(ofxMicroUISoftware * _soft, string n, bool * u = NULL) : soft(_soft), name(n), use(u) {
         internalSetup();
         setup();
     }
 
-	microFeature(ofxMicroUI * _ui) : ui(_ui) {
+	microFeature(ofxMicroUI * _ui, bool * u = NULL) : ui(_ui), use(u) {
         internalSetup();
 		setup();
 	}

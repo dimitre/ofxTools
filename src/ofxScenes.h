@@ -85,6 +85,9 @@ public:
                 _scene = NULL;
 				bool found = false;
                 for (auto & s : scenes) {
+                    cout << s << endl;
+                    cout << scene << endl;
+                    cout << "----" << endl;
                     if (s->name == scene) {
                         _scene = s;
                         _scene->select();

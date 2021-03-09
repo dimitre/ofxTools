@@ -1,7 +1,7 @@
 //sceneImage, sceneNDI, sceneGen
 
 
-struct sceneImage : public ofxScenes::sceneDmtr {
+struct sceneImageNF : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	ofImage * i;

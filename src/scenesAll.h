@@ -491,7 +491,7 @@ public:
 
 
 
-struct sceneOndas : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown, ofxScenes::polarVec2, ofxScenes::polar {
+struct sceneOndas : public ofxScenes::sceneDmtr, ofxScenes::sceneAudio, ofxScenes::polarVec2, ofxScenes::polar {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "ondas";
@@ -584,7 +584,7 @@ public:
 
 
 
-struct sceneLatquad2 : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown, ofxScenes::polar {
+struct sceneLatquad2 : public ofxScenes::sceneDmtr, ofxScenes::sceneAudio, ofxScenes::polar {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "latquad2";
@@ -722,7 +722,7 @@ public:
 
 
 
-struct sceneLatquad3 : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown, ofxScenes::polar {
+struct sceneLatquad3 : public ofxScenes::sceneDmtr, ofxScenes::sceneAudio, ofxScenes::polar {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "latquad3";

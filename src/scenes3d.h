@@ -313,7 +313,7 @@ public:
 
 
 
-struct sceneNovelo : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
+struct sceneNovelo : public ofxScenes::sceneDmtr, ofxScenes::sceneAudio {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "novelo";
@@ -343,7 +343,7 @@ public:
 
 
 
-struct scene3d : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
+struct scene3d : public ofxScenes::sceneDmtr, ofxScenes::sceneAudio {
 public:
 	using sceneDmtr::sceneDmtr;
 	// xaxa revisar se é isso mesmo?
@@ -400,7 +400,7 @@ public:
 
 
 
-struct sceneSolidos : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
+struct sceneSolidos : public ofxScenes::sceneDmtr, ofxScenes::sceneAudio {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "solidos";
@@ -481,7 +481,7 @@ public:
 
 
 
-struct scenePulsar : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
+struct scenePulsar : public ofxScenes::sceneDmtr, ofxScenes::sceneAudio {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "pulsar";
@@ -663,7 +663,7 @@ public:
 
 
 
-struct sceneGalaxia : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
+struct sceneGalaxia : public ofxScenes::sceneDmtr, ofxScenes::sceneAudio {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "galaxia";
@@ -780,7 +780,7 @@ public:
 
 
 
-struct sceneBox : public ofxScenes::sceneDmtr, ofxScenes::sceneUpdown {
+struct sceneBox : public ofxScenes::sceneDmtr, ofxScenes::sceneAudio {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "box";
@@ -1357,19 +1357,44 @@ struct sceneVbo : public virtual ofxScenes::sceneDmtrBasic {
 
 	ofVboMesh mesh;
 	int max = 400;
-	void setup() {
-		for (int a=0; a<600; a++) {
-			mesh.addVertex(glm::vec3(
-					ofRandom(-max, max),
-					ofRandom(-max, max),
-					ofRandom(-max, max)
-				));
+
+	vector <ofPrimitiveMode> modes = { 
+		OF_PRIMITIVE_TRIANGLES, OF_PRIMITIVE_TRIANGLE_STRIP, OF_PRIMITIVE_TRIANGLE_FAN, OF_PRIMITIVE_LINES, OF_PRIMITIVE_LINE_STRIP, OF_PRIMITIVE_LINE_LOOP, OF_PRIMITIVE_POINTS
+	};
+
+	void create() {
+		mesh.clear();
+		float lon = ofRandom(0,360);
+		float lat = ofRandom(0,360);
+		float rad = 300;
+		ofNode node;
+		for (int a=0; a<uiC->pInt["numero"]; a++) {
+			lon += ofRandom(-uiC->pFloat["randLon"], uiC->pFloat["randLon"]);
+			lat += ofRandom(-uiC->pFloat["randLat"], uiC->pFloat["randLat"]);
+			rad += ofRandom(-uiC->pFloat["randRad"], uiC->pFloat["randRad"]);
+			node.orbitDeg(lon, lat, rad, glm::vec3(0,0,0));
+			mesh.addVertex(node.getPosition());
+
+			// mesh.addVertex(glm::vec3(
+			// 		ofRandom(-max, max),
+			// 		ofRandom(-max, max),
+			// 		ofRandom(-max, max)
+			// 	));				
 		}
-		mesh.setMode(OF_PRIMITIVE_LINES);
+		mesh.setMode(modes[uiC->pInt["mode"]]);
 	}
 
-	void draw() {
+	void setup() override {
+		create();
+	}
+
+	void draw() override{
 		ofSetColor(255);
 		mesh.draw();
 	}
+
+	void uiEvents(ofxMicroUI::element & e) override {
+		create();
+	}
+
 };

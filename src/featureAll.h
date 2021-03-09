@@ -138,60 +138,64 @@ public:
 		// } else {
 		// 	ofEnableDepthTest();
 		// }
-		ofEnableDepthTest();
+		if (isOk()) {
+			ofEnableDepthTest();
 
-		float cameraX = ui->pEasy["cameraX"] * pointsPerMeter;
-		float cameraZ = ui->pEasy["cameraZ"] * pointsPerMeter;
+			float cameraX = ui->pEasy["cameraX"] * pointsPerMeter;
+			float cameraZ = ui->pEasy["cameraZ"] * pointsPerMeter;
 
-		// 1.70, a altura de um adulto em p�
-		if (ui->pBool["cameraPolar"]) {
-			float a = ui->pEasy["cameraAngle"] + 90.0;
-			float d = ui->pEasy["cameraDist"] * pointsPerMeter;
-			cameraX = r2x(a, d);
-			cameraZ = r2y(a, d);
-			cameraX += lookNode.getPosition().x;
-			cameraZ += lookNode.getPosition().z;
+			// 1.70, a altura de um adulto em p�
+			if (ui->pBool["cameraPolar"]) {
+				float a = ui->pEasy["cameraAngle"] + 90.0;
+				float d = ui->pEasy["cameraDist"] * pointsPerMeter;
+				cameraX = r2x(a, d);
+				cameraZ = r2y(a, d);
+				cameraX += lookNode.getPosition().x;
+				cameraZ += lookNode.getPosition().z;
+			}
+
+			// if (!u.pBool["mouseCamera"])
+			{
+				cam.setPosition(cameraX,
+								ui->pEasy["cameraY"] * pointsPerMeter,
+								cameraZ);
+				
+				cameraLook3d = glm::vec3(ui->pEasy["lookX"] * pointsPerMeter,
+									ui->pEasy["lookY"] * pointsPerMeter,
+									ui->pEasy["lookZ"] * pointsPerMeter);
+				
+				lookNode.setPosition(cameraLook3d);
+				
+				// cam.lookAt(lookNode, cameraLookUp);
+				cam.lookAt(lookNode, ui->pBool["up"] ? cameraLookUp : cameraLookUp2);
+			}
+
+			cam.setFov(ui->pEasy["cameraFov"]);
+			cam.begin();
+
+			float rotX = ui->pEasy["accelX"];
+			float rotY = ui->pEasy["accelY"];
+			float rotZ = ui->pEasy["accelZ"];
+
+			if (ui->pBool["rotCam"]) {
+				ui->pFloat["rotX_accum"] += ui->pFloat["rotCamXAuto"];
+				ui->pFloat["rotY_accum"] += ui->pFloat["rotCamYAuto"];
+				ui->pFloat["rotZ_accum"] += ui->pFloat["rotCamZAuto"];
+			}
+
+			ofPushMatrix();
+			ofRotateXDeg(rotX + ui->pEasy["rotCamX"] + ui->pFloat["rotX_accum"]);
+			ofRotateYDeg(rotY + ui->pEasy["rotCamY"] + ui->pFloat["rotY_accum"]);
+			ofRotateZDeg(rotZ + ui->pEasy["rotCamZ"] + ui->pFloat["rotZ_accum"]);
 		}
-
-		// if (!u.pBool["mouseCamera"])
-		{
-			cam.setPosition(cameraX,
-							ui->pEasy["cameraY"] * pointsPerMeter,
-							cameraZ);
-			
-			cameraLook3d = glm::vec3(ui->pEasy["lookX"] * pointsPerMeter,
-								ui->pEasy["lookY"] * pointsPerMeter,
-								ui->pEasy["lookZ"] * pointsPerMeter);
-			
-			lookNode.setPosition(cameraLook3d);
-			
-			// cam.lookAt(lookNode, cameraLookUp);
-			cam.lookAt(lookNode, ui->pBool["up"] ? cameraLookUp : cameraLookUp2);
-		}
-
-		cam.setFov(ui->pEasy["cameraFov"]);
-		cam.begin();
-
-		float rotX = ui->pEasy["accelX"];
-		float rotY = ui->pEasy["accelY"];
-		float rotZ = ui->pEasy["accelZ"];
-
-		if (ui->pBool["rotCam"]) {
-			ui->pFloat["rotX_accum"] += ui->pFloat["rotCamXAuto"];
-			ui->pFloat["rotY_accum"] += ui->pFloat["rotCamYAuto"];
-			ui->pFloat["rotZ_accum"] += ui->pFloat["rotCamZAuto"];
-		}
-
-		ofPushMatrix();
-		ofRotateXDeg(rotX + ui->pEasy["rotCamX"] + ui->pFloat["rotX_accum"]);
-		ofRotateYDeg(rotY + ui->pEasy["rotCamY"] + ui->pFloat["rotY_accum"]);
-		ofRotateZDeg(rotZ + ui->pEasy["rotCamZ"] + ui->pFloat["rotZ_accum"]);
 	}
 
 	void end() override {
-		ofPopMatrix();
-		cam.end();
-		ofDisableDepthTest();
+		if (isOk()) {
+			ofPopMatrix();
+			cam.end();
+			ofDisableDepthTest();
+		}
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
@@ -237,7 +241,8 @@ public:
 	ofShader shader;
 	string shaderLoaded = "";
     
-    bool isOk() {
+    // talvez mudar essa pra outra.
+    bool isOk() override {
         return shader.isLoaded() && ui->pBool[name];
     }
 
@@ -401,6 +406,23 @@ public:
 
 
 #ifdef USESYPHON
+struct featureSyphonOut : public microFeature {
+    public:
+    using microFeature::microFeature;
+    ofxSyphonServer syphonOut;
+    void setup() override {
+        syphonOut.setName(soft->name);
+    }
+    void end() override {
+        syphonOut.publishTexture(&soft->fboFinal->getTexture());
+    }
+    void send() { end(); }
+    void uiEvents(ofxMicroUI::element & e) override {}
+};
+//featureSyphonOut senderSyphon = featureSyphonOut(&soft, "senderSyphon");
+
+
+
 struct featureSyphonIn : public microFeature {
 public:
     using microFeature::microFeature;
@@ -633,24 +655,6 @@ public:
 #endif
 
 	
-#ifdef USESYPHON
-	struct featureSyphonOut : public microFeature {
-		public:
-		using microFeature::microFeature;
-        ofxSyphonServer syphonOut;
-
-		void setup() override {
-			syphonOut.setName(name);
-		}
-		void begin() override {}
-		void end() override {
-			syphonOut.publishTexture(&soft->fboFinal->getTexture());
-		}
-		void uiEvents(ofxMicroUI::element & e) override {}
-	};
-	featureSyphonOut senderSyphon = featureSyphonOut(&soft, "senderSyphon");
-
-#endif
 
 
 

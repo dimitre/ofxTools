@@ -36,11 +36,11 @@ featureSyphonOut syphonOut =  featureSyphonOut(&soft, "MIAWsyphonOut");
 #endif
 
 ofxMicroUI * uiShaders = &u.uis["shaders"];
-featureShader shaders2d =  featureShader(uiShaders, &u.uis["shaders2d"], &soft, "shaders2d");
-featureShader shaders2d2 =  featureShader(uiShaders, &u.uis["shaders2d2"], &soft, "shaders2d2");
-featureShader shaders3d =   featureShader(uiShaders, &u.uis["shaders3d"], &soft, "shaders3d");
-featureShader shadersgen =  featureShader(uiShaders, &u.uis["shadersgen"], &soft, "shadersgem");
-featureShader shadersfeed = featureShader(uiShaders, &u.uis["shadersfeed"], &soft, "shadersfeed");
+featureShader shaders2d =  featureShader(&soft, "shaders2d", uiShaders, &u.uis["shaders2d"]);
+featureShader shaders2d2 =  featureShader(&soft, "shaders2d2", uiShaders, &u.uis["shaders2d2"]);
+featureShader shaders3d =   featureShader(&soft, "shaders3d", uiShaders, &u.uis["shaders3d"]);
+featureShader shadersgen =  featureShader(&soft, "shadersgem", uiShaders, &u.uis["shadersgen"]);
+featureShader shadersfeed = featureShader(&soft, "shadersfeed", uiShaders, &u.uis["shadersfeed"]);
 
 
 void setupMiaw() {

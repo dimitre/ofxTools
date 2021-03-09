@@ -94,10 +94,14 @@ struct polarVec2 : public virtual ofxScenes::sceneDmtrBasic {
 };
 
 
-struct sceneUpdown : public virtual ofxScenes::sceneDmtrBasic {
+struct sceneAudio : public virtual ofxScenes::sceneDmtrBasic {
 	public:
 	using sceneDmtrBasic::sceneDmtrBasic;
+    
 	float updown = 0.5;
+    float beat = 0;
+    float audio = 0;
+
 	float getFreq(int index) {
 		return 0;
 	}

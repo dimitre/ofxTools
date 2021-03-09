@@ -62,3 +62,41 @@ public:
 		uiC->pCam["cam"].draw(0,0);
     }
 };
+
+
+
+struct sceneMilimetrado : public ofxScenes::sceneDmtr {
+public:
+	using sceneDmtr::sceneDmtr;
+
+
+	struct sl {
+		public:
+		float space = 100;
+		float line = 3;
+		sl(float s, float l) : space(s), line(l) {}
+	};
+
+	vector <sl> sls = { 
+		sl(50, 2), 
+		// sl(50, 2), 
+		sl(10,1) 
+	};
+	
+	void setup() override {
+	}
+	void draw() override {
+		checkSetup();
+		ofSetColor(getCor(0));
+
+		for (auto s : sls) {
+			ofSetLineWidth(s.line);
+			for (int x=0; x<fbo->getWidth(); x+=s.space) {
+				ofDrawLine(x, 0, x, fbo->getHeight());
+			}
+			for (int y=0; y<fbo->getWidth(); y+=s.space) {
+				ofDrawLine(0, y, fbo->getWidth(), y);
+			}
+		}
+    }
+};

@@ -1,11 +1,7 @@
 struct sceneMuti : public ofxScenes::sceneDmtr {
 	using sceneDmtr::sceneDmtr;
 	#include "polar.h"
-	
-	float updown = 0;
-	float beat = 0;
-	float audio = 0;
-	
+		
 	ofBoxPrimitive box, box2;
 	ofCylinderPrimitive cylinder, cylinder2;
 	ofConePrimitive cone, cone2;
@@ -137,7 +133,7 @@ struct sceneMuti : public ofxScenes::sceneDmtr {
 
 
 
-struct sceneUniversoNovo : public sceneMuti {
+struct sceneUniversoNovo : public sceneMuti, public ofxScenes::sceneAudio {
 public:
 	using sceneMuti::sceneMuti;
 	// name = "universoNovo";
@@ -305,7 +301,7 @@ public:
 
 
 
-struct sceneRect : public sceneMuti {
+struct sceneRect : public sceneMuti, ofxScenes::sceneAudio {
 public:
 	using sceneMuti::sceneMuti;
 	// name = "rect";
@@ -710,7 +706,7 @@ public:
 	}
 };
 
-struct sceneGrid : public sceneMuti {
+struct sceneGrid : public sceneMuti, ofxScenes::polar, ofxScenes::sceneAudio {
 public:
 	using sceneMuti::sceneMuti;
 	// name = "grid";
