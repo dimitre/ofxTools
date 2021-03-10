@@ -68,8 +68,6 @@ public:
 struct sceneMilimetrado : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-
-
 	struct sl {
 		public:
 		float space = 100;

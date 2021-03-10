@@ -19,6 +19,7 @@ public:
 	struct sceneConfig {
 	public:
 		string name = "";
+		int screen = 0;
 		string * scene = NULL;
 		
 #ifdef USEFFT
@@ -70,6 +71,7 @@ public:
 	ofxMicroUI * ui = NULL;
     
     sceneDmtrBasic * _scene = NULL;
+	
     vector <sceneDmtrBasic *> scenes;
 
     string lastScene = "";

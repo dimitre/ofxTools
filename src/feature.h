@@ -53,10 +53,10 @@ public:
 		setup();
 	}
 	
-	microFeature(ofxMicroUISoftware * _soft, string n) : soft(_soft), name(n) {
-        internalSetup();
-		setup();
-	}
+	// microFeature(ofxMicroUISoftware * _soft, string n) : soft(_soft), name(n) {
+	// 	internalSetup();
+	// 	setup();
+	// }
     
     microFeature(ofxMicroUISoftware * _soft, string n, bool * u = NULL) : soft(_soft), name(n), use(u) {
         internalSetup();
@@ -85,3 +85,16 @@ public:
     }
 };
 
+
+struct microFeatureBase : virtual public microFeature {
+	using microFeature::microFeature;	
+};
+
+struct featurePolar : virtual public microFeature {
+	using microFeature::microFeature;
+	static float r2x (float a, float m) { return m * cos(ofDegToRad(a)); }
+	static float r2y (float a, float m) { return m * sin(ofDegToRad(a)); }
+
+	static float c2a (float x, float y) { return ofRadToDeg(atan2(y,x)); }
+	static float c2m (float x, float y) { return sqrt(pow(x,2)+pow(y,2)); }
+};

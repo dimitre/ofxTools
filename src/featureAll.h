@@ -113,6 +113,8 @@ public:
 	}
 };
 
+// struct featureCam : public microFeatureBase, featurePolar {
+	// using microFeatureBase::microFeatureBase;
 
 struct featureCam : public microFeature {
 public:
@@ -727,3 +729,53 @@ struct featureMiawBg : public microFeature {
 	void uiEvents(ofxMicroUI::element & e) override {}
 };
 
+
+
+struct featureSurface : public microFeature {
+	using microFeature::microFeature;
+
+	struct surface {
+		public:
+		ofFbo fbo;
+		ofRectangle rect;
+		int index = 0;
+
+		surface(int w, int h) {
+			rect.width = w; rect.height = h;
+			fbo.allocate(w, h, GL_RGBA);
+			fbo.begin(); ofClear(0,255); fbo.end();
+		}
+
+		void draw() {
+			// fbo.draw(rect);
+			fbo.draw(rect.x, rect.y, rect.width, rect.height);
+		}
+	};
+	
+	vector <surface> surfaces = {
+		surface(720,160),
+		surface(400,240),
+		surface(160,480)
+	};
+
+	void setup() override {
+		int offx = 0;
+		int index = 0;
+		for (auto & s : surfaces) {
+			s.rect.x = offx;
+			s.index = index;
+			offx += s.rect.width + 20;
+			index++;
+		}
+	}
+
+	void draw() {
+		ofSetColor(255);
+		ofPushMatrix();
+		// ofTranslate(soft->_ui->pInt["fboX"], soft->_ui->pInt["fboY"]);
+		for (auto & s : surfaces) {
+			s.draw();
+		}
+		ofPopMatrix();
+	}
+};
