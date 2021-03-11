@@ -242,11 +242,11 @@ public:
 
 	ofShader shader;
 	string shaderLoaded = "";
-    
-    // talvez mudar essa pra outra.
-    bool isOk() override {
-        return shader.isLoaded() && ui->pBool[name];
-    }
+	
+	// talvez mudar essa pra outra.
+	bool isOk() override {
+		return shader.isLoaded() && ui->pBool[name];
+	}
 
 	void setup() override { 
 	}
@@ -314,17 +314,17 @@ public:
 			if (ofxMicroUI::dirList * r = dynamic_cast<ofxMicroUI::dirList*>(&e)) {
 				string f = r->getFileName();
 				if (*e.s != "" && f != shaderLoaded) {
-                    if (*e.s == "_") {
+					if (*e.s == "_") {
 //                        cout << "shader unload" << endl;
-                        shader.unload();
-                        shaderLoaded = "";
-                    } else {
-                        shader.load(f);
-                        shaderLoaded = f;
+						shader.unload();
+						shaderLoaded = "";
+					} else {
+						shader.load(f);
+						shaderLoaded = f;
 //                        cout << "SHADERS LOAD " << e.name << " :: " << *e.s << endl;
 //                        cout << "shader loaded = " << shaderLoaded << endl;
 //                        cout << "this name " << name << endl;
-                    }
+					}
 				}
 			} else {
 				
@@ -397,30 +397,30 @@ public:
 
 struct featureCamTest : public microFeature {
 public:
-    using microFeature::microFeature;
-    void setup() override { }
-    void begin() override { }
-    void end() override { }
-    void uiEvents(ofxMicroUI::element & e) override { }
+	using microFeature::microFeature;
+	void setup() override { }
+	void begin() override { }
+	void end() override { }
+	void uiEvents(ofxMicroUI::element & e) override { }
 };
 
 
 #ifdef USESYPHON
 struct featureSyphonOut : public microFeature {
-    public:
-    using microFeature::microFeature;
-    ofxSyphonServer syphonOut;
-    void setup() override {
+	public:
+	using microFeature::microFeature;
+	ofxSyphonServer syphonOut;
+	void setup() override {
 //        cout << "this is syphonout setup" << endl;
 //        cout << soft->name << endl;
-        name = soft->name;
-        syphonOut.setName(name);
-    }
-    void end() override {
-        syphonOut.publishTexture(&soft->fboFinal->getTexture());
-    }
-    void send() { end(); }
-    void uiEvents(ofxMicroUI::element & e) override {}
+		name = soft->name;
+		syphonOut.setName(name);
+	}
+	void end() override {
+		syphonOut.publishTexture(&soft->fboFinal->getTexture());
+	}
+	void send() { end(); }
+	void uiEvents(ofxMicroUI::element & e) override {}
 };
 //featureSyphonOut senderSyphon = featureSyphonOut(&soft, "senderSyphon");
 
@@ -428,48 +428,48 @@ struct featureSyphonOut : public microFeature {
 
 struct featureSyphonIn : public microFeature {
 public:
-    using microFeature::microFeature;
-    
-    ofxSyphonClient syphonIn;
-    ofxSyphonServerDirectory syphonList;
+	using microFeature::microFeature;
+	
+	ofxSyphonClient syphonIn;
+	ofxSyphonServerDirectory syphonList;
 
-    void setup() override {
-        syphonIn.setup();
-        syphonList.setup();
-        ofAddListener(syphonList.events.serverAnnounced, this, &featureSyphonIn::syphonUpdated);
-        ofAddListener(syphonList.events.serverRetired, this, &featureSyphonIn::syphonUpdated);
+	void setup() override {
+		syphonIn.setup();
+		syphonList.setup();
+		ofAddListener(syphonList.events.serverAnnounced, this, &featureSyphonIn::syphonUpdated);
+		ofAddListener(syphonList.events.serverRetired, this, &featureSyphonIn::syphonUpdated);
 //        ofAddListener(uiSyphon->uiEvent, this, &featureSyphonIn::syphonInUIEvent);
-    }
-    void begin() override { }
-    void end() override { }
-    void uiEvents(ofxMicroUI::element & e) override {
-        if (e.name == "syphon") {
-            vector <string> sp = ofSplitString(*e.s, "--");
-            if (sp.size()>1) {
-                string server = sp[0];
-                string app = sp[1];
-                cout << "connecting to syphonIn :: "<< server << " -- " << app << endl;
-                syphonIn.set(server,app);
-            }
-        }
-    }
-    
-    void syphonUpdated(ofxSyphonServerDirectoryEventArgs &arg) {
+	}
+	void begin() override { }
+	void end() override { }
+	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "syphon") {
+			vector <string> sp = ofSplitString(*e.s, "--");
+			if (sp.size()>1) {
+				string server = sp[0];
+				string app = sp[1];
+				cout << "connecting to syphonIn :: "<< server << " -- " << app << endl;
+				syphonIn.set(server,app);
+			}
+		}
+	}
+	
+	void syphonUpdated(ofxSyphonServerDirectoryEventArgs &arg) {
 //        cout << "::::::::::::: syphon updated list " << endl;
-        ui->clear();
-        vector <string> options;
-        for (auto & s : syphonList.getServerList()) {
-            cout << "-------" << endl;
-            cout << s.appName << endl;
-            cout << s.serverName << endl;
-            string nome = s.serverName + "--" + s.appName;
-            options.push_back(nome);
-        }	
-        vector <string> lines = { "radioPipeNoLabel	syphon	" + ofJoinString(options, "|")};
+		ui->clear();
+		vector <string> options;
+		for (auto & s : syphonList.getServerList()) {
+			cout << "-------" << endl;
+			cout << s.appName << endl;
+			cout << s.serverName << endl;
+			string nome = s.serverName + "--" + s.appName;
+			options.push_back(nome);
+		}	
+		vector <string> lines = { "radioPipeNoLabel	syphon	" + ofJoinString(options, "|")};
 //        ui->createFromLines(lines);
-        ui->createFromLines(lines,true);
+		ui->createFromLines(lines,true);
 //        ui->redraw();
-    }
+	}
 };
 
 #endif
@@ -479,150 +479,150 @@ public:
 
 struct featureCairo : public microFeature {
 public:
-    using microFeature::microFeature;
-    shared_ptr<ofBaseGLRenderer> opengl;
-    shared_ptr<ofCairoRenderer> cairo;
-    shared_ptr<ofCairoRenderer> cairoOut;
-    bool savingCairo = false;
-    ofTexture render;
-    string savingCairoFilename = "";
-    ofRectangle rect;
-    string * cairoBlend = NULL;
-    
-    //#CAIRO_OPERATOR_CLEAR
-    //#CAIRO_OPERATOR_SOURCE
-    //    ;     #CAIRO_OPERATOR_OVER
-    //    ;     #CAIRO_OPERATOR_IN
-    //    ;     #CAIRO_OPERATOR_OUT
-    //    ;     #CAIRO_OPERATOR_ATOP
-    //    ;     #CAIRO_OPERATOR_DEST
-    //    ;     #CAIRO_OPERATOR_DEST_OVER
-    //    ;     #CAIRO_OPERATOR_DEST_IN
-    //    ;     #CAIRO_OPERATOR_DEST_OUT
-    //    ;     #CAIRO_OPERATOR_DEST_ATOP
-    //    ;     #CAIRO_OPERATOR_XOR
-    //    ;     #CAIRO_OPERATOR_ADD
-    //    ;     #CAIRO_OPERATOR_SATURATE
-    //    ;     #CAIRO_OPERATOR_MULTIPLY
-    //    ;     #CAIRO_OPERATOR_SCREEN
-    //    ;     #CAIRO_OPERATOR_OVERLAY
-    //    ;     #CAIRO_OPERATOR_DARKEN
-    //    ;     #CAIRO_OPERATOR_LIGHTEN
-    //    ;     #CAIRO_OPERATOR_COLOR_DODGE
-    //    ;     #CAIRO_OPERATOR_COLOR_BURN
-    //    ;     #CAIRO_OPERATOR_HARD_LIGHT
-    //    ;     #CAIRO_OPERATOR_SOFT_LIGHT
-    //    ;     #CAIRO_OPERATOR_DIFFERENCE
-    //    ;     #CAIRO_OPERATOR_EXCLUSION
-    //    ;     #CAIRO_OPERATOR_HSL_HUE
-    //    ;     #CAIRO_OPERATOR_HSL_SATURATION
-    //    ;     #CAIRO_OPERATOR_HSL_COLOR
-    //    ;     #CAIRO_OPERATOR_HSL_LUMINOSITY
-    
-    map <string, _cairo_operator> cairoBlendModes = {
-        { "add", CAIRO_OPERATOR_ADD },
-        { "screen", CAIRO_OPERATOR_SCREEN },
-        { "multiply", CAIRO_OPERATOR_MULTIPLY },
-        { "darken", CAIRO_OPERATOR_DARKEN },
-        { "lighten", CAIRO_OPERATOR_LIGHTEN },
-    };
-    
-    void setup() override {
-        rect = ofRectangle(0,0,soft->fboFinal->getWidth(), soft->fboFinal->getHeight());
+	using microFeature::microFeature;
+	shared_ptr<ofBaseGLRenderer> opengl;
+	shared_ptr<ofCairoRenderer> cairo;
+	shared_ptr<ofCairoRenderer> cairoOut;
+	bool savingCairo = false;
+	ofTexture render;
+	string savingCairoFilename = "";
+	ofRectangle rect;
+	string * cairoBlend = NULL;
+	
+	//#CAIRO_OPERATOR_CLEAR
+	//#CAIRO_OPERATOR_SOURCE
+	//    ;     #CAIRO_OPERATOR_OVER
+	//    ;     #CAIRO_OPERATOR_IN
+	//    ;     #CAIRO_OPERATOR_OUT
+	//    ;     #CAIRO_OPERATOR_ATOP
+	//    ;     #CAIRO_OPERATOR_DEST
+	//    ;     #CAIRO_OPERATOR_DEST_OVER
+	//    ;     #CAIRO_OPERATOR_DEST_IN
+	//    ;     #CAIRO_OPERATOR_DEST_OUT
+	//    ;     #CAIRO_OPERATOR_DEST_ATOP
+	//    ;     #CAIRO_OPERATOR_XOR
+	//    ;     #CAIRO_OPERATOR_ADD
+	//    ;     #CAIRO_OPERATOR_SATURATE
+	//    ;     #CAIRO_OPERATOR_MULTIPLY
+	//    ;     #CAIRO_OPERATOR_SCREEN
+	//    ;     #CAIRO_OPERATOR_OVERLAY
+	//    ;     #CAIRO_OPERATOR_DARKEN
+	//    ;     #CAIRO_OPERATOR_LIGHTEN
+	//    ;     #CAIRO_OPERATOR_COLOR_DODGE
+	//    ;     #CAIRO_OPERATOR_COLOR_BURN
+	//    ;     #CAIRO_OPERATOR_HARD_LIGHT
+	//    ;     #CAIRO_OPERATOR_SOFT_LIGHT
+	//    ;     #CAIRO_OPERATOR_DIFFERENCE
+	//    ;     #CAIRO_OPERATOR_EXCLUSION
+	//    ;     #CAIRO_OPERATOR_HSL_HUE
+	//    ;     #CAIRO_OPERATOR_HSL_SATURATION
+	//    ;     #CAIRO_OPERATOR_HSL_COLOR
+	//    ;     #CAIRO_OPERATOR_HSL_LUMINOSITY
+	
+	map <string, _cairo_operator> cairoBlendModes = {
+		{ "add", CAIRO_OPERATOR_ADD },
+		{ "screen", CAIRO_OPERATOR_SCREEN },
+		{ "multiply", CAIRO_OPERATOR_MULTIPLY },
+		{ "darken", CAIRO_OPERATOR_DARKEN },
+		{ "lighten", CAIRO_OPERATOR_LIGHTEN },
+	};
+	
+	void setup() override {
+		rect = ofRectangle(0,0,soft->fboFinal->getWidth(), soft->fboFinal->getHeight());
 //        cout << "setupCairo :: " << rect << endl;
-        opengl = ofGetGLRenderer();
-        cairo = make_shared<ofCairoRenderer>();
-        cairoOut = make_shared<ofCairoRenderer>();
-        cairo->setupMemoryOnly(ofCairoRenderer::IMAGE, false, false, rect);
+		opengl = ofGetGLRenderer();
+		cairo = make_shared<ofCairoRenderer>();
+		cairoOut = make_shared<ofCairoRenderer>();
+		cairo->setupMemoryOnly(ofCairoRenderer::IMAGE, false, false, rect);
 //        bool useCairo = soft->_ui->uis["ui"].pBool["useCairo"];
 
-    }
-    
-    void beginSave() {
-        cout << "SAVINGCAIRO!" << endl;
-        savingCairoFilename = "_output/syntype_"+ofGetTimestampString()+".svg";
-        cout << "SAVING " << savingCairoFilename << endl;
-        cairoOut->setup(savingCairoFilename, ofCairoRenderer::SVG, false, false, rect);
-        ofSetCurrentRenderer(cairoOut);
-        ofGetCurrentRenderer()->setupGraphicDefaults();
-        ofStyle style = ofGetCurrentRenderer()->getStyle();
-        ofGetCurrentRenderer()->setStyle(style);
-        cairo_set_miter_limit(cairoOut->getCairoContext(), 2);
-        cairo_set_line_join(cairoOut->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
-        cairo_set_line_cap(cairoOut->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
-    }
-    
-    void endSave() {
-        render.loadData(cairoOut->getImageSurfacePixels());
-        cairoOut->close();
-        savingCairo = false;
-        string resultado = ofSystem("open " + ofToDataPath(savingCairoFilename));
-    }
-    
-    void begin() override {
-        if (isOk()) {
-            if (savingCairo) {
-                beginSave();
-            } else {
-                
-                ofSetCurrentRenderer(cairo);
-                ofGetCurrentRenderer()->setupGraphicDefaults();
-                ofStyle style = ofGetCurrentRenderer()->getStyle();
-                ofGetCurrentRenderer()->setStyle(style);
-                cairo_set_miter_limit(cairo->getCairoContext(), 2);
-    //            cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
-    //            cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
-                cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_BEVEL); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
-                cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_BUTT); // ROUND SQUARE
-                
+	}
+	
+	void beginSave() {
+		cout << "SAVINGCAIRO!" << endl;
+		savingCairoFilename = "_output/syntype_"+ofGetTimestampString()+".svg";
+		cout << "SAVING " << savingCairoFilename << endl;
+		cairoOut->setup(savingCairoFilename, ofCairoRenderer::SVG, false, false, rect);
+		ofSetCurrentRenderer(cairoOut);
+		ofGetCurrentRenderer()->setupGraphicDefaults();
+		ofStyle style = ofGetCurrentRenderer()->getStyle();
+		ofGetCurrentRenderer()->setStyle(style);
+		cairo_set_miter_limit(cairoOut->getCairoContext(), 2);
+		cairo_set_line_join(cairoOut->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+		cairo_set_line_cap(cairoOut->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
+	}
+	
+	void endSave() {
+		render.loadData(cairoOut->getImageSurfacePixels());
+		cairoOut->close();
+		savingCairo = false;
+		string resultado = ofSystem("open " + ofToDataPath(savingCairoFilename));
+	}
+	
+	void begin() override {
+		if (isOk()) {
+			if (savingCairo) {
+				beginSave();
+			} else {
+				
+				ofSetCurrentRenderer(cairo);
+				ofGetCurrentRenderer()->setupGraphicDefaults();
+				ofStyle style = ofGetCurrentRenderer()->getStyle();
+				ofGetCurrentRenderer()->setStyle(style);
+				cairo_set_miter_limit(cairo->getCairoContext(), 2);
+	//            cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+	//            cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
+				cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_BEVEL); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+				cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_BUTT); // ROUND SQUARE
+				
 
-                if (ui != NULL && ui->pBool["cairoStroked"]) {
-                    static const double dashes[] = { 100.0,  /* ink */
-                        40.0,  /* skip */
-                        20.0,  /* ink */
-                        40.0   /* skip*/
-                    };
-                    int    ndash  = sizeof (dashes)/sizeof(dashes[0]);
-                    double offset = -50.0;
-                    cairo_set_dash(cairo->getCairoContext(), dashes, ndash, offset);
-                } else {
-                    static const double nodash[] = { 0.0 };
-                    cairo_set_dash(cairo->getCairoContext(), nodash, 0, 0);
-                }
+				if (ui != NULL && ui->pBool["cairoStroked"]) {
+					static const double dashes[] = { 100.0,  /* ink */
+						40.0,  /* skip */
+						20.0,  /* ink */
+						40.0   /* skip*/
+					};
+					int    ndash  = sizeof (dashes)/sizeof(dashes[0]);
+					double offset = -50.0;
+					cairo_set_dash(cairo->getCairoContext(), dashes, ndash, offset);
+				} else {
+					static const double nodash[] = { 0.0 };
+					cairo_set_dash(cairo->getCairoContext(), nodash, 0, 0);
+				}
 
-                cairo->clearAlpha();
-            }
-            ofPushMatrix();
-        }
-        startBlendingMode();
-    }
+				cairo->clearAlpha();
+			}
+			ofPushMatrix();
+		}
+		startBlendingMode();
+	}
 
-    
-    void end() override {
-        if (isOk()) {
-            ofPopMatrix();
-            ofSetCurrentRenderer(opengl, true);
-            
-            if (savingCairo) {
-                endSave();
-            } else {
-                render.loadData(cairo->getImageSurfacePixels());
+	
+	void end() override {
+		if (isOk()) {
+			ofPopMatrix();
+			ofSetCurrentRenderer(opengl, true);
+			
+			if (savingCairo) {
+				endSave();
+			} else {
+				render.loadData(cairo->getImageSurfacePixels());
 //                render.loadData(cairo->getImageSurfacePixels(), GL_RGBA);
-                ofSetColor(255);
-                render.draw(0,0);
-            }
-        }
-    }
-    
-    void uiEvents(ofxMicroUI::element & e) override { }
-    
-    void startBlendingMode() {
-        cairoBlend = &soft->_ui->uis["colors"].pString["blend"];
-        if (cairoBlend != NULL && *cairoBlend != "" && *cairoBlend != "no") {
+				ofSetColor(255);
+				render.draw(0,0);
+			}
+		}
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override { }
+	
+	void startBlendingMode() {
+		cairoBlend = &soft->_ui->uis["colors"].pString["blend"];
+		if (cairoBlend != NULL && *cairoBlend != "" && *cairoBlend != "no") {
 //            cout << *cairoBlend << endl;
-            cairo_set_operator(cairo->getCairoContext(), cairoBlendModes[*cairoBlend]);
-        }
-    }
+			cairo_set_operator(cairo->getCairoContext(), cairoBlendModes[*cairoBlend]);
+		}
+	}
 };
 
 
@@ -661,20 +661,11 @@ public:
 
 
 
-struct featureTest : public microFeature {
-    public:
-    using microFeature::microFeature;
-    void setup() override {}
-    void begin() override {}
-    void end() override { }
-    void uiEvents(ofxMicroUI::element & e) override {}
-};
-
 
 
 struct featureMiawBg : public microFeature {
-    public:
-    using microFeature::microFeature;
+	public:
+	using microFeature::microFeature;
 	ofMesh fundoMesh;
 
 	void bgMesh(ofColor & c1, ofColor & c2) {
@@ -692,12 +683,12 @@ struct featureMiawBg : public microFeature {
 		fundoMesh.draw();
 	}
 
-    void setup() override {}
+	void setup() override {}
 
 	void begin() override {
-        
+		
 //        bool useCairo = soft->_ui->uis["ui"].pBool["useCairo"];
-        bool useCairo = false;
+		bool useCairo = false;
 		if (ui->pString["background"] == "solid") {
 			ofClear(ui->pColorEasy["bg"]);
 		}
@@ -727,7 +718,7 @@ struct featureMiawBg : public microFeature {
 				
 			}
 		}
-    }
+	}
 	void end() override { }
 	void uiEvents(ofxMicroUI::element & e) override {}
 };
@@ -781,4 +772,73 @@ struct featureSurface : public microFeature {
 		}
 		ofPopMatrix();
 	}
+};
+
+
+
+
+struct featureTest : public microFeature {
+	public:
+	using microFeature::microFeature;
+	void setup() override {}
+	void begin() override {}
+	void end() override { }
+	void uiEvents(ofxMicroUI::element & e) override {}
+};
+
+
+
+
+
+struct featureTex : public microFeature {
+	public:
+	using microFeature::microFeature;
+	ofFbo fbo;
+	void setup() override {
+        ofDisableArbTex();
+		fbo.allocate(512, 512, GL_RGBA);
+		fbo.begin();
+		ofClear(0,255);
+        ofClear(255,0,255);
+		fbo.end();
+	}
+
+	void begin() override {
+//        cout << "tex begin" << endl;
+        if (fbo.isAllocated()) {
+
+
+//            fbo.draw(0,0);
+            
+            // fbo.bind();
+           fbo.getTexture().bind();
+            
+//            ui->pImage["tex"].bind();
+        } else {
+            cout << "FBO NOT ALLOCATED!" << endl;
+        }
+	}
+    
+	void end() override {
+        if (fbo.isAllocated()) {
+
+           fbo.getTexture().unbind();
+            // fbo.unbind();
+        }
+//        ui->pImage["tex"].unbind();
+	}
+	void uiEvents(ofxMicroUI::element & e) override {
+        fbo.begin();
+            ofClear(0,255);
+            ofSetColor(255);
+            ofImage * t = &ui->pImage["tex"];
+            ofImage * i = &ui->pImage["image"];
+        
+            ofSetColor(255);
+            t->draw(0,0, t->getWidth() * ui->pFloat["texScale"], t->getHeight() * ui->pFloat["texScale"]);
+            ofSetColor(ui->pColor["imageColor"]);
+            i->draw(ui->pFloat["imageX"], ui->pFloat["imageY"], i->getWidth() * ui->pFloat["imageScale"], i->getHeight() * ui->pFloat["imageScale"]);
+        fbo.end();
+        
+    }
 };

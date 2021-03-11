@@ -799,8 +799,20 @@ public:
 		if (uiC->pBool["plane"]) {
 			plane.drawWireframe();
 		}
-		if (uiC->pBool["box"]) {
+		if (uiC->pBool["box"] && !uiC->pBool["numero"]) {
 			ofDrawBox(aresta);
+		}
+
+		if (uiC->pBool["numero"]) {
+			for (int y=-1; y<3; y++) {
+				for (int x=-1; x<3; x++) {
+					ofPushMatrix();
+					ofTranslate(x * aresta*1.5, y * aresta * 1.5);
+					// ofDrawBox(aresta);
+					ofDrawBox(aresta * uiC->pEasy["x"], aresta * uiC->pEasy["y"], aresta * uiC->pEasy["z"]);
+					ofPopMatrix();
+				}
+			}
 		}
 	}
 };
