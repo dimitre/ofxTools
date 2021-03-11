@@ -29,7 +29,7 @@ public:
 	}
     virtual void uiEventMaster(string & s) {
         if (s == "setup") {
-            cout << "|||||||||||||||| FEATURE " << name << " uiEventMaster : " << s <<  endl;
+//            cout << "|||||||||||||||| FEATURE " << name << " uiEventMaster : " << s <<  endl;
             setup();
         }
     }
@@ -62,34 +62,27 @@ public:
 	
 	microFeature(ofxMicroUISoftware * _soft) : soft(_soft) {
         internalSetup();
-//		setup();
 	}
     
     microFeature(ofxMicroUISoftware * _soft, string n, bool * u = NULL) : soft(_soft), name(n), use(u) {
         internalSetup();
-//        setup();
     }
 
 	microFeature(ofxMicroUI * _ui, string n, bool * u = NULL) : ui(_ui), name(n), use(u) {
-        cout << "|||| microFeature init " << name << endl;
         internalSetup();
-//		setup();
 	}
 
 	microFeature(ofxMicroUISoftware * _soft, ofxMicroUI * _ui) : soft(_soft), ui(_ui) {
         internalSetup();
-//		setup();
 	}
 
 	microFeature(ofxMicroUISoftware * _soft, ofxMicroUI * _ui, ofxMicroUI * _ui2) : soft(_soft), ui(_ui), ui2(_ui2) {
         internalSetup();
-//		setup();
 	}
     
     microFeature(ofxMicroUISoftware * _soft, string n, ofxMicroUI * _ui, ofxMicroUI * _ui2 = NULL) :
     soft(_soft), name(n), ui(_ui), ui2(_ui2) {
         internalSetup();
-//        setup();
     }
 };
 
@@ -98,7 +91,6 @@ public:
 struct microFeatureBase : virtual public microFeature {
 	using microFeature::microFeature;	
 };
-
 
 
 struct featurePolar : virtual public microFeature {

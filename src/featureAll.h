@@ -321,7 +321,7 @@ public:
                     } else {
                         shader.load(f);
                         shaderLoaded = f;
-                        cout << "SHADERS LOAD " << e.name << " :: " << *e.s << endl;
+//                        cout << "SHADERS LOAD " << e.name << " :: " << *e.s << endl;
 //                        cout << "shader loaded = " << shaderLoaded << endl;
 //                        cout << "this name " << name << endl;
                     }

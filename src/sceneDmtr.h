@@ -11,26 +11,38 @@ public:
 	ofFbo * fbo = NULL;
 	glm::vec2 middle;
     
-	sceneDmtrBasic() { }
+//	sceneDmtrBasic() { }
+    
+    sceneDmtrBasic(string n = "") : name(n) {
+    }
 
 	sceneDmtrBasic(sceneConfig * _c, string n = "") : config(_c), name(n) {
-		u = config->u;
-		ui = config->ui;
-		uiC = config->uiC;
-		fbo = config->fbo;
-		middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
+        addConfig(_c);
 	}
+    
+    void addConfig(sceneConfig * _c) {
+//        cout << "addConfig " << name << endl;
+        config = _c;
+        u = config->u;
+        ui = config->ui;
+        uiC = config->uiC;
+        fbo = config->fbo;
+        middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
+    }
 
 	bool hasListener = false;
 
 	void select() {
-		ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
-		hasListener = true;
+        if (config != NULL) {
+            ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
+            hasListener = true;
+        }
 	}
 
 	void unselect() {
 		if (hasListener) {
 			ofRemoveListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
+            hasListener = false;
 		}
 	}
 
@@ -136,7 +148,12 @@ struct sceneIncrementa : public virtual ofxScenes::sceneDmtrBasic {
 struct sceneBaseType : public virtual ofxScenes::sceneDmtrBasic {
 	public:
 	using sceneDmtrBasic::sceneDmtrBasic;
-	ofTrueTypeFont * type = &uiC->pFont["type"];
+    
+    ofTrueTypeFont * type = NULL;
+    void setup() {
+        type = &uiC->pFont["type"];
+    }
+    
 	int lastSize = 0;
 
 	void uiEvents(ofxMicroUI::element & e) override {

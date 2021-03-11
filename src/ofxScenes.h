@@ -29,15 +29,9 @@ public:
 		ofxMicroUI * ui = NULL;
 		ofxMicroUI * uiC = NULL;
 		ofxMicroUI * uiColors = NULL;
-//        string * scene = NULL;
-//		int margem = 100;
-//		ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
         
 		void afterSetup() {
 			ui = &u->uis["ui"];
-//            if (scene == NULL) {
-//                scene = &ui->pString["scene"];
-//            }
 		}
 
 		sceneConfig() {} ;
@@ -53,7 +47,7 @@ public:
 		fbo(_fbo), u(_u), uiC(_uiC) {
 			uiColors = &u->uis["colors"];
 			afterSetup();
-            cout << "sceneConfig init, uiC =" << uiC->uiName << endl;
+//            cout << "sceneConfig init, uiC =" << uiC->uiName << endl;
 		};
 		
 		sceneConfig(ofFbo * _fbo, ofxMicroUI * _u, ofxMicroUI * _uiC, ofxMicroUI * _uiColors) :
@@ -64,22 +58,18 @@ public:
 	
 	#include "sceneDmtr.h"
 
-//	ofFbo * fbo = NULL;
-//	ofxMicroUI * u = NULL;
-//	ofxMicroUI * uiC = NULL;
-//	ofxMicroUI * uiColors = NULL;
 	ofxMicroUI * ui = NULL;
     sceneDmtrBasic * _scene = NULL;
     vector <sceneDmtrBasic *> scenes;
     string lastScene = "";
-//	ofxScenes() {}
-    
+    string sceneName = "scene";
+
     void afterSetup() {
         ofAddListener(ui->uiEvent, this, &ofxScenes::uiEvents);
+        ofAddListener(ui->uiEventMaster, this, &ofxScenes::uiEventMaster);
     }
 	
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, string s) : sceneName(s)
-//    : fbo(_f), u(_u), scene(s)
     {
 		config = sceneConfig(_f, _u);
 //		uiColors = &u->uis["colors"];
@@ -88,7 +78,6 @@ public:
 	}
 	
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, ofxMicroUI * _uiC, string s) : sceneName(s)
-//    : fbo(_f), u(_u), uiC(_uiC), scene(s)
     {
         config = sceneConfig(_f, _u, _uiC);
 //		uiColors = &_u->uis["colors"];
@@ -97,7 +86,6 @@ public:
 	}
 
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, ofxMicroUI * _uiC, ofxMicroUI * _uiColors, string s) : sceneName(s)
-//    : fbo(_f), u(_u), uiC(_uiC), uiColors(_uiColors), scene(s)
     {
         config = sceneConfig(_f, _u);
 		ui = &_u->uis["ui"];
@@ -113,12 +101,17 @@ public:
 	}
 
 
-
 	void setup() {
 		ofAddListener(ofEvents().update, this, &ofxScenes::onUpdate);
 		cout << "------" << endl;
 		for (auto & s : scenes) {
 			cout << "ofxScenes :: adding " << s->name << endl;
+            if (s->config == NULL) {
+//                cout << "config null, adding config" << endl;
+                s->addConfig(&config);
+            } else {
+//                cout << "config not null" << endl;
+            }
             s->setup();
 		}
 		cout << "------" << endl;
@@ -132,24 +125,20 @@ public:
 
 	void draw() {
 		ofSetLineWidth(ui->pEasy["lineWidth"]);
-//        cout << config.scene << endl;
-//        cout << sceneName ;
-
         if (_scene != NULL) {
-//            cout << " : " ;
-//            cout << _scene->name ;
             _scene->draw();
         }
-//        cout << endl;
 	}
     
-    string sceneName = "scene";
-    
+    void uiEventMaster(string & s) {
+        if (s == "setup") {
+            setup();
+        }
+    }
     void uiEvents(ofxMicroUI::element & e) {
         if (e.name == sceneName) {
             string scene = *e.s;
             if (scene != lastScene) {
-//                cout << "change scene, name = " << scene << endl;
                 if (_scene != NULL) {
                     _scene->unselect();
                 }
@@ -157,9 +146,6 @@ public:
                 bool found = false;
                 if (scene != "_") {
                     for (auto & s : scenes) {
-    //                    cout << s << endl;
-    //                    cout << scene << endl;
-    //                    cout << "----" << endl;
                         if (s->name == scene) {
                             _scene = s;
                             _scene->select();
@@ -167,7 +153,7 @@ public:
                         }
                     }
                     if (!found) {
-                        cout << "|||||||||||||||||||| ofxScenes not found :: " << scene << endl;
+                        cout << "|||| ofxScenes not found :: " << scene << endl;
                     }
                 }
                 lastScene = scene;
