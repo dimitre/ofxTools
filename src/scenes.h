@@ -1172,10 +1172,10 @@ struct sceneTyper :  public ofxScenes::sceneBaseType, public sceneBasePoco {
             for (int a=0; a<letrasDesenhadas; a++) {
                 string esta = letras[a];
                 if (esta != " ") {
-                    if (ofRandom(0,1) > uiC->pFloat["randomNumeros"]) {
+                    if (ofRandom(0,10) < uiC->pFloat["randomNumeros"]) {
                         esta = ofToString(int(ofRandom(0,9)));
                     }
-                    if (ofRandom(0,1) > uiC->pFloat["randomLetras"]) {
+                    if (ofRandom(0,10) < uiC->pFloat["randomLetras"]) {
                         esta = letras[int(ofRandom(0,letras.size()-1))];
                     }
                 }
@@ -1188,19 +1188,28 @@ struct sceneTyper :  public ofxScenes::sceneBaseType, public sceneBasePoco {
         
 		int numero = ofNoise(ofGetElapsedTimef()*uiC->pFloat["multNumberTime"]) * 10;
 
-		ofSetColor(255);
-		type->drawString(output, uiC->pInt["textoX"], uiC->pInt["textoY"]);
+		ofSetColor(getCor(0));
+        
+        if (uiC->pBool["drawAsShapes"]) {
+            type->drawStringAsShapes(output, uiC->pInt["textoX"], uiC->pInt["textoY"]);
+        } else {
+            type->drawString(output, uiC->pInt["textoX"], uiC->pInt["textoY"]);
+        }
 
 		// debug apenas
-		type->drawString(texto, uiC->pInt["textoX"], uiC->pInt["textoY"] + 100);
+        if (uiC->pBool["debugText"]) {
+            type->drawString(texto, uiC->pInt["textoX"], uiC->pInt["textoY"] + 100);
+        }
 		
-		float x = uiC->pInt["textoX"];
-		float y = uiC->pInt["textoY"];
-		for (auto & l : letras) {
-			ofSetColor(ofColor::fromHsb(x*uiC->pEasy["hue"], 255, 255));
-			type->drawStringAsShapes(texto, x, y + 200);
-			x+= uiC->pEasy["espaco"];
-		}
+        if (uiC->pBool["rainbow"]) {
+            float x = uiC->pInt["textoX"];
+            float y = uiC->pInt["textoY"];
+            for (auto & l : letras) {
+                ofSetColor(ofColor::fromHsb(x*uiC->pEasy["hue"], 255, 255));
+                type->drawStringAsShapes(texto, x, y + 200);
+                x+= uiC->pEasy["espaco"];
+            }
+        }
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
@@ -1311,3 +1320,4 @@ struct sceneTyper :  public ofxScenes::sceneBaseType, public sceneBasePoco {
 //        }
 //    }
 //};
+

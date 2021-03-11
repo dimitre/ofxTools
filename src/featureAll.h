@@ -411,7 +411,10 @@ struct featureSyphonOut : public microFeature {
     using microFeature::microFeature;
     ofxSyphonServer syphonOut;
     void setup() override {
-        syphonOut.setName(soft->name);
+//        cout << "this is syphonout setup" << endl;
+//        cout << soft->name << endl;
+        name = soft->name;
+        syphonOut.setName(name);
     }
     void end() override {
         syphonOut.publishTexture(&soft->fboFinal->getTexture());
@@ -526,7 +529,7 @@ public:
     
     void setup() override {
         rect = ofRectangle(0,0,soft->fboFinal->getWidth(), soft->fboFinal->getHeight());
-        cout << "setupCairo :: " << rect << endl;
+//        cout << "setupCairo :: " << rect << endl;
         opengl = ofGetGLRenderer();
         cairo = make_shared<ofCairoRenderer>();
         cairoOut = make_shared<ofCairoRenderer>();

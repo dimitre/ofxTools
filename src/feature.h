@@ -27,7 +27,13 @@ public:
 	virtual void uiEvents(ofxMicroUI::element & e) {
 		cout << "uiEvents in primitive feature" << endl;
 	}
-    
+    virtual void uiEventMaster(string & s) {
+        if (s == "setup") {
+            cout << "|||||||||||||||| FEATURE " << name << " uiEventMaster : " << s <<  endl;
+            setup();
+        }
+    }
+
     virtual bool isOk() {
         return use == NULL || *use;
     }
@@ -38,6 +44,12 @@ public:
 		if (ui != NULL) {
 			ofAddListener(ui->uiEvent, this, &microFeature::uiEvents);
 		}
+        if (soft != NULL) {
+            ofAddListener(soft->_ui->uiEventMaster, this, &microFeature::uiEventMaster);
+        }
+        if (name == "" && ui != NULL) {
+            name = ui->uiName;
+        }
     }
 	
 	bool isSetup = false;
@@ -50,45 +62,44 @@ public:
 	
 	microFeature(ofxMicroUISoftware * _soft) : soft(_soft) {
         internalSetup();
-		setup();
+//		setup();
 	}
-	
-	// microFeature(ofxMicroUISoftware * _soft, string n) : soft(_soft), name(n) {
-	// 	internalSetup();
-	// 	setup();
-	// }
     
     microFeature(ofxMicroUISoftware * _soft, string n, bool * u = NULL) : soft(_soft), name(n), use(u) {
         internalSetup();
-        setup();
+//        setup();
     }
 
-	microFeature(ofxMicroUI * _ui, bool * u = NULL) : ui(_ui), use(u) {
+	microFeature(ofxMicroUI * _ui, string n, bool * u = NULL) : ui(_ui), name(n), use(u) {
+        cout << "|||| microFeature init " << name << endl;
         internalSetup();
-		setup();
+//		setup();
 	}
 
 	microFeature(ofxMicroUISoftware * _soft, ofxMicroUI * _ui) : soft(_soft), ui(_ui) {
         internalSetup();
-		setup();
+//		setup();
 	}
 
 	microFeature(ofxMicroUISoftware * _soft, ofxMicroUI * _ui, ofxMicroUI * _ui2) : soft(_soft), ui(_ui), ui2(_ui2) {
         internalSetup();
-		setup();
+//		setup();
 	}
     
     microFeature(ofxMicroUISoftware * _soft, string n, ofxMicroUI * _ui, ofxMicroUI * _ui2 = NULL) :
     soft(_soft), name(n), ui(_ui), ui2(_ui2) {
         internalSetup();
-        setup();
+//        setup();
     }
 };
+
 
 
 struct microFeatureBase : virtual public microFeature {
 	using microFeature::microFeature;	
 };
+
+
 
 struct featurePolar : virtual public microFeature {
 	using microFeature::microFeature;

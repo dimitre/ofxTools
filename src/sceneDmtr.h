@@ -10,7 +10,7 @@ public:
 	//	ofxMicroUI * uiColors = NULL;
 	ofFbo * fbo = NULL;
 	glm::vec2 middle;
-
+    
 	sceneDmtrBasic() { }
 
 	sceneDmtrBasic(sceneConfig * _c, string n = "") : config(_c), name(n) {
@@ -62,10 +62,13 @@ public:
 };
 
 
+
 struct sceneDmtr : public virtual ofxScenes::sceneDmtrBasic {
 	public:
 	using sceneDmtrBasic::sceneDmtrBasic;
 };
+
+
 
 struct polar : public virtual ofxScenes::sceneDmtrBasic {
     public:
@@ -76,6 +79,8 @@ struct polar : public virtual ofxScenes::sceneDmtrBasic {
     static float c2a (float x, float y) { return ofRadToDeg(atan2(y,x)); }
     static float c2m (float x, float y) { return sqrt(pow(x,2)+pow(y,2)); }
 };
+
+
 
 struct polarVec2 : public virtual ofxScenes::sceneDmtrBasic {
 	public:
@@ -92,6 +97,8 @@ struct polarVec2 : public virtual ofxScenes::sceneDmtrBasic {
 		return glm::vec2(pos.y * cos(ofDegToRad(pos.x)), pos.y * sin(ofDegToRad(pos.x)));
 	}
 };
+
+
 
 
 struct sceneAudio : public virtual ofxScenes::sceneDmtrBasic {

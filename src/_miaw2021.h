@@ -5,7 +5,9 @@ ofxMicroUI u;
 ofxMicroUI *ui = &u.uis["ui"];
 ofxMicroUI *uiC  = &u.uis["scene"];
 ofxMicroUI *uiColors  = &u.uis["colors"];
-ofxMicroUISoftware soft;
+//ofxMicroUISoftware soft;
+ofxMicroUISoftware soft = ofxMicroUISoftware(&u, "MIAW2021");
+
 ofFbo * fbo = &soft.fbo;//
 string & scene = ui->pString["scene"];
 
@@ -32,7 +34,7 @@ featureCairo cairo = featureCairo(&soft, "Cairo");
 featureCam cam = featureCam(&soft, "cam");
 
 #ifdef USESYPHON
-featureSyphonOut syphonOut =  featureSyphonOut(&soft, "MIAWsyphonOut");
+featureSyphonOut syphonOut =  featureSyphonOut(&soft);
 #endif
 
 ofxMicroUI * uiShaders = &u.uis["shaders"];

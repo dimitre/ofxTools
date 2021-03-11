@@ -1599,6 +1599,9 @@ public:
 		ofTranslate(40,40);
 		
 		float modulo = 20.0;
+        ofNoFill();
+        ofSetColor(getCor(0));
+        
 		for (int x=0; x<=10; x++) {
 			
 			{
@@ -1630,7 +1633,6 @@ public:
 		}
 
 		
-		
 		ofTranslate(240,0);
 		ofDrawRectangle(0,0,300,75);
 		vector <ofVec3f> pontos;
@@ -1644,6 +1646,12 @@ public:
 			ofDrawCircle(p, 3.0);
 		}
 		poly.draw();
+        
+        ofTranslate(0,240);
+        
+        ofDrawBitmapString(ofToString(ofRandom(0,999)), 0, 0);
+        
+        ofTranslate(40,40);
 	}
 };
 

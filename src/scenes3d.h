@@ -1343,7 +1343,6 @@ void setupScenes3d() {
 	scenes.push_back(new sceneModel(&config, "model"));
 #endif
 	scenes.push_back(new scenePoeira(&config, "poeira"));
-
 }
 
 #endif
@@ -1396,5 +1395,4 @@ struct sceneVbo : public virtual ofxScenes::sceneDmtrBasic {
 	void uiEvents(ofxMicroUI::element & e) override {
 		create();
 	}
-
 };
