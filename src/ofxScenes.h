@@ -103,18 +103,16 @@ public:
 
 	void setup() {
 		ofAddListener(ofEvents().update, this, &ofxScenes::onUpdate);
-		cout << "------" << endl;
+//		cout << "------" << endl;
 		for (auto & s : scenes) {
 			cout << "ofxScenes :: adding " << s->name << endl;
             if (s->config == NULL) {
-//                cout << "config null, adding config" << endl;
                 s->addConfig(&config);
             } else {
-//                cout << "config not null" << endl;
             }
             s->setup();
 		}
-		cout << "------" << endl;
+//		cout << "------" << endl;
 	}
     
     void onUpdate(ofEventArgs &data) {

@@ -475,6 +475,36 @@ public:
 #endif
 
 
+//#CAIRO_OPERATOR_CLEAR
+//#CAIRO_OPERATOR_SOURCE
+//    ;     #CAIRO_OPERATOR_OVER
+//    ;     #CAIRO_OPERATOR_IN
+//    ;     #CAIRO_OPERATOR_OUT
+//    ;     #CAIRO_OPERATOR_ATOP
+//    ;     #CAIRO_OPERATOR_DEST
+//    ;     #CAIRO_OPERATOR_DEST_OVER
+//    ;     #CAIRO_OPERATOR_DEST_IN
+//    ;     #CAIRO_OPERATOR_DEST_OUT
+//    ;     #CAIRO_OPERATOR_DEST_ATOP
+//    ;     #CAIRO_OPERATOR_XOR
+//    ;     #CAIRO_OPERATOR_ADD
+//    ;     #CAIRO_OPERATOR_SATURATE
+//    ;     #CAIRO_OPERATOR_MULTIPLY
+//    ;     #CAIRO_OPERATOR_SCREEN
+//    ;     #CAIRO_OPERATOR_OVERLAY
+//    ;     #CAIRO_OPERATOR_DARKEN
+//    ;     #CAIRO_OPERATOR_LIGHTEN
+//    ;     #CAIRO_OPERATOR_COLOR_DODGE
+//    ;     #CAIRO_OPERATOR_COLOR_BURN
+//    ;     #CAIRO_OPERATOR_HARD_LIGHT
+//    ;     #CAIRO_OPERATOR_SOFT_LIGHT
+//    ;     #CAIRO_OPERATOR_DIFFERENCE
+//    ;     #CAIRO_OPERATOR_EXCLUSION
+//    ;     #CAIRO_OPERATOR_HSL_HUE
+//    ;     #CAIRO_OPERATOR_HSL_SATURATION
+//    ;     #CAIRO_OPERATOR_HSL_COLOR
+//    ;     #CAIRO_OPERATOR_HSL_LUMINOSITY
+
 
 
 struct featureCairo : public microFeature {
@@ -488,37 +518,7 @@ public:
 	string savingCairoFilename = "";
 	ofRectangle rect;
 	string * cairoBlend = NULL;
-	
-	//#CAIRO_OPERATOR_CLEAR
-	//#CAIRO_OPERATOR_SOURCE
-	//    ;     #CAIRO_OPERATOR_OVER
-	//    ;     #CAIRO_OPERATOR_IN
-	//    ;     #CAIRO_OPERATOR_OUT
-	//    ;     #CAIRO_OPERATOR_ATOP
-	//    ;     #CAIRO_OPERATOR_DEST
-	//    ;     #CAIRO_OPERATOR_DEST_OVER
-	//    ;     #CAIRO_OPERATOR_DEST_IN
-	//    ;     #CAIRO_OPERATOR_DEST_OUT
-	//    ;     #CAIRO_OPERATOR_DEST_ATOP
-	//    ;     #CAIRO_OPERATOR_XOR
-	//    ;     #CAIRO_OPERATOR_ADD
-	//    ;     #CAIRO_OPERATOR_SATURATE
-	//    ;     #CAIRO_OPERATOR_MULTIPLY
-	//    ;     #CAIRO_OPERATOR_SCREEN
-	//    ;     #CAIRO_OPERATOR_OVERLAY
-	//    ;     #CAIRO_OPERATOR_DARKEN
-	//    ;     #CAIRO_OPERATOR_LIGHTEN
-	//    ;     #CAIRO_OPERATOR_COLOR_DODGE
-	//    ;     #CAIRO_OPERATOR_COLOR_BURN
-	//    ;     #CAIRO_OPERATOR_HARD_LIGHT
-	//    ;     #CAIRO_OPERATOR_SOFT_LIGHT
-	//    ;     #CAIRO_OPERATOR_DIFFERENCE
-	//    ;     #CAIRO_OPERATOR_EXCLUSION
-	//    ;     #CAIRO_OPERATOR_HSL_HUE
-	//    ;     #CAIRO_OPERATOR_HSL_SATURATION
-	//    ;     #CAIRO_OPERATOR_HSL_COLOR
-	//    ;     #CAIRO_OPERATOR_HSL_LUMINOSITY
-	
+
 	map <string, _cairo_operator> cairoBlendModes = {
 		{ "add", CAIRO_OPERATOR_ADD },
 		{ "screen", CAIRO_OPERATOR_SCREEN },
@@ -529,7 +529,6 @@ public:
 	
 	void setup() override {
 		rect = ofRectangle(0,0,soft->fboFinal->getWidth(), soft->fboFinal->getHeight());
-//        cout << "setupCairo :: " << rect << endl;
 		opengl = ofGetGLRenderer();
 		cairo = make_shared<ofCairoRenderer>();
 		cairoOut = make_shared<ofCairoRenderer>();
@@ -544,7 +543,11 @@ public:
 		cout << "SAVING " << savingCairoFilename << endl;
 		cairoOut->setup(savingCairoFilename, ofCairoRenderer::SVG, false, false, rect);
 		ofSetCurrentRenderer(cairoOut);
-		ofGetCurrentRenderer()->setupGraphicDefaults();
+//		ofGetCurrentRenderer()->setupGraphicDefaults();
+        
+//        ofGetCurrentRenderer()->background(ofColor(0,0));
+//        ofGetCurrentRenderer()->setBackgroundColor(ofColor(0,0));
+        
 		ofStyle style = ofGetCurrentRenderer()->getStyle();
 		ofGetCurrentRenderer()->setStyle(style);
 		cairo_set_miter_limit(cairoOut->getCairoContext(), 2);
@@ -555,8 +558,8 @@ public:
 	void endSave() {
 		render.loadData(cairoOut->getImageSurfacePixels());
 		cairoOut->close();
-		savingCairo = false;
 		string resultado = ofSystem("open " + ofToDataPath(savingCairoFilename));
+        savingCairo = false;
 	}
 	
 	void begin() override {
@@ -564,11 +567,16 @@ public:
 			if (savingCairo) {
 				beginSave();
 			} else {
-				
 				ofSetCurrentRenderer(cairo);
 				ofGetCurrentRenderer()->setupGraphicDefaults();
-				ofStyle style = ofGetCurrentRenderer()->getStyle();
-				ofGetCurrentRenderer()->setStyle(style);
+//				ofStyle style = ofGetCurrentRenderer()->getStyle();
+//				ofGetCurrentRenderer()->setStyle(style);
+//                cairo_set_source_rgba(cairo->cr,0,0,0,1);
+//                cairo_paint(cairo->cr);
+//                cairo->clear(0,0,0,255);
+//                        ofGetCurrentRenderer()->background(ofColor(0,255));
+//                        ofGetCurrentRenderer()->setBackgroundColor(ofColor(0,255));
+
 				cairo_set_miter_limit(cairo->getCairoContext(), 2);
 	//            cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
 	//            cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
@@ -590,7 +598,7 @@ public:
 					cairo_set_dash(cairo->getCairoContext(), nodash, 0, 0);
 				}
 
-				cairo->clearAlpha();
+//				cairo->clearAlpha();
 			}
 			ofPushMatrix();
 		}
@@ -804,29 +812,18 @@ struct featureTex : public microFeature {
 	}
 
 	void begin() override {
-//        cout << "tex begin" << endl;
-        if (fbo.isAllocated()) {
-
-
-//            fbo.draw(0,0);
-            
-            // fbo.bind();
+        if (fbo.isAllocated() && ui->pBool["tex"]) {
            fbo.getTexture().bind();
-            
-//            ui->pImage["tex"].bind();
         } else {
-            cout << "FBO NOT ALLOCATED!" << endl;
         }
 	}
     
 	void end() override {
-        if (fbo.isAllocated()) {
-
+        if (fbo.isAllocated() && ui->pBool["tex"]) {
            fbo.getTexture().unbind();
-            // fbo.unbind();
         }
-//        ui->pImage["tex"].unbind();
 	}
+    
 	void uiEvents(ofxMicroUI::element & e) override {
         fbo.begin();
             ofClear(0,255);

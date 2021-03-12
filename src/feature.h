@@ -5,8 +5,8 @@
 struct microFeature {
 public:
 
-    ofxMicroUISoftware * soft = NULL;
-    string name = "";
+	ofxMicroUISoftware * soft = NULL;
+	string name = "";
 	ofxMicroUI * ui = NULL;
 	ofxMicroUI * ui2 = NULL;
     
@@ -68,7 +68,7 @@ public:
         internalSetup();
     }
 
-	microFeature(ofxMicroUI * _ui, string n, bool * u = NULL) : ui(_ui), name(n), use(u) {
+	microFeature(string n, ofxMicroUI * _ui, bool * u = NULL) : name(n), ui(_ui), use(u) {
         internalSetup();
 	}
 

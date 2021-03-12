@@ -6,30 +6,14 @@ ofxMicroUI *ui = &u.uis["ui"];
 ofxMicroUI *uiC  = &u.uis["scene"];
 ofxMicroUI *uiColors  = &u.uis["colors"];
 //ofxMicroUISoftware soft;
-ofxMicroUISoftware soft = ofxMicroUISoftware(&u, "MIAW2021");
+ofxMicroUISoftware soft = ofxMicroUISoftware(&u, "MIAW2021", 3);
 
 ofFbo * fbo = &soft.fbo;//
-string & scene = ui->pString["scene"];
-
-
 ofFbo * fbo2 = &soft.fbo2;
 ofFbo * fbo3 = &soft.fbo3;
+string & scene = ui->pString["scene"];
 
-
-#ifdef USEREMOTE
-ofxMicroUIRemote uiRemote;
-#endif
-
-// resquicios do DmtrCairo.h finado
-bool useCairo = false;
-bool savingCairo = false;
-// substituir por modular em brevissimo
-#include "cam.h"
-
-// eliminar este aqui.
-#include "tools.h"
-ofxScenes scenes = ofxScenes(fbo, &u, ui->pString["scene"]);
-
+ofxScenes scenes = ofxScenes(fbo, &u, "scene");
 featureCairo cairo = featureCairo(&soft, "Cairo");
 featureCam cam = featureCam(&soft, "cam");
 
@@ -44,18 +28,30 @@ featureShader shaders3d =   featureShader(&soft, "shaders3d", uiShaders, &u.uis[
 featureShader shadersgen =  featureShader(&soft, "shadersgem", uiShaders, &u.uis["shadersgen"]);
 featureShader shadersfeed = featureShader(&soft, "shadersfeed", uiShaders, &u.uis["shadersfeed"]);
 
+#ifdef USEREMOTE
+ofxMicroUIRemote uiRemote;
+#endif
+
+// resquicios do DmtrCairo.h finado
+bool useCairo = false;
+bool savingCairo = false;
+// substituir por modular em brevissimo
+#include "cam.h"
+
+// eliminar este aqui.
+#include "tools.h"
 
 void setupMiaw() {
-    cairo.setup();
+//    cairo.setup();
     ofSetEscapeQuitsApp(false);
-    scenes.setup();
+//    scenes.setup();
     setupCam_3d();
     soft.fbo.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
     soft.fbo2.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
     soft.fbo3.getTexture().setTextureMinMagFilter(GL_NEAREST, GL_NEAREST);
     
-    soft.fboFinal = &soft.fbo3;
-    soft.setUI(&u);
+//    soft.fboFinal = &soft.fbo3;
+//    soft.setUI(&u);
     
 #ifdef USEREMOTE
     uiRemote.loadConfig("_osc.txt");
@@ -202,13 +198,4 @@ void endMiaw() {
 
 	void drawSecondWindow1(ofEventArgs & args) {
 		drawWindow(u.pInt["screen1"]);
-	}
-	void drawSecondWindow2(ofEventArgs & args) {
-		drawWindow(u.pInt["screen2"]);
-	}
-	void drawSecondWindow3(ofEventArgs & args) {
-		drawWindow(u.pInt["screen3"]);
-	}
-	void drawSecondWindow4(ofEventArgs & args) {
-		drawWindow(u.pInt["screen4"]);
 	}

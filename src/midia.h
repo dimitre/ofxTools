@@ -1,7 +1,7 @@
 // renomear de midia pra outra coisa?
-    static float expand(float val, float mult = 0.0) {
-        return ofClamp(ofMap(val, 0.0, 1.0, -mult, 1.0+mult), 0, 1);
-    }
+	static float expand(float val, float mult = 0.0) {
+		return ofClamp(ofMap(val, 0.0, 1.0, -mult, 1.0+mult), 0, 1);
+	}
 
 class ofxMidia { // : public ofBaseApp
 public:
@@ -11,25 +11,25 @@ public:
 	ofxMicroUI * uiMidi = NULL;
 	ofxMicroUI * uiNotes = NULL;
 	ofxMicroUI * uiC = NULL;
-    ofxMicroUI * u = NULL;
-    
-    
+	ofxMicroUI * u = NULL;
+	
+	
 	struct configMidi {
 	public:
-        ofxMidiOut midiOut;
+		ofxMidiOut midiOut;
 
 		ofFbo * fbo = NULL;
-        ofxMicroUI * u = NULL;
+		ofxMicroUI * u = NULL;
 		ofxMicroUI * uiC = NULL;
-        ofxMicroUI * uiNotes = NULL;
+		ofxMicroUI * uiNotes = NULL;
 
-        vector <int> scales;
-        
+		vector <int> scales;
+		
 		configMidi() {};
 		configMidi(ofFbo * _fbo, ofxMicroUI * _u) : fbo(_fbo), u(_u) {
-            uiC = &u->uis["sceneMidi"];
-            uiNotes = &u->uis["notes"];
-        }
+			uiC = &u->uis["sceneMidi"];
+			uiNotes = &u->uis["notes"];
+		}
 
 		struct nota {
 		public:
@@ -49,8 +49,8 @@ public:
 //				tempo = ofGetElapsedTimeMillis() + del;
 //                tempo = ofGetElapsedTimeMicros() + del;
 //                tempoOff = tempo + duration;
-                tempo = ofGetElapsedTimeMicros() + 1000 * del;
-                tempoOff = tempo + duration * 1000;
+				tempo = ofGetElapsedTimeMicros() + 1000 * del;
+				tempoOff = tempo + duration * 1000;
 				note = n;
 				
 				played = false;
@@ -62,65 +62,109 @@ public:
 		
 	//	vector <nota> notas = vector <nota> (1000);
 		vector <nota> notas;
-        
-        void addNoteF(float n, float duration, float vel, float delay = 0) {
-            if (scales.size()) {
+		
+		void addNoteF(float n, float duration, float vel, float delay = 0) {
+			if (scales.size()) {
 //                cout << "----" << endl;
 //                cout << n << endl;
 //                cout << scales.size() << endl;
 //                cout << n * scales.size() << endl;
-                int note = scales[n * scales.size()];
-                notas.emplace_back(note, duration, vel, delay);
-            }
-        }
-        
-        void update() {
-            uint64_t tempo = ofGetElapsedTimeMicros();
-            for (auto & n : notas) {
-                if (!n.played) {
+				int note = scales[n * scales.size()];
+				notas.emplace_back(note, duration, vel, delay);
+			}
+		}
+		
+		void update() {
+			uint64_t tempo = ofGetElapsedTimeMicros();
+			for (auto & n : notas) {
+				if (!n.played) {
 //                    if (n.tempo <= ofGetElapsedTimeMillis()) {
-                    if (n.tempo <= tempo) {
-                        midiOut.sendNoteOn(1, n.note, n.vel);
-    //                    cout << "send note " << n.note << endl;
-                        n.played = true;
-                    }
-                }
-                else {
-                    if (!n.end && n.tempoOff <= tempo) {
-                        midiOut.sendNoteOff(1, n.note, n.vel);
-    //                    cout << "send note off" << n.note << endl;
-                        n.end = true;
-                    }
-                }
-            }
-        }
+					if (n.tempo <= tempo) {
+						midiOut.sendNoteOn(1, n.note, n.vel);
+	//                    cout << "send note " << n.note << endl;
+						n.played = true;
+					}
+				}
+				else {
+					if (!n.end && n.tempoOff <= tempo) {
+						midiOut.sendNoteOff(1, n.note, n.vel);
+	//                    cout << "send note off" << n.note << endl;
+						n.end = true;
+					}
+				}
+			}
+		}
 
 	} config;
 
-    string & scene;
+	string & scene;
 
 	ofxMidia(ofFbo * _f, ofxMicroUI * _u, string & s) : fbo(_f), u(_u), scene(s) {
 		config = configMidi(fbo, u);
 		uiMidi = &u->uis["midi"];
 		uiNotes = &u->uis["notes"];
 		uiC = &u->uis["sceneMidi"];
+		ofAddListener(uiMidi->uiEventMaster, this, &ofxMidia::uiEventMaster);
+
 		ofAddListener(uiMidi->uiEvent, this, &ofxMidia::midiDevicesUIEvent);
 		ofAddListener(uiNotes->uiEvent, this, &ofxMidia::notesUIEvent);
+		
+		ofAddListener(ofEvents().update, this, &ofxMidia::onUpdate);
+		uiMidi->saveMode = ofxMicroUI::MASTER;
+		uiMidi->loadMode = ofxMicroUI::MASTER;
+		
+		midiDevicesUIList();
+	}
+	
+	void uiEventMaster(string & s) {
+//		cout << "||||| uiEventMaster" << endl;
+//		cout << s << endl;
+		setup();
+	}
+	
+	// renomear pra midiDevicesSetup
+	void midiDevicesUIList() {
+		string vals = ofJoinString(config.midiOut.getOutPortList(), "|");
+		string s = "radioPipeNoLabel	midiPort	"+vals;
+		vector <string> clines = { s };
+		uiMidi->clear();
+		uiMidi->createFromLines(clines, true);
+	}
+	
+	
+//	static void midiList(ofxMicroUI * _ui) {
+//		ofxMidiOut midiOut;
+//
+//		string vals = ofJoinString(midiOut.getOutPortList(), "|");
+//		vector <string> lines;
+//		string s = "radioPipeNoLabel    midiPort    "+vals;
+//		cout << s << endl;
+////        vector <string> clines = { "label   FUNCIONA", s };
+//		_ui->futureLines.push_back(s);
+//	}
+	
+	void setup() {
+//        cout << "------" << endl;
+		for (auto & s : scenes) {
+//            cout << "ofxMidia :: adding " << s->name << endl;
+			scenesMap[s->name] = s;
+			scenesMap[s->name]->setup();
+		}
 	}
 
 	struct sceneMidi {
 	public:
 		bool isSetup = false;
 		ofxMicroUI * uiC = NULL;
-        ofxMicroUI * uiNotes = NULL;
-        configMidi * config = NULL;
+		ofxMicroUI * uiNotes = NULL;
+		configMidi * config = NULL;
 		string name = "";
 
 		sceneMidi() {}
 		sceneMidi(configMidi * _c, string n) : config(_c), name(n) {
 			uiC = config->uiC;
-            uiNotes = config->uiNotes;
-            ofAddListener(uiC->uiEvent, this, &sceneMidi::uiEvents);
+			uiNotes = config->uiNotes;
+			ofAddListener(uiC->uiEvent, this, &sceneMidi::uiEvents);
 		}
 
 		virtual void setup() {}
@@ -163,25 +207,7 @@ public:
 		ofAddListener(uiNotes->uiEvent, this, &ofxMidia::notesUIEvent);
 	}
 
-	// renomear pra midiDevicesSetup
-	void midiDevicesUIList() {
-		string vals = ofJoinString(config.midiOut.getOutPortList(), "|");
-		vector <string> lines;
-		uiMidi->futureLines.push_back("radioPipeNoLabel	midiPort	"+vals);
-	}
-	
-	void setup() {
-		ofAddListener(ofEvents().update, this, &ofxMidia::onUpdate);
-		midiDevicesUIList();
-		uiMidi->saveMode = ofxMicroUI::MASTER;
-		uiMidi->loadMode = ofxMicroUI::MASTER;
 
-		for (auto & s : scenes) {
-			cout << ":: adding " << s->name << endl;
-			scenesMap[s->name] = s;
-			scenesMap[s->name]->setup();
-		}
-	}
 	
 	void onUpdate(ofEventArgs &data) {
 		// nao sei se precisa update aqui.
@@ -191,8 +217,8 @@ public:
 			}
 		}
 		update();
-        // checa as notas se foram tocadas ou nao
-        config.update();
+		// checa as notas se foram tocadas ou nao
+		config.update();
 	}
 
 
@@ -231,15 +257,15 @@ public:
 	float nextJump = 0;
 	
 	vector <int> willErase;
-    void update() {
-        
-        if (scene != "" && scene != "_") {
-            if ( scenesMap.find(scene) != scenesMap.end() ) {
-                scenesMap[scene]->update();
-            }
-        }
-        
-        // passar muita coisa aqui pra dentro do config
+	void update() {
+		
+		if (scene != "" && scene != "_") {
+			if ( scenesMap.find(scene) != scenesMap.end() ) {
+				scenesMap[scene]->update();
+			}
+		}
+		
+		// passar muita coisa aqui pra dentro do config
 		willErase.clear();
 		for (int a = config.notas.size()-1; a>=0; a--) {
 //			cout << a << endl;
@@ -256,7 +282,7 @@ public:
 //			cout << notas.size() << endl;
 			nextJump = ofGetElapsedTimef() + 1.0;
 		}
-    }
+	}
 
 	void midiDevicesUIEvent(ofxMicroUI::element & e) {
 		if (e.name == "midiPort") {
@@ -266,7 +292,7 @@ public:
 					config.midiOut.closePort();
 				}
 				cout << "midiOut open :: " << dev << endl;
-                config.midiOut.openPort(dev);
+				config.midiOut.openPort(dev);
 				midiDevicesLastDev = dev;
 			}
 		}
@@ -297,5 +323,3 @@ public:
 		}
 	}
 };
-
-

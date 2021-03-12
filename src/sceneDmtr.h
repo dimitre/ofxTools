@@ -150,7 +150,7 @@ struct sceneBaseType : public virtual ofxScenes::sceneDmtrBasic {
 	using sceneDmtrBasic::sceneDmtrBasic;
     
     ofTrueTypeFont * type = NULL;
-    void setup() {
+    void setup() override {
         type = &uiC->pFont["type"];
     }
     
