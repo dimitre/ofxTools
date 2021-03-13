@@ -441,7 +441,9 @@ public:
 //        ofAddListener(uiSyphon->uiEvent, this, &featureSyphonIn::syphonInUIEvent);
 	}
 	void begin() override { }
+    
 	void end() override { }
+    
 	void uiEvents(ofxMicroUI::element & e) override {
 		if (e.name == "syphon") {
 			vector <string> sp = ofSplitString(*e.s, "--");
@@ -455,7 +457,7 @@ public:
 	}
 	
 	void syphonUpdated(ofxSyphonServerDirectoryEventArgs &arg) {
-//        cout << "::::::::::::: syphon updated list " << endl;
+        cout << "::::::::::::: syphon updated list " << endl;
 		ui->clear();
 		vector <string> options;
 		for (auto & s : syphonList.getServerList()) {
@@ -466,9 +468,7 @@ public:
 			options.push_back(nome);
 		}	
 		vector <string> lines = { "radioPipeNoLabel	syphon	" + ofJoinString(options, "|")};
-//        ui->createFromLines(lines);
 		ui->createFromLines(lines,true);
-//        ui->redraw();
 	}
 };
 
@@ -665,13 +665,11 @@ public:
 
 #endif
 
-	
 
 
 
 
-
-struct featureMiawBg : public microFeature {
+struct featureColorBackground : public microFeature {
 	public:
 	using microFeature::microFeature;
 	ofMesh fundoMesh;

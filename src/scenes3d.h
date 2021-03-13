@@ -795,6 +795,7 @@ public:
 	void draw() override {
 //        cout << "draw box scene" << endl;
 		checkSetup();
+        ofSetColor(getCor(0));
 		float aresta = uiC->pEasy["aresta"] + updown * uiC->pEasy["arestaAudio"];
 		if (uiC->pBool["plane"]) {
 			plane.drawWireframe();
@@ -1340,21 +1341,27 @@ public:
 #ifdef INSIDE
 void setupScenes3d() {
 		// 3d
-	scenes.push_back(new sceneOcean(&config, "ocean"));
-	scenes.push_back(new sceneGridbox(&config, "gridbox"));
-	scenes.push_back(new sceneSolidos(&config, "solidos"));
-	scenes.push_back(new scenePulsar(&config, "pulsar"));
-	scenes.push_back(new sceneLuan(&config, "luan"));
-	scenes.push_back(new sceneBox(&config, "box"));
-	scenes.push_back(new sceneNovelo(&config, "novelo"));
+
+	scenes = {
+		new sceneOcean("ocean"),
+		new sceneGridbox("gridbox"),
+		new sceneSolidos("solidos"),
+		new scenePulsar("pulsar"),
+		new sceneLuan("luan"),
+		new sceneBox("box"),
+		new sceneNovelo("novelo"),
 	//xaxa
-	scenes.push_back(new scene3d(&config, "3d"));
-	scenes.push_back(new sceneGalaxia(&config, "galaxia"));
-	scenes.push_back(new sceneGirinos3d(&config, "girinos3d"));
+		new scene3d("3d"),
+		new sceneGalaxia("galaxia"),
+		new sceneGirinos3d("girinos3d"),
+
+		new scenePoeira("poeira"),
 #ifdef USEASSIMP
-	scenes.push_back(new sceneModel(&config, "model"));
+		new sceneModel("model"),
 #endif
-	scenes.push_back(new scenePoeira(&config, "poeira"));
+	};
+
+
 }
 
 #endif

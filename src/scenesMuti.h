@@ -869,7 +869,7 @@ struct sceneStripOndas : public sceneMuti {
 	vector <strip> strips;
     
 	void setup() override {
-        cout << "setup sceneStripOndas" << endl;
+//        cout << "setup sceneStripOndas" << endl;
 		int pos = 0;
         for (int y=0; y<6; y++) {
             for (int x=0; x<10; x++) {

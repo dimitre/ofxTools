@@ -65,6 +65,7 @@ public:
     string sceneName = "scene";
 
     void afterSetup() {
+//        scenes.clear();
         ofAddListener(ui->uiEvent, this, &ofxScenes::uiEvents);
         ofAddListener(ui->uiEventMaster, this, &ofxScenes::uiEventMaster);
     }
@@ -87,7 +88,8 @@ public:
 
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, ofxMicroUI * _uiC, ofxMicroUI * _uiColors, string s) : sceneName(s)
     {
-        config = sceneConfig(_f, _u);
+        cout << "|||||| ofxSCENES uiColors = " << _uiColors->uiName << endl;
+        config = sceneConfig(_f, _u, _uiC, _uiColors);
 		ui = &_u->uis["ui"];
         afterSetup();
 	}
@@ -100,17 +102,19 @@ public:
 		}
 	}
 
-
 	void setup() {
 		ofAddListener(ofEvents().update, this, &ofxScenes::onUpdate);
-//		cout << "------" << endl;
+//        cout << "ofxScenes Adding number of scenes: " << scenes.size() << endl;
+        
 		for (auto & s : scenes) {
-			cout << "ofxScenes :: adding " << s->name << endl;
-            if (s->config == NULL) {
-                s->addConfig(&config);
-            } else {
+            if (s->name != "") {
+                cout << "ofxScenes :: adding " << s->name << endl;
+                if (s->config == NULL) {
+                    s->addConfig(&config);
+                } else {
+                }
+                s->setup();
             }
-            s->setup();
 		}
 //		cout << "------" << endl;
 	}
@@ -124,7 +128,10 @@ public:
 	void draw() {
 		ofSetLineWidth(ui->pEasy["lineWidth"]);
         if (_scene != NULL) {
+//            cout << _scene->name << endl;
             _scene->draw();
+        } else {
+//            cout << "scene is null" << endl;
         }
 	}
     
@@ -134,6 +141,7 @@ public:
         }
     }
     void uiEvents(ofxMicroUI::element & e) {
+//        cout << "uiEvents " << e.name << ":" << sceneName << endl;
         if (e.name == sceneName) {
             string scene = *e.s;
             if (scene != lastScene) {

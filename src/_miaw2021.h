@@ -28,10 +28,6 @@ featureShader shaders3d =   featureShader(&soft, "shaders3d", uiShaders, &u.uis[
 featureShader shadersgen =  featureShader(&soft, "shadersgem", uiShaders, &u.uis["shadersgen"]);
 featureShader shadersfeed = featureShader(&soft, "shadersfeed", uiShaders, &u.uis["shadersfeed"]);
 
-#ifdef USEREMOTE
-ofxMicroUIRemote uiRemote;
-#endif
-
 // resquicios do DmtrCairo.h finado
 bool useCairo = false;
 bool savingCairo = false;
@@ -53,17 +49,7 @@ void setupMiaw() {
 //    soft.fboFinal = &soft.fbo3;
 //    soft.setUI(&u);
     
-#ifdef USEREMOTE
-    uiRemote.loadConfig("_osc.txt");
-    uiRemote.oscInfo = ((ofxMicroUI::inspector*)u.getElement("oscInfo"));//()
-    uiRemote.oscInfoReceive = ((ofxMicroUI::inspector*)u.getElement("oscInfoReceive"));//()
-    ofAddListener(uiRemote.eventMessage, this, &ofApp::remoteMessage);
-    uiRemote.setupServer();
-    uiRemote.addUI(&u);
-    for (auto & u : u.allUIs) {
-        uiRemote.addUI(u);
-    }
-#endif
+
 }
 
 // preset part from OSC

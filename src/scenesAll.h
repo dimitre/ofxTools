@@ -2203,7 +2203,7 @@ public:
 
 
 #ifdef USEASSIMP
-struct sceneModel : public ofxScenes::sceneDmtr {
+struct sceneModel : public ofxScenes::sceneDmtr, ofxScenes::sceneIncrementa  {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "model";
@@ -2224,9 +2224,12 @@ public:
 	vector <ofVboMesh> meshes;
 
 	int margem = 400;
-	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
+    ofRectangle boundsRect;
+    
 
 	void setup() override {
+        boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
+        
 		ofDirectory dir;
 		dir.allowExt("dae");
 		dir.listDir("_model");
@@ -2256,8 +2259,6 @@ public:
 	void drawModel() {
 		if (uiC->pBool["drawModel"]) {
 			_model->drawFaces();
-			// modelMap[uiC->pString["model"]].drawFaces();
-			// model.drawFaces();
 		}	
 		else {
 			if (uiC->pBool["meshesEveryFrame"]) {
@@ -2298,8 +2299,12 @@ public:
 		float scale = uiC->pEasy["scale"];
 		// model.setScale(scale, scale, scale);
 		// model.update();
+        if (_model != NULL) {
 		_model->setScale(scale, scale, scale);
 		_model->update();
+        } else {
+            cout << "model is NULL " << endl;
+        }
 
 
 
@@ -2337,7 +2342,9 @@ public:
 			}
 		} else {
 			for (int a=0; a<3; a++) {
-				ofSetColor(getColor(0, uiColors));
+//                cout << a << endl;
+                ofSetColor(getCor(0));
+//				ofSetColor(getColor(0, uiColors));
 				ofPushMatrix();
 				float x = ofMap(a, 0, 10, -1100, 1100);
 				ofTranslate(x, 0);
@@ -2362,25 +2369,12 @@ public:
 
 		if (e.name == "model") {
 			_model = &modelMap[*e.s];
+            for (auto & m : modelMap) {
+                cout << m.first << endl;
+            }
+            cout << "model is now " << *e.s << endl;
+            cout << _model << endl;
 		}
-		// if (e.name == "model") {
-		// 	if (*e.s != "") {
-		// 		string file = ((ofxMicroUI::dirList*)&e)->getFileName();
-		// 		if (loadedFile != file && ofFile::doesFileExist(file)) {
-		// 			loadedFile = file;
-					
-		// 			model.loadModel(file, false);
-		// 			// model.setPosition(middle.x, middle.y , 0);
-		// 			model.setLoopStateForAllAnimations(OF_LOOP_NORMAL);
-		// 			model.playAllAnimations();
-
-		// 			// model.setPositionForAllAnimations(ofRandom(0,1));
-		// 			model.disableColors();
-		// 			model.disableMaterials();
-		// 			updateMeshes();
-		// 		}
-		// 	}
-		// }
 	}
 };
 
