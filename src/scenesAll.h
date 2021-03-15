@@ -2258,7 +2258,9 @@ public:
 
 	void drawModel() {
 		if (uiC->pBool["drawModel"]) {
-			_model->drawFaces();
+            if (_model != NULL) {
+                _model->drawFaces();
+            }
 		}	
 		else {
 			if (uiC->pBool["meshesEveryFrame"]) {

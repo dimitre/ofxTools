@@ -441,9 +441,9 @@ public:
 //        ofAddListener(uiSyphon->uiEvent, this, &featureSyphonIn::syphonInUIEvent);
 	}
 	void begin() override { }
-    
+	
 	void end() override { }
-    
+	
 	void uiEvents(ofxMicroUI::element & e) override {
 		if (e.name == "syphon") {
 			vector <string> sp = ofSplitString(*e.s, "--");
@@ -457,7 +457,7 @@ public:
 	}
 	
 	void syphonUpdated(ofxSyphonServerDirectoryEventArgs &arg) {
-        cout << "::::::::::::: syphon updated list " << endl;
+		cout << "::::::::::::: syphon updated list " << endl;
 		ui->clear();
 		vector <string> options;
 		for (auto & s : syphonList.getServerList()) {
@@ -534,7 +534,10 @@ public:
 		cairoOut = make_shared<ofCairoRenderer>();
 		cairo->setupMemoryOnly(ofCairoRenderer::IMAGE, false, false, rect);
 //        bool useCairo = soft->_ui->uis["ui"].pBool["useCairo"];
+	}
 
+	void save() {
+		savingCairo = true;
 	}
 	
 	void beginSave() {
@@ -543,11 +546,10 @@ public:
 		cout << "SAVING " << savingCairoFilename << endl;
 		cairoOut->setup(savingCairoFilename, ofCairoRenderer::SVG, false, false, rect);
 		ofSetCurrentRenderer(cairoOut);
-//		ofGetCurrentRenderer()->setupGraphicDefaults();
-        
+//		ofGetCurrentRenderer()->setupGraphicDefaults();		
 //        ofGetCurrentRenderer()->background(ofColor(0,0));
 //        ofGetCurrentRenderer()->setBackgroundColor(ofColor(0,0));
-        
+
 		ofStyle style = ofGetCurrentRenderer()->getStyle();
 		ofGetCurrentRenderer()->setStyle(style);
 		cairo_set_miter_limit(cairoOut->getCairoContext(), 2);
@@ -559,7 +561,7 @@ public:
 		render.loadData(cairoOut->getImageSurfacePixels());
 		cairoOut->close();
 		string resultado = ofSystem("open " + ofToDataPath(savingCairoFilename));
-        savingCairo = false;
+		savingCairo = false;
 	}
 	
 	void begin() override {
@@ -801,39 +803,39 @@ struct featureTex : public microFeature {
 	using microFeature::microFeature;
 	ofFbo fbo;
 	void setup() override {
-        ofDisableArbTex();
+		ofDisableArbTex();
 		fbo.allocate(512, 512, GL_RGBA);
 		fbo.begin();
 		ofClear(0,255);
-        ofClear(255,0,255);
+		ofClear(255,0,255);
 		fbo.end();
 	}
 
 	void begin() override {
-        if (fbo.isAllocated() && ui->pBool["tex"]) {
-           fbo.getTexture().bind();
-        } else {
-        }
+		if (fbo.isAllocated() && ui->pBool["tex"]) {
+		   fbo.getTexture().bind();
+		} else {
+		}
 	}
-    
+	
 	void end() override {
-        if (fbo.isAllocated() && ui->pBool["tex"]) {
-           fbo.getTexture().unbind();
-        }
+		if (fbo.isAllocated() && ui->pBool["tex"]) {
+		   fbo.getTexture().unbind();
+		}
 	}
-    
+	
 	void uiEvents(ofxMicroUI::element & e) override {
-        fbo.begin();
-            ofClear(0,255);
-            ofSetColor(255);
-            ofImage * t = &ui->pImage["tex"];
-            ofImage * i = &ui->pImage["image"];
-        
-            ofSetColor(255);
-            t->draw(0,0, t->getWidth() * ui->pFloat["texScale"], t->getHeight() * ui->pFloat["texScale"]);
-            ofSetColor(ui->pColor["imageColor"]);
-            i->draw(ui->pFloat["imageX"], ui->pFloat["imageY"], i->getWidth() * ui->pFloat["imageScale"], i->getHeight() * ui->pFloat["imageScale"]);
-        fbo.end();
-        
-    }
+		fbo.begin();
+			ofClear(0,255);
+			ofSetColor(255);
+			ofImage * t = &ui->pImage["tex"];
+			ofImage * i = &ui->pImage["image"];
+		
+			ofSetColor(255);
+			t->draw(0,0, t->getWidth() * ui->pFloat["texScale"], t->getHeight() * ui->pFloat["texScale"]);
+			ofSetColor(ui->pColor["imageColor"]);
+			i->draw(ui->pFloat["imageX"], ui->pFloat["imageY"], i->getWidth() * ui->pFloat["imageScale"], i->getHeight() * ui->pFloat["imageScale"]);
+		fbo.end();
+		
+	}
 };

@@ -1186,7 +1186,7 @@ struct sceneTyper :  public ofxScenes::sceneBaseType, public sceneBasePoco {
             output = texto;
         }
         
-		int numero = ofNoise(ofGetElapsedTimef()*uiC->pFloat["multNumberTime"]) * 10;
+		// int numero = ofNoise(ofGetElapsedTimef()*uiC->pFloat["multNumberTime"]) * 10;
 
 		ofSetColor(getCor(0));
         
@@ -1204,7 +1204,9 @@ struct sceneTyper :  public ofxScenes::sceneBaseType, public sceneBasePoco {
         if (uiC->pBool["rainbow"]) {
             float x = uiC->pInt["textoX"];
             float y = uiC->pInt["textoY"];
-            for (auto & l : letras) {
+
+			for (int a=0; a<letras.size(); a++) {
+            // for (auto & l : letras) {
                 ofSetColor(ofColor::fromHsb(x*uiC->pEasy["hue"], 255, 255));
                 type->drawStringAsShapes(texto, x, y + 200);
                 x+= uiC->pEasy["espaco"];

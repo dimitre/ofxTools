@@ -108,7 +108,7 @@ public:
         
 		for (auto & s : scenes) {
             if (s->name != "") {
-                cout << "ofxScenes :: adding " << s->name << endl;
+                cout << "ofxScenes " << sceneName << " :: adding " << s->name << endl;
                 if (s->config == NULL) {
                     s->addConfig(&config);
                 } else {
