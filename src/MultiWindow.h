@@ -44,18 +44,18 @@ int main( ){
     int monitorCount;
     GLFWmonitor** monitors = glfwGetMonitors(&monitorCount);
 	
-    cout << "Multiwindow manager start" << endl;
-	#ifdef TARGET_OSX
-		cout << "TARGET_OSX" << endl;
-	#endif
-		
-	#ifdef TARGET_LINUX
-		cout << "TARGET_LINUX" << endl;
-	#endif
-
-	#ifdef TARGET_LINUX64
-		cout << "TARGET_LINUX64" << endl;
-	#endif
+//    cout << "Multiwindow manager start" << endl;
+//	#ifdef TARGET_OSX
+//		cout << "TARGET_OSX" << endl;
+//	#endif
+//
+//	#ifdef TARGET_LINUX
+//		cout << "TARGET_LINUX" << endl;
+//	#endif
+//
+//	#ifdef TARGET_LINUX64
+//		cout << "TARGET_LINUX64" << endl;
+//	#endif
 
 	cout << glfwGetVersionString() << endl;
     cout << "Screens Found: " << monitorCount << endl;
@@ -82,7 +82,7 @@ int main( ){
         const GLFWvidmode * desktopMode = glfwGetVideoMode(monitors[a]);
 //		cout << (ofAppGLFWWindow *)(monitors[a])->getPixelScreenCoordScale() << "\r";
 		glm::vec2 size = glm::vec2(desktopMode->width, desktopMode->height);
-		output += "size: " + ofToString(size.x) + " x " + ofToString(size.y) + "\r";
+		output += "size: " + ofToString(size.x) + " x " + ofToString(size.y) ; //+ "\r"
 		// output << "size:" << size << endl;
 
 		if (a > 0) {
