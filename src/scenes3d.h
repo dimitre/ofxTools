@@ -1,53 +1,53 @@
 static void calcNormals( ofMesh & mesh, bool bNormalize, bool mode){
-    for( int i=0; i < mesh.getIndices().size(); i+=3 ){
-        const int ia = mesh.getIndices()[i];
-        const int ib = mesh.getIndices()[i+1];
-        const int ic = mesh.getIndices()[i+2];
-        glm::vec3 e1 = mesh.getVertices()[ia] - mesh.getVertices()[ib];
-        glm::vec3 e2 = mesh.getVertices()[ic] - mesh.getVertices()[ib];
-        // depending on your clockwise / winding order, you might want to reverse the e2 / e1 above if your normals are flipped.
-        glm::vec3 no = mode ? glm::cross(e2, e1) : glm::cross(e1, e2);
-        mesh.getNormals()[ia] = no;
-        mesh.getNormals()[ib] = no;
-        mesh.getNormals()[ic] = no;
-    }
+	for( int i=0; i < mesh.getIndices().size(); i+=3 ){
+		const int ia = mesh.getIndices()[i];
+		const int ib = mesh.getIndices()[i+1];
+		const int ic = mesh.getIndices()[i+2];
+		glm::vec3 e1 = mesh.getVertices()[ia] - mesh.getVertices()[ib];
+		glm::vec3 e2 = mesh.getVertices()[ic] - mesh.getVertices()[ib];
+		// depending on your clockwise / winding order, you might want to reverse the e2 / e1 above if your normals are flipped.
+		glm::vec3 no = mode ? glm::cross(e2, e1) : glm::cross(e1, e2);
+		mesh.getNormals()[ia] = no;
+		mesh.getNormals()[ib] = no;
+		mesh.getNormals()[ic] = no;
+	}
 
-    if (bNormalize) {
-        for (auto & n : mesh.getNormals()) {
-            n = glm::normalize(n);
-        }
-    }
+	if (bNormalize) {
+		for (auto & n : mesh.getNormals()) {
+			n = glm::normalize(n);
+		}
+	}
 }
 
 
 static void drawMeshStatic(ofMesh * m, ofxMicroUI * ui) {
-    if (ui->pString["draw"] == "wire") {
-        m->drawWireframe();
-    }
-    else if (ui->pString["draw"] == "faces") {
-        m->drawFaces();
-    }
-    else if (ui->pString["draw"] == "points") {
-        //cout << "aqui " << endl;
-        glDisable(GL_POINT_SMOOTH);
-        glPointSize(ui->pEasy["pointSize"]);
-        m->draw(OF_MESH_POINTS);
-    }
+	if (ui->pString["draw"] == "wire") {
+		m->drawWireframe();
+	}
+	else if (ui->pString["draw"] == "faces") {
+		m->drawFaces();
+	}
+	else if (ui->pString["draw"] == "points") {
+		//cout << "aqui " << endl;
+		glDisable(GL_POINT_SMOOTH);
+		glPointSize(ui->pEasy["pointSize"]);
+		m->draw(OF_MESH_POINTS);
+	}
 }
 
 static void drawMeshStatic(ofVboMesh * m, ofxMicroUI * ui) {
-    if (ui->pString["draw"] == "wire") {
-        m->drawWireframe();
-    }
-    else if (ui->pString["draw"] == "faces") {
-        m->drawFaces();
-    }
-    else if (ui->pString["draw"] == "points") {
-        //cout << "aqui " << endl;
-        glDisable(GL_POINT_SMOOTH);
-        glPointSize(ui->pEasy["pointSize"]);
-        m->draw(OF_MESH_POINTS);
-    }
+	if (ui->pString["draw"] == "wire") {
+		m->drawWireframe();
+	}
+	else if (ui->pString["draw"] == "faces") {
+		m->drawFaces();
+	}
+	else if (ui->pString["draw"] == "points") {
+		//cout << "aqui " << endl;
+		glDisable(GL_POINT_SMOOTH);
+		glPointSize(ui->pEasy["pointSize"]);
+		m->draw(OF_MESH_POINTS);
+	}
 }
 
 
@@ -179,7 +179,7 @@ public:
 			calcNormals(mesh, uiC->pBool["normalize"], uiC->pBool["winding"]);
 		}
 
-        drawMeshStatic(&mesh, ui);
+		drawMeshStatic(&mesh, ui);
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
@@ -381,10 +381,10 @@ public:
 							ofTranslate(-raio*0.65, 0);
 							drawMeshStatic(&m, ui);
 							ofTranslate(raio*1.3, 0);
-                            drawMeshStatic(&m, ui);
+							drawMeshStatic(&m, ui);
 						}
 						else {
-                            drawMeshStatic(&m, ui);
+							drawMeshStatic(&m, ui);
 						}
 						ofPopMatrix();
 					}
@@ -644,7 +644,7 @@ public:
 //			ofDisableDepthTest();
 			uiC->pImage["pointSprite"+ ofToString(i)].getTexture().bind();
 //			glBegin(GL_POINTS);
-            drawMeshStatic(&c, ui);
+			drawMeshStatic(&c, ui);
 //			glEnd();
 			uiC->pImage["pointSprite"+ ofToString(i)].getTexture().unbind();
 
@@ -768,7 +768,7 @@ public:
 				ofPushMatrix();
 				ofRotateYDeg(aa);
 //				drawMesh(&mesh);
-                drawMeshStatic(&mesh, ui);
+				drawMeshStatic(&mesh, ui);
 
 				ofPopMatrix();
 			}
@@ -795,7 +795,7 @@ public:
 	void draw() override {
 //        cout << "draw box scene" << endl;
 		checkSetup();
-        ofSetColor(getCor(0));
+		ofSetColor(getCor(0));
 		float aresta = uiC->pEasy["aresta"] + updown * uiC->pEasy["arestaAudio"];
 		if (uiC->pBool["plane"]) {
 			plane.drawWireframe();
@@ -822,48 +822,48 @@ public:
 
 struct sceneGridbox : public ofxScenes::sceneDmtr {
 public:
-    using sceneDmtr::sceneDmtr;
-    // name = "gridbox";
+	using sceneDmtr::sceneDmtr;
+	// name = "gridbox";
 
-    void draw() override {
-       cout << "draw gridbox scene" << endl;
+	void draw() override {
+	   cout << "draw gridbox scene" << endl;
 
-        ofSetColor(255);
-        // ofSetLineWidth(uiC->pEasy["linewidth"]);
-        int numero = 0;
-        float aresta = uiC->pEasy["aresta"];
-        float limite = uiC->pInt["nx"] * aresta * .5;
-        
-        float w = uiC->pEasy["w"] * aresta;
-        float h = uiC->pEasy["h"] * aresta;
-        float d = uiC->pEasy["d"] * aresta;
-        
-        if (ui->pString["draw"] == "wire") {
-            ofNoFill();
-        } else {
-            ofFill();
-        }
-        
-        float total = uiC->pInt["nx"] * uiC->pInt["ny"];
-        
-        for (int a=0; a<uiC->pInt["nx"]; a++) {
-            for (int b=0; b<uiC->pInt["ny"]; b++) {
-                float x = ofMap(a, 0, uiC->pInt["nx"], -limite, limite);
-                float y = ofMap(b, 0, uiC->pInt["ny"], -limite, limite);
-                if (uiC->pBool["color"]) {
-                    float hue = fmod(numero*uiC->pEasy["hueMult"] + uiC->pEasy["hue"], 255);
-                    ofSetColor(ofColor::fromHsb(hue, uiC->pEasy["sat"], 255));
-                } else {
-                    float n = (float)numero / total;
+		ofSetColor(255);
+		// ofSetLineWidth(uiC->pEasy["linewidth"]);
+		int numero = 0;
+		float aresta = uiC->pEasy["aresta"];
+		float limite = uiC->pInt["nx"] * aresta * .5;
+		
+		float w = uiC->pEasy["w"] * aresta;
+		float h = uiC->pEasy["h"] * aresta;
+		float d = uiC->pEasy["d"] * aresta;
+		
+		if (ui->pString["draw"] == "wire") {
+			ofNoFill();
+		} else {
+			ofFill();
+		}
+		
+		float total = uiC->pInt["nx"] * uiC->pInt["ny"];
+		
+		for (int a=0; a<uiC->pInt["nx"]; a++) {
+			for (int b=0; b<uiC->pInt["ny"]; b++) {
+				float x = ofMap(a, 0, uiC->pInt["nx"], -limite, limite);
+				float y = ofMap(b, 0, uiC->pInt["ny"], -limite, limite);
+				if (uiC->pBool["color"]) {
+					float hue = fmod(numero*uiC->pEasy["hueMult"] + uiC->pEasy["hue"], 255);
+					ofSetColor(ofColor::fromHsb(hue, uiC->pEasy["sat"], 255));
+				} else {
+					float n = (float)numero / total;
 //                    cout << n << endl;
-                    ofSetColor(ofxScenes::getColor(n, config->uiColors));
+					ofSetColor(ofxScenes::getColor(n, config->uiColors));
 					ofSetColor(getCor(n));
-                }
-                ofDrawBox(x, 0, y, w, h, d);
-                numero ++;
-            }
-        }
-    }
+				}
+				ofDrawBox(x, 0, y, w, h, d);
+				numero ++;
+			}
+		}
+	}
 };
 
 
@@ -1041,9 +1041,9 @@ public:
 	} girinoSet, girinoSet2;
 
 
-    static glm::vec2 p2c (glm::vec2 pos) {
-        return glm::vec2(pos.y * cos(ofDegToRad(pos.x)), pos.y * sin(ofDegToRad(pos.x)));
-    }
+	static glm::vec2 p2c (glm::vec2 pos) {
+		return glm::vec2(pos.y * cos(ofDegToRad(pos.x)), pos.y * sin(ofDegToRad(pos.x)));
+	}
 
 	struct girino {
 	public:
@@ -1415,3 +1415,303 @@ struct sceneVbo : public virtual ofxScenes::sceneDmtrBasic {
 		create();
 	}
 };
+
+
+
+
+
+
+
+
+#ifdef USEASSIMP
+struct sceneModel : public ofxScenes::sceneDmtr, ofxScenes::sceneIncrementa  {
+public:
+	using sceneDmtr::sceneDmtr;
+	// name = "model";
+
+	// neue
+//    shared_ptr<ofShader>    mShdInstanced;
+//    ofTexture    mTexDepth;
+	string loadedFile = "";
+	ofxAssimpModelLoader model;
+	ofxAssimpModelLoader * _model = NULL;
+
+
+	// vector <ofxAssimpModelLoader *> models;
+	// map <string, ofxAssimpModelLoader*> modelMap;
+	map <string, ofxAssimpModelLoader> modelMap;
+
+	ofMesh mesh;
+	vector <ofVboMesh> meshes;
+
+	int margem = 400;
+	ofRectangle boundsRect;
+	
+
+	void setup() override {
+		boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
+		
+		ofDirectory dir;
+		dir.allowExt("dae");
+		dir.allowExt("obj");
+		dir.listDir("_model");
+		dir.sort();
+		cout << "SETUP SCENEMODEL =============" << endl;
+		for (auto & d : dir) {
+			// cout << d.getBaseName() << endl;
+			string name = d.getFileName();
+			cout << name << endl;
+			modelMap[name].loadModel("_model/" + d.getFileName(), false);
+			modelMap[name].setLoopStateForAllAnimations(OF_LOOP_NORMAL);
+			modelMap[name].playAllAnimations();
+			modelMap[name].disableColors();
+			modelMap[name].disableMaterials();
+		}
+//        mShdInstanced = shared_ptr<ofShader>(new ofShader());
+//        mShdInstanced->load("_instanced/instanced_120.vert", "_instanced/instanced_120.frag");
+	}
+	
+	void updateMeshes() {
+		meshes.clear();
+		for (int a=0; a<model.getMeshCount(); a++) {
+			meshes.push_back(model.getMesh(a));
+		}
+	}
+
+	void drawModel() {
+		if (uiC->pBool["drawModel"]) {
+			if (_model != NULL) {
+				_model->drawFaces();
+			}
+		}
+		else {
+			if (uiC->pBool["meshesEveryFrame"]) {
+				updateMeshes();
+			}
+			for (auto & m : meshes) {
+				m.draw();
+			}
+		}
+	}
+
+
+//    void drawInstanced() {
+//        mShdInstanced->begin();
+//        // give the shader access to our texture
+//        mShdInstanced->setUniformTexture("tex0", mTexDepth, 0);
+//        // feed the shader a normalized float value that changes over time, to animate things a little
+//        mShdInstanced->setUniform1f("timeValue", (ofGetElapsedTimeMillis() % 30000) / 30000.0f);
+//        // we only want to see triangles facing the camera.
+//        glEnable(GL_CULL_FACE);
+//        glCullFace(GL_BACK);
+//
+//        // let's draw 128 * 128 == 16384 boxes !
+////        mVboBox.drawInstanced(OF_MESH_FILL, 128*128);
+//        for (auto & m : meshes) {
+//            m.drawInstanced(OF_MESH_FILL, 128*128);
+//        }
+//
+//
+//        glDisable(GL_CULL_FACE);
+//        mShdInstanced->end();
+//    }
+
+	void draw() override {
+		checkSetup();
+		ofSetColor(255);
+		ofEnableDepthTest();
+		float scale = uiC->pEasy["scale"];
+		// model.setScale(scale, scale, scale);
+		// model.update();
+		if (_model != NULL) {
+		_model->setScale(scale, scale, scale);
+		_model->update();
+		} else {
+			cout << "model is NULL " << endl;
+		}
+
+
+
+		if (!uiC->pEasy["spaceX"]) {
+			uiC->pEasy["spaceX"] = uiC->pFloat["spaceX"];
+		}
+		if (!uiC->pEasy["spaceY"]) {
+			uiC->pEasy["spaceY"] = uiC->pFloat["spaceY"];
+		}
+		float spaceX = uiC->pEasy["spaceX"] ? uiC->pEasy["spaceX"] : uiC->pFloat["spaceX"];
+		float spaceY = uiC->pEasy["spaceY"] ? uiC->pEasy["spaceY"] : uiC->pFloat["spaceY"];
+		
+		if (uiC->pBool["rapport"]) {
+			float nx = (boundsRect.width - boundsRect.x) / spaceX;
+			float ny = (boundsRect.height - boundsRect.y) / spaceY;
+			
+			float offX = fmod(incrementa("velX"), spaceX) - spaceX *.5;
+			float offY = fmod(incrementa("velY"), spaceY) - spaceY *.5;
+
+			for (float x=0; x<nx; x++) {
+				for (float y=0; y<ny; y++) {
+					if (!uiC->pBool["impar"] || (int(x+y)%2)) {
+						ofPushMatrix();
+						float xx = x * spaceX + offX;
+						float yy = y * spaceY + offY;
+						ofTranslate(xx, yy);
+						ofRotateXDeg(incrementa("rotXTime") + uiC->pEasy["rX"] * (float)xx);
+						ofRotateYDeg(incrementa("rotYTime") + uiC->pEasy["rY"] * (float)yy);
+						ofRotateZDeg(incrementa("rotZTime") + uiC->pEasy["rYZ"] * (float)yy);
+						ofTranslate(uiC->pEasy["transX"], uiC->pEasy["transY"]);
+						drawModel();
+						ofPopMatrix();
+					}
+				}
+			}
+		} else {
+			for (int a=0; a<3; a++) {
+//                cout << a << endl;
+				ofSetColor(getCor(0));
+//                ofSetColor(getColor(0, uiColors));
+				ofPushMatrix();
+				float x = ofMap(a, 0, 10, -1100, 1100);
+				ofTranslate(x, 0);
+				
+
+				drawModel();
+				ofPopMatrix();
+			}
+		}
+		ofDisableDepthTest();
+	}
+	
+	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "resetTime" && !e._settings->presetIsLoading) {
+			uiC->set("rotXTime", float(0.0));
+			uiC->set("rotYTime", float(0.0));
+			uiC->set("rotZTime", float(0.0));
+			resetIncrementa("rotXTime");
+			resetIncrementa("rotYTime");
+			resetIncrementa("rotZTime");
+		}
+
+		if (e.name == "model") {
+			if (modelMap.find(*e.s) != modelMap.end()) {
+				_model = &modelMap[*e.s];
+				for (auto & m : modelMap) {
+					cout << m.first << endl;
+				}
+				cout << "model is now " << *e.s << endl;
+				cout << _model << endl;
+			}
+		}
+	}
+};
+
+
+
+
+struct sceneModelSimple : public ofxScenes::sceneDmtr, ofxScenes::sceneIncrementa  {
+public:
+	using sceneDmtr::sceneDmtr;
+	
+	ofxAssimpModelLoader model;
+	ofMesh mesh;
+	vector <ofVboMesh> meshes;
+
+	float rx, ry, rz;
+	// float tx, ty, tz;
+	glm::vec3 trans;
+
+	void draw() override {
+		ofSetColor(255);
+		if (uiC->pBool["random"]) {
+			if (ofGetFrameNum() % uiC->pInt["frames"] == 0) {
+			// if (ofRandom(0,1) > uiC->pFloat["random"]) {
+				rx = ofRandom(0,360);
+				ry = ofRandom(0,360);
+				rz = ofRandom(0,360);
+				uiC->pFloat["rx"] = ofRandom(-90,90);
+				uiC->pFloat["ry"] = ofRandom(-90,90);
+				uiC->pFloat["rz"] = ofRandom(-90,90);
+
+				trans = glm::vec3(ofRandom(-200,200), ofRandom(-200,200), ofRandom(-200,200));
+			}
+		} else {
+			float rot = incrementa("rotAuto");
+			rx = uiC->pEasy["rotX"] + sin(rot)*uiC->pEasy["rotXAuto"];
+			ry = uiC->pEasy["rotY"] + sin(rot)*uiC->pEasy["rotYAuto"];
+			rz = uiC->pEasy["rotZ"] + sin(rot)*uiC->pEasy["rotZAuto"];
+			uiC->pFloat["rx"] = rx;
+			uiC->pFloat["ry"] = ry;
+			uiC->pFloat["rz"] = rz;
+
+			trans = glm::vec3(uiC->pEasy["transX"], uiC->pEasy["transY"], uiC->pEasy["transZ"]);
+		}
+
+		if (uiC->pBool["randomWire"]) {
+			float noise1 = ofMap(ofNoise(ofGetElapsedTimef() * 2), 0, 1, -2, 3);
+			float noise2 = ofMap(ofNoise(ofGetElapsedTimef() * 10), 0, 1, -5, 6);
+			cout << (noise1 + noise2) << endl;
+			bool wire = (noise1 + noise2) > .5;
+			// radio	draw	faces wire vertices meshes mesh
+			uiC->getRadio("draw")->set(wire ? "faces" : "wire");
+		}
+
+		ofTranslate(trans);
+		// ofTranslate(ofRandom(-400, 400),ofRandom(-400, 400),ofRandom(-400, 400));
+		// ofRotateXDeg(rx);
+		// ofRotateYDeg(ry);
+		// ofRotateZDeg(rz);
+		ofRotateXDeg(uiC->pEasy["rx"]);
+		ofRotateYDeg(uiC->pEasy["ry"]);
+		ofRotateZDeg(uiC->pEasy["rz"]);
+
+		if (uiC->pBool["disable"]) {
+			model.disableColors();
+			model.disableTextures();
+			// model.disableMaterials();
+			ofSetColor(getCor(0));
+		} else {
+			model.enableColors();
+			model.enableTextures();
+		}
+
+		if (uiC->pString["draw"] == "vertices") {
+			glPointSize(uiC->pEasy["pointSize"]);
+			model.drawVertices();
+			// cout << "drawVertices" << endl;
+		}
+		else if (uiC->pString["draw"] == "wire") {
+			model.drawWireframe();
+		} 
+		else if (uiC->pString["draw"] == "meshes") {
+			for (int i = 0; i < meshes.size(); ++i) {
+				meshes[i].draw();
+			}
+		}
+		else if (uiC->pString["draw"] == "mesh") {
+			meshes[uiC->pInt["mesh"]].draw();
+		}
+		
+		else {
+			model.drawFaces();
+		}
+
+	}
+
+	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "model") {
+			string f = ((ofxMicroUI::dirList*)&e)->getFileName();
+			cout << f << endl;
+			if (ofIsStringInString(f, "obj") || ofIsStringInString(f, "dae")) {
+				model.loadModel(f);
+				meshes.clear();
+				cout << "model loaded " << model.getNumMeshes() << " meshes!" << endl;
+				for (int a=0; a<model.getNumMeshes(); a++) {
+					ofMesh m = model.getMesh(a);
+					// m.position = glm::vec3(0,0,0);
+					// meshes.push_back(model.getMesh(a));
+					meshes.push_back(m);
+				}
+			}
+		}
+	}
+};
+#endif

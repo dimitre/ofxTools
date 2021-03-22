@@ -29,13 +29,13 @@ public:
 		ofxMicroUI * ui = NULL;
 		ofxMicroUI * uiC = NULL;
 		ofxMicroUI * uiColors = NULL;
-        
+		
 		void afterSetup() {
 			ui = &u->uis["ui"];
 		}
 
 		sceneConfig() {} ;
-        
+		
 		sceneConfig(ofFbo * _fbo, ofxMicroUI * _u) :
 		fbo(_fbo), u(_u) {
 			uiC = &u->uis["scene"];
@@ -59,39 +59,42 @@ public:
 	#include "sceneDmtr.h"
 
 	ofxMicroUI * ui = NULL;
-    sceneDmtrBasic * _scene = NULL;
-    vector <sceneDmtrBasic *> scenes;
-    string lastScene = "";
-    string sceneName = "scene";
+	sceneDmtrBasic * _scene = NULL;
+	vector <sceneDmtrBasic *> scenes;
+	string lastScene = "";
+	string sceneName = "scene";
 
-    void afterSetup() {
-//        scenes.clear();
-        ofAddListener(ui->uiEvent, this, &ofxScenes::uiEvents);
-        ofAddListener(ui->uiEventMaster, this, &ofxScenes::uiEventMaster);
-    }
+	void afterSetup() {
+		ofAddListener(ui->uiEvent, this, &ofxScenes::uiEvents);
+		ofAddListener(ui->uiEventMaster, this, &ofxScenes::uiEventMaster);
+//		cout << "||||| INIT " << ui->pString[sceneName] << endl;
+//		if (ui->pString[sceneName] != "") {
+//			select(ui->pString[sceneName]);
+//		}
+	}
 	
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, string s) : sceneName(s)
-    {
+	{
 		config = sceneConfig(_f, _u);
 //		uiColors = &u->uis["colors"];
 		ui = &_u->uis["ui"];
-        afterSetup();
+		afterSetup();
 	}
 	
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, ofxMicroUI * _uiC, string s) : sceneName(s)
-    {
-        config = sceneConfig(_f, _u, _uiC);
+	{
+		config = sceneConfig(_f, _u, _uiC);
 //		uiColors = &_u->uis["colors"];
 		ui = &_u->uis["ui"];
-        afterSetup();
+		afterSetup();
 	}
 
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, ofxMicroUI * _uiC, ofxMicroUI * _uiColors, string s) : sceneName(s)
-    {
-        cout << "|||||| ofxSCENES uiColors = " << _uiColors->uiName << endl;
-        config = sceneConfig(_f, _u, _uiC, _uiColors);
+	{
+		cout << "|||||| ofxSCENES uiColors = " << _uiColors->uiName << endl;
+		config = sceneConfig(_f, _u, _uiC, _uiColors);
 		ui = &_u->uis["ui"];
-        afterSetup();
+		afterSetup();
 	}
 	
 	static ofColor getColor(float n, ofxMicroUI * uiColors) {
@@ -103,67 +106,83 @@ public:
 	}
 
 	void setup() {
+        cout << "!!!!! OFXSCENES SETUP "  << endl;
 		ofAddListener(ofEvents().update, this, &ofxScenes::onUpdate);
 //        cout << "ofxScenes Adding number of scenes: " << scenes.size() << endl;
-        
+		
 		for (auto & s : scenes) {
-            if (s->name != "") {
-                cout << "ofxScenes " << sceneName << " :: adding " << s->name << endl;
-                if (s->config == NULL) {
-                    s->addConfig(&config);
-                } else {
-                }
-                s->setup();
-            }
+			if (s->name != "") {
+				cout << "ofxScenes " << sceneName << " :: adding " << s->name << endl;
+				if (s->config == NULL) {
+					s->addConfig(&config);
+				} else {
+				}
+				s->setup();
+			}
 		}
+        
+        select(ui->pString[sceneName]);
 //		cout << "------" << endl;
 	}
-    
-    void onUpdate(ofEventArgs &data) {
-        if (_scene != NULL) {
-            _scene->update();
-        }
-    }
+	
+	void onUpdate(ofEventArgs &data) {
+		if (_scene != NULL) {
+			_scene->update();
+		}
+	}
 
 	void draw() {
 		ofSetLineWidth(ui->pEasy["lineWidth"]);
-        if (_scene != NULL) {
+		if (_scene != NULL) {
 //            cout << _scene->name << endl;
-            _scene->draw();
-        } else {
+			_scene->draw();
+		} else {
 //            cout << "scene is null" << endl;
-        }
+		}
 	}
-    
-    void uiEventMaster(string & s) {
-        if (s == "setup") {
-            setup();
-        }
-    }
-    void uiEvents(ofxMicroUI::element & e) {
-//        cout << "uiEvents " << e.name << ":" << sceneName << endl;
-        if (e.name == sceneName) {
-            string scene = *e.s;
-            if (scene != lastScene) {
-                if (_scene != NULL) {
-                    _scene->unselect();
-                }
-                _scene = NULL;
-                bool found = false;
-                if (scene != "_") {
-                    for (auto & s : scenes) {
-                        if (s->name == scene) {
-                            _scene = s;
-                            _scene->select();
-                            found = true;
-                        }
-                    }
-                    if (!found) {
-                        cout << "|||| ofxScenes not found :: " << scene << endl;
-                    }
-                }
-                lastScene = scene;
-            }
-        }
-    }
+	
+	void uiEventMaster(string & s) {
+        cout << "|||||||||||| uiEventMaster " << s << endl;
+//		if (s == "setup") {
+//			setup();
+//		}
+	}
+
+	void select(string scene) {
+        cout << "SELECT " << scene << " :: " << sceneName << endl;
+        cout << "preinside" << endl;
+        cout << scene << endl;
+        cout << lastScene << endl;
+
+		if (scene != lastScene) {
+            cout << "inside" << endl;
+			if (_scene != NULL) {
+				_scene->unselect();
+			}
+			_scene = NULL;
+			bool found = false;
+			if (scene != "_") {
+				for (auto & s : scenes) {
+					if (s->name == scene) {
+						_scene = s;
+						_scene->select();
+                        cout << "SELECT SCENE OK" << endl;
+						found = true;
+					}
+				}
+				if (!found) {
+					cout << "|||| ofxScenes not found :: " << scene << endl;
+				}
+			}
+			lastScene = scene;
+		}
+	}
+
+	void uiEvents(ofxMicroUI::element & e) {
+//        cout << "||| YEA uiEvents " << e.name << ":" << sceneName << endl;
+		if (e.name == sceneName) {
+			string scene = *e.s;
+			select(scene);
+		}
+	}
 };

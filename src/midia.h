@@ -1,8 +1,8 @@
-// renomear de midia pra outra coisa?
-	static float expand(float val, float mult = 0.0) {
-		return ofClamp(ofMap(val, 0.0, 1.0, -mult, 1.0+mult), 0, 1);
-	}
+static float expand(float val, float mult = 0.0) {
+    return ofClamp(ofMap(val, 0.0, 1.0, -mult, 1.0+mult), 0, 1);
+}
 
+// renomear de midia pra outra coisa?
 class ofxMidia { // : public ofBaseApp
 public:
 
@@ -130,19 +130,7 @@ public:
 		uiMidi->clear();
 		uiMidi->createFromLines(clines, true);
 	}
-	
-	
-//	static void midiList(ofxMicroUI * _ui) {
-//		ofxMidiOut midiOut;
-//
-//		string vals = ofJoinString(midiOut.getOutPortList(), "|");
-//		vector <string> lines;
-//		string s = "radioPipeNoLabel    midiPort    "+vals;
-//		cout << s << endl;
-////        vector <string> clines = { "label   FUNCIONA", s };
-//		_ui->futureLines.push_back(s);
-//	}
-	
+
 	void setup() {
 //        cout << "------" << endl;
 		for (auto & s : scenes) {
@@ -207,8 +195,6 @@ public:
 		ofAddListener(uiNotes->uiEvent, this, &ofxMidia::notesUIEvent);
 	}
 
-
-	
 	void onUpdate(ofEventArgs &data) {
 		// nao sei se precisa update aqui.
 		if (scene != "" && scene != "_") {
@@ -257,8 +243,8 @@ public:
 	float nextJump = 0;
 	
 	vector <int> willErase;
-	void update() {
-		
+
+    void update() {
 		if (scene != "" && scene != "_") {
 			if ( scenesMap.find(scene) != scenesMap.end() ) {
 				scenesMap[scene]->update();
@@ -312,13 +298,12 @@ public:
 				string nome = "n1_" + ofToString(a);
 				float valor = uiNotes->pFloat[nome];
 //				if (valor) {
-					int index = a + 12 * o;
+                int index = a + 12 * o;
 				if (index > uiNotes->pInt["minNote"] && index < uiNotes->pInt["maxNote"]) {
-						for (int n=0; n<(valor * 10.0); n++) {
-							config.scales.push_back(index);
-						}
-					}
-//				}
+                    for (int n=0; n<(valor * 10.0); n++) {
+                        config.scales.push_back(index);
+                    }
+                }
 			}
 		}
 	}

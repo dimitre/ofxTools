@@ -799,8 +799,14 @@ public:
 struct sceneTestPixelmap : public sceneMuti {
 public:
 	using sceneMuti::sceneMuti;
+    ofPolyline poly;
 
 	void setup() override {
+        poly.addVertex(20,40);
+        poly.addVertex(40,20);
+        poly.addVertex(60,40);
+        poly.addVertex(40,20);
+        poly.addVertex(40,60);
 	}
 
 	void draw() override {
@@ -815,8 +821,14 @@ public:
 				ofDrawRectangle(offx, offy, modulo, modulo);
 				ofSetColor(255);
 				ofDrawBitmapString(config->name + ":" + ofToString(index), offx + 12, offy + 22);
+                
+                ofPushMatrix();
+                ofTranslate(offx, offy + 10);
+                poly.draw();
+                ofPopMatrix();
 				offx += modulo;
 				index ++ ;
+                
 			}
 			offy += modulo;
 		}

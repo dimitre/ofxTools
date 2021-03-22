@@ -4,8 +4,8 @@ struct featureLight : public microFeature {
 
 	ofLight luz;
 	glm::vec3 pos;
-	// float pointsPerMeter = 100;
-	float pointsPerMeter = 1;
+    float pointsPerMeter = 100;
+//	float pointsPerMeter = 1;
 
 	void setup() override {
 		luz.setAreaLight(100, 100);
@@ -129,12 +129,17 @@ public:
 	ofNode lookNode;
 	
 	void setup() override {
+        
 		// cam.setNearClip(0.01);
-		cam.setNearClip(0.01 * pointsPerMeter);
-		cam.setFarClip(160 * pointsPerMeter);
+
 	}
 	
 	void begin() override {
+        
+        // era ra ser no setup
+        cam.setNearClip(0.01 * pointsPerMeter);
+        cam.setFarClip(160 * pointsPerMeter);
+        
 		// if (_ui->pBool["disableDepthTest"]) {
 		// 	ofDisableDepthTest();
 		// } else {
@@ -837,5 +842,293 @@ struct featureTex : public microFeature {
 			i->draw(ui->pFloat["imageX"], ui->pFloat["imageY"], i->getWidth() * ui->pFloat["imageScale"], i->getHeight() * ui->pFloat["imageScale"]);
 		fbo.end();
 		
+	}
+};
+
+
+
+
+
+struct featureGlow0 : virtual public microFeature {
+	using microFeature::microFeature;
+
+	ofFbo f1;
+	ofFbo f2;
+	float fator = 0.1;
+	float opacity = 255;
+    
+    ofFbo fbos[12];
+	int sizes[12] = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 };
+
+	map <string, ofBlendMode> blendMap = {
+		{ "add", OF_BLENDMODE_ADD },
+		{ "alpha", OF_BLENDMODE_ALPHA },
+		{ "screen", OF_BLENDMODE_SCREEN },
+		{ "multiply", OF_BLENDMODE_MULTIPLY },
+		{ "subtract", OF_BLENDMODE_SUBTRACT }
+	};
+
+
+	void setup() override {
+		// cout << "GLOW SETUP" << endl;
+        
+		for (int a=0; a<10; a++) {
+			int w = soft->fboFinal->getWidth() / sizes[a];
+			int h = soft->fboFinal->getHeight() / sizes[a];
+            cout << w << ":" << h << endl;
+			fbos[a].allocate(w, h, GL_RGBA);
+//			fbos[a].begin();
+//			ofClear(0,255);
+//			fbos[a].end();
+		}
+        
+        
+		f1.allocate(soft->fboFinal->getWidth(), soft->fboFinal->getHeight(), GL_RGBA);
+		f1.begin();
+		ofClear(0,255);
+		f1.end();
+		allocate();
+		use = &ui->pBool["glow"];
+	}
+
+	void allocate() {
+		f2.allocate(soft->fboFinal->getWidth()*fator, soft->fboFinal->getHeight()*fator, GL_RGBA);
+		f2.begin();
+		ofClear(0,255);
+		f2.end();
+	}
+
+	void begin() override {
+		if (isOk()) {
+			fbos[0].begin();
+			// f1.begin();
+			ofClear(0,0);
+		}
+	}
+	void end() override {
+		if (isOk()) {
+			fbos[0].end();
+			// f1.end();
+			int iteracoes = ui->pInt["iteracoes"];
+
+			for (int a=1; a<=iteracoes; a++) {
+				fbos[a].begin();
+				ofClear(0,0);
+				fbos[a-1].draw(0,0,fbos[a].getWidth(), fbos[a].getHeight());
+				fbos[a].end();
+			}
+			// f2.begin();
+			// ofClear(0,0);
+			// f1.draw(0,0,f2.getWidth(),f2.getHeight());
+			// f2.end();
+
+			ofSetColor(255);
+			ofEnableBlendMode(blendMap[ui->pString["blend"]]);
+			// f1.draw(0,0);
+			// ofSetColor(255, opacity);
+			// f2.draw(0,0,f1.getWidth(), f1.getHeight());
+			fbos[0].draw(0,0);
+			ofSetColor(255, opacity);
+			fbos[iteracoes].draw(0, 0, fbos[0].getWidth(), fbos[0].getHeight());
+		}
+	}
+	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "fator") {
+			fator = *e.f;
+			allocate();
+		}
+
+		if (e.name == "opacity") {
+			opacity = *e.f;
+		}
+	}
+};
+
+
+
+
+
+struct featureGlow : virtual public microFeature {
+	using microFeature::microFeature;
+	float opacity = 255;
+    
+    ofFbo fbos[12];
+    ofFbo fbosR[12];
+	ofFbo fbosR2[12];
+
+	map <string, ofBlendMode> blendMap = {
+		{ "add", OF_BLENDMODE_ADD },
+		{ "alpha", OF_BLENDMODE_ALPHA },
+		{ "screen", OF_BLENDMODE_SCREEN },
+		{ "multiply", OF_BLENDMODE_MULTIPLY },
+		{ "subtract", OF_BLENDMODE_SUBTRACT }
+	};
+
+// 	string frag = R"V0G0N(
+// //uniform float espalha;
+// uniform sampler2DRect tex0;
+// varying vec2 texcoord0;
+
+// void main (void) 
+// { 		
+// 	vec2 xy = gl_FragCoord.xy;
+// 	vec4 o = texcoord0.xyxy * vec2(-1, 1).xxyy;
+// 	vec4 s = 
+// 	texture2DRect(tex0, xy + o.xy) +
+// 	texture2DRect(tex0, xy + o.zy) +
+// 	texture2DRect(tex0, xy + o.xw) +
+// 	texture2DRect(tex0, xy + o.zw);
+// 	gl_FragColor = vec4(s*.25);
+// } 
+
+// )V0G0N";
+
+// 	string vert = R"V0G0N(
+// varying vec2 texcoord0;
+
+// void main()
+// {
+//     gl_Position = ftransform();
+//     texcoord0 = vec2(gl_TextureMatrix[0] * gl_MultiTexCoord0);
+// }
+// )V0G0N";
+
+
+	string frag = R"V0G0N(
+//#version 150	
+#version 120	
+//precision highp float;
+uniform sampler2DRect tex0;
+varying vec2 texcoord0;
+
+uniform bool horizontal;
+uniform float weight[5] = float[](0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
+
+void main (void) 
+{ 		
+	
+    // vec2 tex_offset = 1.0 / textureSize(image, 0); // gets size of single texel
+	vec2 tex_offset = vec2(1.0 * 2.0, 1.0 * 2.0);
+
+	vec2 xy = gl_FragCoord.xy;
+	vec4 result = texture2DRect(tex0, xy).rgba * weight[0];
+	if(horizontal)
+    {
+        for(int i = 1; i < 5; ++i)
+        {
+            result += texture2DRect(tex0, xy + vec2(tex_offset.x * i, 0.0)).rgba * weight[i];
+            result += texture2DRect(tex0, xy - vec2(tex_offset.x * i, 0.0)).rgba * weight[i];
+        }
+    }
+    else
+    {
+        for(int i = 1; i < 5; ++i)
+        {
+            result += texture2DRect(tex0, xy + vec2(0.0, tex_offset.y * i)).rgba * weight[i];
+            result += texture2DRect(tex0, xy - vec2(0.0, tex_offset.y * i)).rgba * weight[i];
+        }
+    }
+	gl_FragColor = vec4(result); //, texture2DRect(tex0, xy).a
+} 
+
+)V0G0N";
+
+	string vert = R"V0G0N(
+varying vec2 texcoord0;
+
+void main()
+{
+    gl_Position = ftransform();
+    texcoord0 = vec2(gl_TextureMatrix[0] * gl_MultiTexCoord0);
+}
+)V0G0N";
+
+	ofShader shader;
+	ofFbo * f = NULL;
+	ofFbo * fz = NULL;
+
+	void setup() override {
+		shader.setupShaderFromSource( GL_VERTEX_SHADER, vert );
+		shader.setupShaderFromSource( GL_FRAGMENT_SHADER, frag );
+		shader.bindDefaults();
+		shader.linkProgram();
+
+		int w = soft->fboFinal->getWidth();
+		int h = soft->fboFinal->getHeight();
+        float w2 = soft->fboFinal->getWidth();
+        float h2 = soft->fboFinal->getHeight();
+
+		for (int a=0; a<10; a++) {
+			// int w = soft->fboFinal->getWidth() / sizes[a];
+			// int h = soft->fboFinal->getHeight() / sizes[a];
+			fbos[a].allocate(w, h, GL_RGBA);
+            fbosR[a].allocate(w2, h2, GL_RGBA);
+			fbosR2[a].allocate(w2, h2, GL_RGBA);
+			w2 *= .5;
+			h2 *= .5;
+		}
+		use = &ui->pBool["glow"];
+	}
+
+	void begin() override {
+		if (isOk()) {
+			f = ui->pBool["resize"] ? &fbosR[0] : &fbos[0];
+			f->begin();
+			ofClear(0,0);
+		}
+	}
+	void end() override {
+		if (isOk()) {
+			f->end();
+			int iteracoes = ui->pInt["iteracoes"];
+
+			for (int a=1; a<=iteracoes; a++) {
+                ofFbo * f1 = &fbos[a];
+                ofFbo * f2 = &fbos[a-1];
+				ofFbo * f3 = &fbosR2[a-1];
+				if (ui->pBool["resize"]) {
+					f1 = &fbosR[a];
+					f2 = &fbosR[a-1];
+				}
+
+				f3->begin();
+				ofClear(0,0);
+				if (ui->pBool["shader"]) {
+					shader.begin();
+					shader.setUniform1i("horizontal", a%2);
+				}
+				f2->draw(0,0);
+				if (ui->pBool["shader"]) {
+					shader.end();
+				}
+				f3->end();
+
+
+
+				f1->begin();
+				ofClear(0,0);
+				// if (ui->pBool["shader"]) {
+				// 	shader.begin();
+				// 	shader.setUniform1i("horizontal", a%2);
+				// }
+				// f2->draw(0,0,f1->getWidth(), f1->getHeight());
+				// if (ui->pBool["shader"]) {
+				// 	shader.end();
+				// }
+				f3->draw(0,0,f1->getWidth(),f1->getHeight());
+				f1->end();
+			}
+			ofSetColor(255);
+			ofEnableBlendMode(blendMap[ui->pString["blend"]]);
+			f->draw(0,0);
+			ofSetColor(255, opacity);
+			fz = ui->pBool["resize"] ? &fbosR[iteracoes] : &fbos[iteracoes];
+			fz->draw(0, 0, f->getWidth(), f->getHeight());
+		}
+	}
+	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "opacity") {
+			opacity = *e.f;
+		}
 	}
 };

@@ -33,6 +33,7 @@ public:
 	bool hasListener = false;
 
 	void select() {
+		cout << "Scene selected, name = " << name << endl;
         if (config != NULL) {
             ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
             hasListener = true;
@@ -60,14 +61,14 @@ public:
 	}
 
 	virtual void checkSetup() {
-		if (!isSetup) {
-			setup();
-			isSetup = true;
-		}
+//		if (!isSetup) {
+//			setup();
+//			isSetup = true;
+//		}
 	}
 
 	virtual void uiEvents(ofxMicroUI::element & e) {
-		// cout << "uiEvent primitive " << endl;
+		cout << "uiEvent primitive " << endl;
 	}
 
 	virtual void setup() {

@@ -182,6 +182,37 @@ public:
 #endif
 
 
+
+struct sceneImageSimple : public ofxScenes::sceneDmtr {
+public:
+    using sceneDmtr::sceneDmtr;
+    ofImage * i;
+//    ofTexture * tex;
+
+    void setup() override {
+//        tex = &uiC->pImage["image"].getTexture();
+    }
+
+    void draw() override {
+        i = &uiC->pImage["image"];
+        ofSetColor(255);
+        if (i->isAllocated()) {
+            float scale = uiC->pEasy["scale"];
+            float w = i->getWidth() * scale;
+            float h = i->getHeight() * scale;
+            ofTranslate(fbo->getWidth() * .5, fbo->getHeight() * .5);
+
+            float x = -w*.5 + uiC->pEasy["offX"];
+            float y = -h*.5 + uiC->pEasy["offY"];
+
+            i->draw(x, y, w, h);
+//            i->draw(0,0);
+        } else {
+            cout << "IMG NOT ALLOCATED" << endl;
+        }
+    }
+};
+
 struct sceneImage : public ofxScenes::sceneAudio, ofxScenes::sceneIncrementa {
 public:
 	using sceneAudio::sceneAudio;
@@ -1323,3 +1354,25 @@ struct sceneTyper :  public ofxScenes::sceneBaseType, public sceneBasePoco {
 //    }
 //};
 
+
+
+
+
+struct sceneVideoSimple : public ofxScenes::sceneDmtr { //, ofxScenes::sceneIncrementa
+public:
+	using sceneDmtr::sceneDmtr;
+
+	ofVideoPlayer * video = NULL;
+	
+	void draw() override {
+		video = &uiC->pVideo["video"];
+		if (video->isLoaded()) {
+			video->update();
+			float x = uiC->pFloat["offX"];
+			float y = uiC->pFloat["offY"];
+			float w = uiC->pFloat["scale"] * video->getWidth();
+			float h = uiC->pFloat["scale"] * video->getHeight();
+			video->draw(x, y, w, h);
+		}
+	}
+};
