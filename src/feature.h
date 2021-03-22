@@ -24,6 +24,11 @@ public:
 	virtual void update() {
 		cout << "update in primitive feature" << endl;
 	};
+    virtual void draw() {
+        cout << "draw in primitive feature" << endl;
+    };
+    
+    
 	virtual void uiEvents(ofxMicroUI::element & e) {
 //		cout << "uiEvents in primitive feature" << endl;
 	}

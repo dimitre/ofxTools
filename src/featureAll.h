@@ -155,8 +155,8 @@ public:
 			if (ui->pBool["cameraPolar"]) {
 				float a = ui->pEasy["cameraAngle"] + 90.0;
 				float d = ui->pEasy["cameraDist"] * pointsPerMeter;
-				cameraX = r2x(a, d);
-				cameraZ = r2y(a, d);
+				cameraX = featurePolar::r2x(a, d);
+				cameraZ = featurePolar::r2y(a, d);
 				cameraX += lookNode.getPosition().x;
 				cameraZ += lookNode.getPosition().z;
 			}
@@ -448,6 +448,10 @@ public:
 	void begin() override { }
 	
 	void end() override { }
+    
+    void draw(int x = 0, int y = 0) {
+        syphonIn.draw(x, y);
+    }
 	
 	void uiEvents(ofxMicroUI::element & e) override {
 		if (e.name == "syphon") {

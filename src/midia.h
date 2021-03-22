@@ -71,7 +71,9 @@ public:
 //                cout << n * scales.size() << endl;
 				int note = scales[n * scales.size()];
 				notas.emplace_back(note, duration, vel, delay);
-			}
+            } else {
+                cout << "addnotef - no scales yet" << endl;
+            }
 		}
 		
 		void update() {
