@@ -668,7 +668,7 @@ public:
 		void uiEvents(ofxMicroUI::element & e) override {}
 	};
 	
-	featureSendNDI senderNDI = featureSendNDI(&soft, "NDISenderTest");
+//	featureSendNDI senderNDI = featureSendNDI(&soft, "NDISenderTest");
 
 #endif
 

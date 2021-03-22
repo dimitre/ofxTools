@@ -88,9 +88,6 @@ public:
 
 
 
-struct microFeatureBase : virtual public microFeature {
-	using microFeature::microFeature;	
-};
 
 
 struct featurePolar : virtual public microFeature {
@@ -100,4 +97,14 @@ struct featurePolar : virtual public microFeature {
 
 	static float c2a (float x, float y) { return ofRadToDeg(atan2(y,x)); }
 	static float c2m (float x, float y) { return sqrt(pow(x,2)+pow(y,2)); }
+};
+
+
+
+struct microFeatureBase : virtual public microFeature {
+	using microFeature::microFeature;	
+	void setup() override {}
+	void begin() override {}
+	void end() override {}
+	
 };
