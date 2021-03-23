@@ -91,7 +91,7 @@ public:
 
 	ofxScenes(ofFbo * _f, ofxMicroUI * _u, ofxMicroUI * _uiC, ofxMicroUI * _uiColors, string s) : sceneName(s)
 	{
-		cout << "|||||| ofxSCENES uiColors = " << _uiColors->uiName << endl;
+//		cout << "|||||| ofxSCENES uiColors = " << _uiColors->uiName << endl;
 		config = sceneConfig(_f, _u, _uiC, _uiColors);
 		ui = &_u->uis["ui"];
 		afterSetup();
@@ -106,7 +106,7 @@ public:
 	}
 
 	void setup() {
-        cout << "!!!!! OFXSCENES SETUP "  << endl;
+//        cout << "!!!!! OFXSCENES SETUP "  << endl;
 		ofAddListener(ofEvents().update, this, &ofxScenes::onUpdate);
 //        cout << "ofxScenes Adding number of scenes: " << scenes.size() << endl;
 		

@@ -1,7 +1,7 @@
 //#include "DmtrPolar.h"
 
-#define NEUE 1
-#ifdef NEUE
+//#define PICKERNEUE 1
+#ifdef PICKERNEUE
 class picker {
 public:
     picker() {}

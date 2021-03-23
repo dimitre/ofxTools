@@ -4,7 +4,7 @@
 struct sceneImageNF : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
-	ofImage * i;
+	ofImage * i = NULL;
 	ofTexture * tex;
 
 	void setup() override {
@@ -98,7 +98,7 @@ struct sceneGen : public ofxScenes::sceneDmtr {
 	float pos = 0;
 
 	void draw() {
-		
+//        cout << uiC->uiName << endl;
 		float distancia = uiC->pEasy["distancia"];
 		float largura = uiC->pEasy["largura"];
 		float vel = uiC->pEasy["vel"];
