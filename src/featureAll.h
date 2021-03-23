@@ -780,10 +780,9 @@ struct featureSurface : public microFeature {
 		}
 	}
 
-	void draw() {
+	void draw() override {
 		ofSetColor(255);
 		ofPushMatrix();
-		// ofTranslate(soft->_ui->pInt["fboX"], soft->_ui->pInt["fboY"]);
 		for (auto & s : surfaces) {
 			s.draw();
 		}
@@ -791,17 +790,6 @@ struct featureSurface : public microFeature {
 	}
 };
 
-
-
-
-struct featureTest : public microFeature {
-	public:
-	using microFeature::microFeature;
-	void setup() override {}
-	void begin() override {}
-	void end() override { }
-	void uiEvents(ofxMicroUI::element & e) override {}
-};
 
 
 
@@ -1136,3 +1124,47 @@ void main()
 		}
 	}
 };
+
+#ifdef USEPICKERS
+struct featurePickersMidi : public microFeature {
+    public:
+    using microFeature::microFeature;
+    
+    vector <picker> pickers;
+
+    void setup() override {
+        setupPickers();
+    }
+
+    void uiEvents(ofxMicroUI::element & e) override {
+        if (e.name == "numero" || e.name == "cols" || e.name == "rows") {
+            setupPickers();
+        }
+    }
+    
+    void setupPickers() {
+        pickers.clear();
+        for (int a=0; a<ui->pInt["numero"]; a++) {
+            int x = a % ui->pInt["cols"];
+            int y = floor(a / ui->pInt["cols"]);
+            float xx = ofMap(x, -.5, ui->pInt["cols"] - .5, 0, soft->fboFinal->getWidth());
+            float yy = ofMap(y, -.5, ui->pInt["rows"] - .5, 0, soft->fboFinal->getHeight());
+            glm::vec2 pos = glm::vec2(xx,yy);
+            pickers.emplace_back(picker(pos, a, soft->fboFinal, ui));
+            pickers.back()._fbo = soft->fboFinal;
+            pickers.back().name = "picker_" + ofToString(a);
+        }
+    }
+};
+#endif
+
+struct featureTest : public microFeature {
+    public:
+    using microFeature::microFeature;
+    void setup() override {}
+    void begin() override {}
+    void end() override { }
+    void uiEvents(ofxMicroUI::element & e) override {}
+};
+
+
