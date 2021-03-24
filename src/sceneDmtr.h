@@ -99,6 +99,8 @@ struct polar : public virtual ofxScenes::sceneDmtrBasic {
     static float r2x (float a, float m) { return m * cos(ofDegToRad(a)); }
     static float r2y (float a, float m) { return m * sin(ofDegToRad(a)); }
     static float c2a (float x, float y) { return ofRadToDeg(atan2(y,x)); }
+	// static float c2a (float x, float y) { return atan2(y,x); }
+	// static float c2a (float x, float y) { return glm::atan2(y,x); }
     static float c2m (float x, float y) { return sqrt(pow(x,2)+pow(y,2)); }
 };
 
@@ -161,9 +163,12 @@ struct sceneBaseType : public virtual ofxScenes::sceneDmtrBasic {
     
     ofTrueTypeFont * type = NULL;
     void setup() override {
-        type = &uiC->pFont["type"];
+        setupType();
     }
     
+    void setupType() {
+        type = &uiC->pFont["type"];
+    }
 	int lastSize = 0;
 
 	void uiEvents(ofxMicroUI::element & e) override {

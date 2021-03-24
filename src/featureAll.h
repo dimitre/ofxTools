@@ -528,6 +528,18 @@ public:
 	ofRectangle rect;
 	string * cairoBlend = NULL;
 
+	map <string, cairo_line_join_t> lineJoin = {
+		{ "round", CAIRO_LINE_JOIN_ROUND },
+		{ "bevel", CAIRO_LINE_JOIN_BEVEL },
+		{ "miter", CAIRO_LINE_JOIN_MITER },
+	};
+
+	map <string, cairo_line_cap_t> lineCap = {
+		{ "round", CAIRO_LINE_CAP_ROUND },
+		{ "butt", CAIRO_LINE_CAP_BUTT },
+		{ "square", CAIRO_LINE_CAP_SQUARE },
+	};
+
 	map <string, _cairo_operator> cairoBlendModes = {
 		{ "add", CAIRO_OPERATOR_ADD },
 		{ "screen", CAIRO_OPERATOR_SCREEN },
@@ -562,8 +574,8 @@ public:
 		ofStyle style = ofGetCurrentRenderer()->getStyle();
 		ofGetCurrentRenderer()->setStyle(style);
 		cairo_set_miter_limit(cairoOut->getCairoContext(), 2);
-		cairo_set_line_join(cairoOut->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
-		cairo_set_line_cap(cairoOut->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
+//		cairo_set_line_join(cairoOut->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+//		cairo_set_line_cap(cairoOut->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
 	}
 	
 	void endSave() {
@@ -589,11 +601,6 @@ public:
 //                        ofGetCurrentRenderer()->setBackgroundColor(ofColor(0,255));
 
 				cairo_set_miter_limit(cairo->getCairoContext(), 2);
-	//            cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
-	//            cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
-				cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_BEVEL); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
-				cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_BUTT); // ROUND SQUARE
-				
 
 				if (ui != NULL && ui->pBool["cairoStroked"]) {
 					static const double dashes[] = { 100.0,  /* ink */
@@ -633,7 +640,17 @@ public:
 		}
 	}
 	
-	void uiEvents(ofxMicroUI::element & e) override { }
+	void uiEvents(ofxMicroUI::element & e) override { 
+			//            cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+	//            cairo_set_line_cap(cairo->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
+		if (e.name == "join") {
+			cairo_set_line_join(cairo->getCairoContext(), lineJoin[*e.s]); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+		}
+		else if (e.name == "cap") {
+			cairo_set_line_cap(cairo->getCairoContext(), lineCap[*e.s]); // ROUND SQUARE
+		}
+	}
+
 	
 	void startBlendingMode() {
 		cairoBlend = &soft->_ui->uis["colors"].pString["blend"];

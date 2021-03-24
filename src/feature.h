@@ -72,6 +72,11 @@ public:
     microFeature(ofxMicroUISoftware * _soft, string n, bool * u = NULL) : soft(_soft), name(n), use(u) {
         internalSetup();
     }
+    
+    // fiz agora para Cairo.
+    microFeature(ofxMicroUISoftware * _soft, ofxMicroUI * _ui, bool * u = NULL) : soft(_soft), ui(_ui), use(u) {
+        internalSetup();
+    }
 
 	microFeature(string n, ofxMicroUI * _ui, bool * u = NULL) : name(n), ui(_ui), use(u) {
         internalSetup();
