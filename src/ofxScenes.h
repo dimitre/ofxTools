@@ -106,13 +106,15 @@ public:
 	}
 
 	void setup() {
-//        cout << "!!!!! OFXSCENES SETUP "  << endl;
+        cout << ">>>>> OFXSCENES SETUP : " << sceneName << endl;
 		ofAddListener(ofEvents().update, this, &ofxScenes::onUpdate);
 //        cout << "ofxScenes Adding number of scenes: " << scenes.size() << endl;
 		
+        string saida = "\t adding:: ";
 		for (auto & s : scenes) {
 			if (s->name != "") {
-				cout << "ofxScenes " << sceneName << " :: adding " << s->name << endl;
+                saida += s->name + " ";
+//				cout << "\t adding " << s->name << endl;
 				if (s->config == NULL) {
 					s->addConfig(&config);
 				} else {
@@ -120,6 +122,7 @@ public:
 				s->setup();
 			}
 		}
+        cout << saida << endl;
         
         select(ui->pString[sceneName]);
 //		cout << "------" << endl;
@@ -142,20 +145,19 @@ public:
 	}
 	
 	void uiEventMaster(string & s) {
-        cout << "|||||||||||| uiEventMaster " << s << endl;
+        cout << "|||||||||||| uiEventMaster " << s << " : " << sceneName << endl;
 //		if (s == "setup") {
 //			setup();
 //		}
 	}
 
 	void select(string scene) {
-        cout << "SELECT " << scene << " :: " << sceneName << endl;
-        cout << "preinside" << endl;
-        cout << scene << endl;
-        cout << lastScene << endl;
+//        cout << "preinside" << endl;
+//        cout << scene << endl;
+//        cout << lastScene << endl;
 
 		if (scene != lastScene) {
-            cout << "inside" << endl;
+//            cout << "SELECT " << scene << " :: " << sceneName << endl;
 			if (_scene != NULL) {
 				_scene->unselect();
 			}
@@ -166,12 +168,12 @@ public:
 					if (s->name == scene) {
 						_scene = s;
 						_scene->select();
-                        cout << "SELECT SCENE OK" << endl;
+                        cout << "\tSELECT SCENE OK : " << scene << ":" << sceneName << endl;
 						found = true;
 					}
 				}
 				if (!found) {
-					cout << "|||| ofxScenes not found :: " << scene << endl;
+					cout << "||||||||| ofxScenes not found :: " << scene << endl;
 				}
 			}
 			lastScene = scene;

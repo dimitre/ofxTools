@@ -57,7 +57,12 @@ public:
 //        else {
 //            cout << config->uiColors->uiName << endl;
 //        }
-		return getColor(n, config->uiColors);
+        if (config != NULL) {
+            return getColor(n, config->uiColors);
+        } else {
+            cout << "getCor config is NULL" << endl;
+            return ofColor(255, 0, 70);
+        }
 	}
 
 	virtual void checkSetup() {
@@ -68,7 +73,7 @@ public:
 	}
 
 	virtual void uiEvents(ofxMicroUI::element & e) {
-		cout << "uiEvent primitive " << endl;
+//		cout << "uiEvent primitive " << endl;
 	}
 
 	virtual void setup() {
