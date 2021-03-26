@@ -4,7 +4,7 @@ struct featureLight : public microFeature {
 
 	ofLight luz;
 	glm::vec3 pos;
-    float pointsPerMeter = 100;
+	float pointsPerMeter = 100;
 //	float pointsPerMeter = 1;
 
 	void setup() override {
@@ -129,17 +129,16 @@ public:
 	ofNode lookNode;
 	
 	void setup() override {
-        
 		// cam.setNearClip(0.01);
-
+		cout << "CAMERA SETUP" << endl;
 	}
 	
 	void begin() override {
-        
-        // era ra ser no setup
-        cam.setNearClip(0.01 * pointsPerMeter);
-        cam.setFarClip(160 * pointsPerMeter);
-        
+		
+		// era ra ser no setup
+		cam.setNearClip(0.01 * pointsPerMeter);
+		cam.setFarClip(160 * pointsPerMeter);
+		
 		// if (_ui->pBool["disableDepthTest"]) {
 		// 	ofDisableDepthTest();
 		// } else {
@@ -174,7 +173,8 @@ public:
 				lookNode.setPosition(cameraLook3d);
 				
 				// cam.lookAt(lookNode, cameraLookUp);
-				cam.lookAt(lookNode, ui->pBool["up"] ? cameraLookUp : cameraLookUp2);
+				// cam.lookAt(lookNode, ui->pBool["up"] ? cameraLookUp : cameraLookUp2);
+				cam.lookAt(lookNode, cameraLookUp2);
 			}
 
 			cam.setFov(ui->pEasy["cameraFov"]);
@@ -206,6 +206,7 @@ public:
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
+		// cout << "featureCam uiEvent " << e.name << endl;
 		if (!e._settings->presetIsLoading && e._ui->uiIsCreated) {
 			if (e.name == "resetLook") {
 				ui->getSlider("lookX")->set(0.0);
@@ -448,10 +449,10 @@ public:
 	void begin() override { }
 	
 	void end() override { }
-    
-    void draw(int x = 0, int y = 0) {
-        syphonIn.draw(x, y);
-    }
+	
+	void draw(int x = 0, int y = 0) {
+		syphonIn.draw(x, y);
+	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
 		if (e.name == "syphon") {
@@ -865,8 +866,8 @@ struct featureGlow0 : virtual public microFeature {
 	ofFbo f2;
 	float fator = 0.1;
 	float opacity = 255;
-    
-    ofFbo fbos[12];
+	
+	ofFbo fbos[12];
 	int sizes[12] = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 };
 
 	map <string, ofBlendMode> blendMap = {
@@ -880,18 +881,18 @@ struct featureGlow0 : virtual public microFeature {
 
 	void setup() override {
 		// cout << "GLOW SETUP" << endl;
-        
+		
 		for (int a=0; a<10; a++) {
 			int w = soft->fboFinal->getWidth() / sizes[a];
 			int h = soft->fboFinal->getHeight() / sizes[a];
-            cout << w << ":" << h << endl;
+			cout << w << ":" << h << endl;
 			fbos[a].allocate(w, h, GL_RGBA);
 //			fbos[a].begin();
 //			ofClear(0,255);
 //			fbos[a].end();
 		}
-        
-        
+		
+		
 		f1.allocate(soft->fboFinal->getWidth(), soft->fboFinal->getHeight(), GL_RGBA);
 		f1.begin();
 		ofClear(0,255);
@@ -960,9 +961,9 @@ struct featureGlow0 : virtual public microFeature {
 struct featureGlow : virtual public microFeature {
 	using microFeature::microFeature;
 	float opacity = 255;
-    
-    ofFbo fbos[12];
-    ofFbo fbosR[12];
+	
+	ofFbo fbos[12];
+	ofFbo fbosR[12];
 	ofFbo fbosR2[12];
 
 	map <string, ofBlendMode> blendMap = {
@@ -1016,27 +1017,27 @@ uniform float weight[5] = float[](0.227027, 0.1945946, 0.1216216, 0.054054, 0.01
 void main (void) 
 { 		
 	
-    // vec2 tex_offset = 1.0 / textureSize(image, 0); // gets size of single texel
+	// vec2 tex_offset = 1.0 / textureSize(image, 0); // gets size of single texel
 	vec2 tex_offset = vec2(1.0 * 2.0, 1.0 * 2.0);
 
 	vec2 xy = gl_FragCoord.xy;
 	vec4 result = texture2DRect(tex0, xy).rgba * weight[0];
 	if(horizontal)
-    {
-        for(int i = 1; i < 5; ++i)
-        {
-            result += texture2DRect(tex0, xy + vec2(tex_offset.x * i, 0.0)).rgba * weight[i];
-            result += texture2DRect(tex0, xy - vec2(tex_offset.x * i, 0.0)).rgba * weight[i];
-        }
-    }
-    else
-    {
-        for(int i = 1; i < 5; ++i)
-        {
-            result += texture2DRect(tex0, xy + vec2(0.0, tex_offset.y * i)).rgba * weight[i];
-            result += texture2DRect(tex0, xy - vec2(0.0, tex_offset.y * i)).rgba * weight[i];
-        }
-    }
+	{
+		for(int i = 1; i < 5; ++i)
+		{
+			result += texture2DRect(tex0, xy + vec2(tex_offset.x * i, 0.0)).rgba * weight[i];
+			result += texture2DRect(tex0, xy - vec2(tex_offset.x * i, 0.0)).rgba * weight[i];
+		}
+	}
+	else
+	{
+		for(int i = 1; i < 5; ++i)
+		{
+			result += texture2DRect(tex0, xy + vec2(0.0, tex_offset.y * i)).rgba * weight[i];
+			result += texture2DRect(tex0, xy - vec2(0.0, tex_offset.y * i)).rgba * weight[i];
+		}
+	}
 	gl_FragColor = vec4(result); //, texture2DRect(tex0, xy).a
 } 
 
@@ -1047,8 +1048,8 @@ varying vec2 texcoord0;
 
 void main()
 {
-    gl_Position = ftransform();
-    texcoord0 = vec2(gl_TextureMatrix[0] * gl_MultiTexCoord0);
+	gl_Position = ftransform();
+	texcoord0 = vec2(gl_TextureMatrix[0] * gl_MultiTexCoord0);
 }
 )V0G0N";
 
@@ -1064,14 +1065,14 @@ void main()
 
 		int w = soft->fboFinal->getWidth();
 		int h = soft->fboFinal->getHeight();
-        float w2 = soft->fboFinal->getWidth();
-        float h2 = soft->fboFinal->getHeight();
+		float w2 = soft->fboFinal->getWidth();
+		float h2 = soft->fboFinal->getHeight();
 
 		for (int a=0; a<10; a++) {
 			// int w = soft->fboFinal->getWidth() / sizes[a];
 			// int h = soft->fboFinal->getHeight() / sizes[a];
 			fbos[a].allocate(w, h, GL_RGBA);
-            fbosR[a].allocate(w2, h2, GL_RGBA);
+			fbosR[a].allocate(w2, h2, GL_RGBA);
 			fbosR2[a].allocate(w2, h2, GL_RGBA);
 			w2 *= .5;
 			h2 *= .5;
@@ -1092,8 +1093,8 @@ void main()
 			int iteracoes = ui->pInt["iteracoes"];
 
 			for (int a=1; a<=iteracoes; a++) {
-                ofFbo * f1 = &fbos[a];
-                ofFbo * f2 = &fbos[a-1];
+				ofFbo * f1 = &fbos[a];
+				ofFbo * f2 = &fbos[a-1];
 				ofFbo * f3 = &fbosR2[a-1];
 				if (ui->pBool["resize"]) {
 					f1 = &fbosR[a];
@@ -1144,44 +1145,44 @@ void main()
 
 #ifdef USEPICKERS
 struct featurePickersMidi : public microFeature {
-    public:
-    using microFeature::microFeature;
-    
-    vector <picker> pickers;
+	public:
+	using microFeature::microFeature;
+	
+	vector <picker> pickers;
 
-    void setup() override {
-        setupPickers();
-    }
+	void setup() override {
+		setupPickers();
+	}
 
-    void uiEvents(ofxMicroUI::element & e) override {
-        if (e.name == "numero" || e.name == "cols" || e.name == "rows") {
-            setupPickers();
-        }
-    }
-    
-    void setupPickers() {
-        pickers.clear();
-        for (int a=0; a<ui->pInt["numero"]; a++) {
-            int x = a % ui->pInt["cols"];
-            int y = floor(a / ui->pInt["cols"]);
-            float xx = ofMap(x, -.5, ui->pInt["cols"] - .5, 0, soft->fboFinal->getWidth());
-            float yy = ofMap(y, -.5, ui->pInt["rows"] - .5, 0, soft->fboFinal->getHeight());
-            glm::vec2 pos = glm::vec2(xx,yy);
-            pickers.emplace_back(picker(pos, a, soft->fboFinal, ui));
-            pickers.back()._fbo = soft->fboFinal;
-            pickers.back().name = "picker_" + ofToString(a);
-        }
-    }
+	void uiEvents(ofxMicroUI::element & e) override {
+		if (e.name == "numero" || e.name == "cols" || e.name == "rows") {
+			setupPickers();
+		}
+	}
+	
+	void setupPickers() {
+		pickers.clear();
+		for (int a=0; a<ui->pInt["numero"]; a++) {
+			int x = a % ui->pInt["cols"];
+			int y = floor(a / ui->pInt["cols"]);
+			float xx = ofMap(x, -.5, ui->pInt["cols"] - .5, 0, soft->fboFinal->getWidth());
+			float yy = ofMap(y, -.5, ui->pInt["rows"] - .5, 0, soft->fboFinal->getHeight());
+			glm::vec2 pos = glm::vec2(xx,yy);
+			pickers.emplace_back(picker(pos, a, soft->fboFinal, ui));
+			pickers.back()._fbo = soft->fboFinal;
+			pickers.back().name = "picker_" + ofToString(a);
+		}
+	}
 };
 #endif
 
 struct featureTest : public microFeature {
-    public:
-    using microFeature::microFeature;
-    void setup() override {}
-    void begin() override {}
-    void end() override { }
-    void uiEvents(ofxMicroUI::element & e) override {}
+	public:
+	using microFeature::microFeature;
+	void setup() override {}
+	void begin() override {}
+	void end() override { }
+	void uiEvents(ofxMicroUI::element & e) override {}
 };
 
 

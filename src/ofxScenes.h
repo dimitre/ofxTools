@@ -59,8 +59,11 @@ public:
 	#include "sceneDmtr.h"
 
 	ofxMicroUI * ui = NULL;
-	sceneDmtrBasic * _scene = NULL;
-	vector <sceneDmtrBasic *> scenes;
+    
+//    typeDef scene sceneDmtrBasic;
+    typedef sceneDmtrBasic scene;
+    scene * _scene = NULL;
+	vector <scene *> scenes;
 	string lastScene = "";
 	string sceneName = "scene";
 
@@ -106,7 +109,7 @@ public:
 	}
 
 	void setup() {
-        cout << ">>>>> OFXSCENES SETUP : " << sceneName << endl;
+        cout << ">>>>> OFXSCENES SETUP : " << sceneName << " ";
 		ofAddListener(ofEvents().update, this, &ofxScenes::onUpdate);
 //        cout << "ofxScenes Adding number of scenes: " << scenes.size() << endl;
 		
@@ -168,7 +171,7 @@ public:
 					if (s->name == scene) {
 						_scene = s;
 						_scene->select();
-                        cout << "\tSELECT SCENE OK : " << scene << ":" << sceneName << endl;
+                        cout << "\tSELECT SCENE OK : sceneName = " << sceneName << " : " << sceneName << endl;
 						found = true;
 					}
 				}

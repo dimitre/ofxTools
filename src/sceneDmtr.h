@@ -2,6 +2,8 @@ struct sceneDmtrBasic {
 public:
 	sceneConfig * config = NULL;
 	string name = "";
+	//feito apenas pra cena stocks do muti pra carregar texto no sceneStocks
+	string text = "";
 
 	bool isSetup = false;
 	ofxMicroUI * u = NULL;
@@ -33,7 +35,7 @@ public:
 	bool hasListener = false;
 
 	void select() {
-		cout << "Scene selected, name = " << name << endl;
+		// cout << "Scene selected, name = " << name << endl;
         if (config != NULL) {
             ofAddListener(uiC->uiEvent, this, &sceneDmtr::uiEvents);
             hasListener = true;
