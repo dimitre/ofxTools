@@ -400,7 +400,7 @@ public:
 
 
 // este ta bugadão. testei no miaw e nada.
-struct sceneBola2 : public ofxScenes::sceneDmtr {
+struct sceneBola2 : public ofxScenes::sceneDmtr, ofxScenes::polar {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "bola2";
@@ -683,7 +683,7 @@ public:
 
 
 
-struct sceneMoire : public ofxScenes::sceneDmtr {
+struct sceneMoire : public ofxScenes::sceneDmtr, ofxScenes::polar {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "moire";
@@ -1019,7 +1019,7 @@ public:
 };
 
 
-struct sceneLeparc : public ofxScenes::sceneDmtr, ofxScenes::sceneIncrementa {
+struct sceneLeparc : public ofxScenes::sceneDmtr, ofxScenes::sceneIncrementa, ofxScenes::polar {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "leparc";
@@ -1109,7 +1109,7 @@ public:
 
 
 
-struct sceneRadial : public ofxScenes::sceneDmtr, ofxScenes::sceneIncrementa {
+struct sceneRadial : public ofxScenes::sceneDmtr, ofxScenes::sceneIncrementa, ofxScenes::polar {
 public:
 	using sceneDmtr::sceneDmtr;
 
@@ -1590,10 +1590,6 @@ public:
 	using sceneDmtr::sceneDmtr;
 	// name = "girinos";
 
-	int margem = 50;
-	ofRectangle boundsRect = ofRectangle(-margem, -margem,
-										 fbo->getWidth() + margem * 2,
-										 fbo->getHeight() + margem * 2);
 	
 	bool girinoChanged = false;
 	
@@ -1635,14 +1631,8 @@ public:
 		
 		girinoSettings * _settings = NULL;
 		
-		// border
-//		int minX, minY, maxX, maxY, largura, altura;
-
-		
 		girino(float q, girinoSettings & _s) : qual(q) {
 			_settings = &_s;
-			//fazer posicao negativa no inicio
-			//dimensions = p;
 			pos = glm::vec2(ofRandom(_settings->boundsRect.x, _settings->boundsRect.width),
 							ofRandom(_settings->boundsRect.y, _settings->boundsRect.height));
 			rand = ofRandom(0,1);
@@ -1652,7 +1642,6 @@ public:
 		}
 		
 		void addX(float v) {
-			
 			pos.x += v;
 			for (auto & p : positions) { p.x += v; }
 		}
@@ -1798,16 +1787,19 @@ public:
 	}
 
 	void setup() override {
+        
+        girinoSet.fboRect = config->soft->fboRect;
 
-		ofRectangle fboRect = ofRectangle(0,0,fbo->getWidth(), fbo->getHeight());
-		girinoSet.boundsRect = boundsRect;
-		girinoSet.fboRect = fboRect;
-		
-//		cout << boundsRect << endl;
-//		cout << fboRect << endl;
-//		cout << "-------" << endl;
-//		girinoSet2.boundsRect = boundsRect;
-//		girinoSet2.fboRect = fboRect;
+//		ofRectangle fboRect = ofRectangle(0,0,fbo->getWidth(), fbo->getHeight());
+        
+        
+        int margem = 100;
+        girinoSet.boundsRect = ofRectangle(-margem, -margem,
+                                             fbo->getWidth() + margem * 2,
+                                             fbo->getHeight() + margem * 2);
+        
+        
+//		girinoSet.fboRect = fboRect;
 		
 		gi.uiColors = config->uiColors;
 		gi.startThread();

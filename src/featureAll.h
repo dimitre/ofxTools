@@ -1149,6 +1149,7 @@ struct featurePickersMidi : public microFeature {
 	using microFeature::microFeature;
 	
 	vector <picker> pickers;
+    ofxMidia * _midi = NULL;
 
 	void setup() override {
 		setupPickers();
@@ -1173,6 +1174,19 @@ struct featurePickersMidi : public microFeature {
 			pickers.back().name = "picker_" + ofToString(a);
 		}
 	}
+    
+    void send() {
+        for (auto & p : pickers) {
+            p.minDelta = ui->pInt["colorDelta"];
+            p.update();
+            if (p.deltaChanged) {
+                int vel = ofMap(p.delta, 0, 765, 40, 127);
+                int duration = ofMap(p.delta, 0, 765, ui->pInt["minDuration"], ui->pInt["maxDuration"]);
+                _midi->config.addNoteF(ofRandom(0,1), duration, vel);
+            }
+            p.draw(soft->fboRect);
+        }
+    }
 };
 #endif
 
