@@ -1338,34 +1338,6 @@ public:
 
 
 
-#ifdef INSIDE
-void setupScenes3d() {
-		// 3d
-
-	scenes = {
-		new sceneOcean("ocean"),
-		new sceneGridbox("gridbox"),
-		new sceneSolidos("solidos"),
-		new scenePulsar("pulsar"),
-		new sceneLuan("luan"),
-		new sceneBox("box"),
-		new sceneNovelo("novelo"),
-	//xaxa
-		new scene3d("3d"),
-		new sceneGalaxia("galaxia"),
-		new sceneGirinos3d("girinos3d"),
-
-		new scenePoeira("poeira"),
-#ifdef USEASSIMP
-		new sceneModel("model"),
-#endif
-	};
-
-
-}
-
-#endif
-
 
 
 
@@ -1714,4 +1686,38 @@ public:
 		}
 	}
 };
+#endif
+
+
+
+
+
+
+
+#ifdef INSIDE
+void setupScenes3d() {
+		// 3d
+
+	scenes = {
+		new sceneOcean("ocean"),
+		new sceneGridbox("gridbox"),
+		new sceneSolidos("solidos"),
+		new scenePulsar("pulsar"),
+		new sceneLuan("luan"),
+		new sceneBox("box"),
+		new sceneNovelo("novelo"),
+	//xaxa
+		new scene3d("3d"),
+		new sceneGalaxia("galaxia"),
+		new sceneGirinos3d("girinos3d"),
+
+		new scenePoeira("poeira"),
+#ifdef USEASSIMP
+		new sceneModel("model"),
+#endif
+	};
+
+
+}
+
 #endif

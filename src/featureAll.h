@@ -1168,6 +1168,10 @@ struct featurePickersMidi : public microFeature {
 			int y = floor(a / ui->pInt["cols"]);
 			float xx = ofMap(x, -.5, ui->pInt["cols"] - .5, 0, soft->fboFinal->getWidth());
 			float yy = ofMap(y, -.5, ui->pInt["rows"] - .5, 0, soft->fboFinal->getHeight());
+            if (ui->pBool["randomPos"]) {
+                xx = ofRandom(0, soft->fboFinal->getWidth());
+                yy = ofRandom(0, soft->fboFinal->getHeight());
+            }
 			glm::vec2 pos = glm::vec2(xx,yy);
 			pickers.emplace_back(picker(pos, a, soft->fboFinal, ui));
 			pickers.back()._fbo = soft->fboFinal;
@@ -1181,7 +1185,7 @@ struct featurePickersMidi : public microFeature {
             p.update();
             if (p.deltaChanged) {
                 int vel = ofMap(p.delta, 0, 765, 40, 127);
-                int duration = ofMap(p.delta, 0, 765, ui->pInt["minDuration"], ui->pInt["maxDuration"]);
+                int duration = ofMap(p.delta, 0, 765, ui->pInt["duration"], ui->pInt["duration"] + ui->pInt["durationMax"]);
                 _midi->config.addNoteF(ofRandom(0,1), duration, vel);
             }
             p.draw(soft->fboRect);

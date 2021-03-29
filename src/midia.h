@@ -24,11 +24,14 @@ public:
 		ofxMicroUI * uiNotes = NULL;
 
 		vector <int> scales;
+        
+        ofxMicroUI::inspector * inspector = NULL;
 		
 		configMidi() {};
 		configMidi(ofFbo * _fbo, ofxMicroUI * _u) : fbo(_fbo), u(_u) {
 			uiC = &u->uis["sceneMidi"];
 			uiNotes = &u->uis["notes"];
+            inspector = ((ofxMicroUI::inspector *)uiNotes->getElement("note"));
 		}
 
 		struct nota {
@@ -71,6 +74,7 @@ public:
 //                cout << n * scales.size() << endl;
 				int note = scales[n * scales.size()];
 				notas.emplace_back(note, duration, vel, delay);
+                inspector->set(ofToString(note) + " : " + ofToString(duration));
             } else {
                 cout << "addnotef - no scales yet" << endl;
             }

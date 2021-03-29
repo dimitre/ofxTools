@@ -14,6 +14,10 @@ public:
 	glm::vec2 middle;
     
 //	sceneDmtrBasic() { }
+
+	glm::vec2 randomPos() {
+		return glm::vec2(ofRandom(0,fbo->getWidth()), ofRandom(0,fbo->getHeight()));
+	}
     
     sceneDmtrBasic(string n = "") : name(n) {
     }
