@@ -663,7 +663,7 @@ public:
 
 
 
-struct sceneGalaxia : public ofxScenes::sceneDmtr, ofxScenes::sceneAudio {
+struct sceneGalaxia : public ofxScenes::sceneDmtr, ofxScenes::sceneAudio, ofxScenes::polar {
 public:
 	using sceneDmtr::sceneDmtr;
 	// name = "galaxia";
@@ -796,6 +796,7 @@ public:
 //        cout << "draw box scene" << endl;
 		checkSetup();
 		ofSetColor(getCor(0));
+        ofSetColor(255);
 		float aresta = uiC->pEasy["aresta"] + updown * uiC->pEasy["arestaAudio"];
 		if (uiC->pBool["plane"]) {
 			plane.drawWireframe();

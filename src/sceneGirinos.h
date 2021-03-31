@@ -16,12 +16,13 @@ public:
 
 	struct girino {
 	public:
-		settings * _set = NULL;
 		glm::vec2 pos;
+		float qual;
+		settings * _set = NULL;
+
 		uint8_t cursor = 0;
 //		glm::vec2 positions[20];
         glm::vec2 positions[20];
-		float qual;
 		bool alive = true;
 		ofPolyline p;
         float angulo;
@@ -136,7 +137,9 @@ public:
 
 	void uiEvents(ofxMicroUI::element & e) override {
         if (e.name == "numero") {
-            build();
+			if (girinos.size() != *e.i) {
+            	build();
+			}
         }
     }
 };

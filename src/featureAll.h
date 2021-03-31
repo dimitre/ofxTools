@@ -134,17 +134,17 @@ public:
 	}
 	
 	void begin() override {
-		
-		// era ra ser no setup
-		cam.setNearClip(0.01 * pointsPerMeter);
-		cam.setFarClip(160 * pointsPerMeter);
-		
-		// if (_ui->pBool["disableDepthTest"]) {
-		// 	ofDisableDepthTest();
-		// } else {
-		// 	ofEnableDepthTest();
-		// }
-		if (isOk()) {
+        if (isOk()) {
+//            cout << "cam begin " << endl;
+            // era ra ser no setup
+            cam.setNearClip(0.1 * pointsPerMeter);
+            cam.setFarClip(1160 * pointsPerMeter);
+            
+            // if (_ui->pBool["disableDepthTest"]) {
+            // 	ofDisableDepthTest();
+            // } else {
+            // 	ofEnableDepthTest();
+            // }
 			ofEnableDepthTest();
 
 			float cameraX = ui->pEasy["cameraX"] * pointsPerMeter;

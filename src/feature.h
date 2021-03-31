@@ -74,15 +74,16 @@ public:
     }
     
     // fiz agora para Cairo.
-    microFeature(ofxMicroUISoftware * _soft, ofxMicroUI * _ui, bool * u = NULL) : soft(_soft), ui(_ui), use(u) {
+    microFeature(ofxMicroUISoftware * _soft, ofxMicroUI * _ui, bool * u = NULL) :
+    soft(_soft), ui(_ui), use(u) {
         internalSetup();
     }
 
-	microFeature(string n, ofxMicroUI * _ui, bool * u = NULL) : name(n), ui(_ui), use(u) {
-        internalSetup();
-	}
+//    microFeature(ofxMicroUISoftware * _soft, ofxMicroUI * _ui) : soft(_soft), ui(_ui) {
+//        internalSetup();
+//    }
 
-	microFeature(ofxMicroUISoftware * _soft, ofxMicroUI * _ui) : soft(_soft), ui(_ui) {
+	microFeature(string n, ofxMicroUI * _ui, bool * u = NULL) : name(n), ui(_ui), use(u) {
         internalSetup();
 	}
 
