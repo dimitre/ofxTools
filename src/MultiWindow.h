@@ -21,6 +21,12 @@ int main( ){
 //	}
 	
 	// WINDOW GUI
+	
+#ifdef MULTIPLESCREENS
+	cout << "MULTIPLESCREENS" << endl;
+#endif
+	
+	
 	ofGLFWWindowSettings settings;
 
 #ifdef OPENGL3
@@ -94,13 +100,18 @@ int main( ){
 			settings.windowMode = OF_FULLSCREEN;
 //			settings.resizable = false;=-
 			settings.shareContextWith = guiWindow;
+			
+// coloquei isso aqui pra evitar que o software do diogo abra telas cinzas qdo nao tem tela. 
+#ifndef MULTIPLESCREENS
+			if (a == 1)
+#endif
 			newWindow = ofCreateWindow(settings);
 
 			if (a==1) {
 				ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow1);
 //                ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::soft.drawSecondWindow1);
 			}
-#ifdef MULTIPLE
+#ifdef MULTIPLESCREENS
 			else if (a==2) {
 				ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow2);
 			}
@@ -110,8 +121,8 @@ int main( ){
 			else if (a==4) {
 				ofAddListener(newWindow->events().draw, mainApp.get(), &ofApp::drawSecondWindow4);
 			}
-#endif
 			allWindows.emplace_back(newWindow);
+#endif
 		}
 		
 		ofxMicroUI::messageBox(output);
