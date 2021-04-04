@@ -1189,9 +1189,9 @@ struct sceneBasePoco :  public virtual ofxScenes::sceneDmtr {
 
 
 
-struct sceneTyper :  public ofxScenes::sceneBaseType, public sceneBasePoco {
+struct sceneTyper :  public ofxScenes::sceneType, public sceneBasePoco {
 	public:
-	using sceneBaseType::sceneBaseType;
+	using sceneType::sceneType;
     unsigned long startTime = 0;
 
 	void draw() override {
@@ -1246,7 +1246,7 @@ struct sceneTyper :  public ofxScenes::sceneBaseType, public sceneBasePoco {
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
-		typeUIEvent(e);
+        sceneType::uiEvents(e);
         pocoUIEvent(e);
 		if (e.name == "loadPreset" || e.name == "begin") {
 			startTime = ofGetElapsedTimeMillis();
@@ -1259,9 +1259,9 @@ struct sceneTyper :  public ofxScenes::sceneBaseType, public sceneBasePoco {
 #endif
 
 
-//struct sceneTyper0 : public sceneBaseType {
+//struct sceneTyper0 : public sceneType {
 //    public:
-//    using sceneBaseType::sceneBaseType;
+//    using sceneType::sceneType;
 //
 //    int tempo = 0;
 //    int subTexto = 0;

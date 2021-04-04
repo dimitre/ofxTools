@@ -168,30 +168,25 @@ struct sceneIncrementa : public virtual ofxScenes::sceneDmtrBasic {
 };
 
 
-struct sceneBaseType : public virtual ofxScenes::sceneDmtrBasic {
+struct sceneType : public virtual ofxScenes::sceneDmtrBasic {
 	public:
 	using sceneDmtrBasic::sceneDmtrBasic;
     
     ofTrueTypeFont * type = NULL;
+    ofxMicroUI::fontList* fontElement = NULL;
+    int lastSize = 0;
+
     void setup() override {
-        setupType();
-    }
-    
-    void setupType() {
         type = &uiC->pFont["type"];
     }
-	int lastSize = 0;
-
+    
 	void uiEvents(ofxMicroUI::element & e) override {
-		typeUIEvent(e);
-	}
-
-	void typeUIEvent(ofxMicroUI::element & e) {
 		if (e.name == "fontSize") {
 			if (*e.i != lastSize) {
 				ofxMicroUI::element* el = uiC->getElement("type");
 				if (el != NULL) {
 					ofxMicroUI::fontList* f = (ofxMicroUI::fontList*)el;
+                    f->_size = &uiC->pInt["fontSize"];
 					f->size = *e.i;
 					f->reload();
 				}
@@ -200,6 +195,3 @@ struct sceneBaseType : public virtual ofxScenes::sceneDmtrBasic {
 		}
 	}
 };
-
-
-

@@ -1194,6 +1194,37 @@ struct featurePickersMidi : public microFeature {
 };
 #endif
 
+
+
+struct featureAutopilot : public microFeature {
+	public:
+	using microFeature::microFeature;
+	float nextJump;
+	int nPreset = -1;
+	void jump() {
+		nextJump = ofGetElapsedTimef() + ui->pInt["seconds"];
+	}
+
+	void setup() override {
+		jump();
+	}
+
+	void update() override {
+		// cout << "update autoPilot" << endl;
+		if (ui->pBool["autoPilot"]) {
+			if (ofGetElapsedTimef() > nextJump) {
+				jump();
+				nPreset = (nPreset + 1) % ui->pInt["maxPreset"];
+				soft->loadPreset(ofToString(nPreset));
+			}
+		}
+	}
+	void uiEvents(ofxMicroUI::element & e) override {}
+};
+
+
+
+
 struct featureTest : public microFeature {
 	public:
 	using microFeature::microFeature;
