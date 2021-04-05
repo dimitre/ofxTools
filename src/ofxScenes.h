@@ -148,7 +148,7 @@ public:
 	}
 	
 	void uiEventMaster(string & s) {
-        cout << "|||||||||||| uiEventMaster " << s << " : " << sceneName << endl;
+//        cout << "|||||||||||| uiEventMaster " << s << " : " << sceneName << endl;
 //		if (s == "setup") {
 //			setup();
 //		}
