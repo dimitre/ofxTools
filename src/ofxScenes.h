@@ -109,7 +109,7 @@ public:
 	}
 
 	void setup() {
-        cout << ">>>>> OFXSCENES SETUP : " << sceneName << " ";
+        cout << ">>>>> OFXSCENES SETUP : " << sceneName << " " << endl;
 		ofAddListener(ofEvents().update, this, &ofxScenes::onUpdate);
 //        cout << "ofxScenes Adding number of scenes: " << scenes.size() << endl;
 		

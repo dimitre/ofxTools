@@ -64,8 +64,22 @@ public:
 };
 
 
+struct sceneVideoSimple : public ofxScenes::sceneDmtr { //, ofxScenes::sceneIncrementa
+public:
+    using sceneDmtr::sceneDmtr;
 
-
-
-
+    ofVideoPlayer * video = NULL;
+    
+    void draw() override {
+        video = &uiC->pVideo["video"];
+        if (video->isLoaded()) {
+            video->update();
+            float x = uiC->pFloat["offX"];
+            float y = uiC->pFloat["offY"];
+            float w = uiC->pFloat["scale"] * video->getWidth();
+            float h = uiC->pFloat["scale"] * video->getHeight();
+            video->draw(x, y, w, h);
+        }
+    }
+};
 
