@@ -1156,7 +1156,7 @@ struct featurePickersMidi : public microFeature {
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
-		if (e.name == "numero" || e.name == "cols" || e.name == "rows") {
+		if (e.name == "numero" || e.name == "cols" || e.name == "rows" || e.name == "randomPos") {
 			setupPickers();
 		}
 	}

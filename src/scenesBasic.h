@@ -70,6 +70,10 @@ public:
 
     ofVideoPlayer * video = NULL;
     
+    void setup() override {
+        video = &uiC->pVideo["video"];
+    }
+    
     void draw() override {
         video = &uiC->pVideo["video"];
         if (video->isLoaded()) {
@@ -80,6 +84,21 @@ public:
             float h = uiC->pFloat["scale"] * video->getHeight();
             video->draw(x, y, w, h);
         }
+        ((ofxMicroUI::bar*)uiC->getElement("bar"))->set(video->getPosition());
     }
+    void uiEvents(ofxMicroUI::element & e) override {
+        if (video->isLoaded()) {
+            if (e.name == "speed") {
+                video->setSpeed(*e.f);
+            }
+            else if (e.name == "pos") {
+                video->setPosition(*e.f);
+            }
+            else if (e.name == "vol") {
+                video->setVolume(*e.f);
+            }
+		}
+	}
+    
 };
 
