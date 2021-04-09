@@ -12,6 +12,7 @@ public:
 	//	ofxMicroUI * uiColors = NULL;
 	ofFbo * fbo = NULL;
 	glm::vec2 middle;
+	ofRectangle rectBounds;
     
 //	sceneDmtrBasic() { }
 
@@ -34,6 +35,8 @@ public:
         uiC = config->uiC;
         fbo = config->fbo;
         middle = glm::vec2(fbo->getWidth() * .5, fbo->getHeight() * .5);
+		// todo : depois adicionar software aqui e pegar um rect ja existente la.
+		rectBounds = ofRectangle(0,0,fbo->getWidth(), fbo->getHeight());
     }
 
 	bool hasListener = false;

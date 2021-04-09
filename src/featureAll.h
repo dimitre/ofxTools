@@ -859,6 +859,10 @@ struct featureTex : public microFeature {
 
 
 
+
+
+
+
 struct featureGlow0 : virtual public microFeature {
 	using microFeature::microFeature;
 
@@ -1188,7 +1192,20 @@ struct featurePickersMidi : public microFeature {
                 int duration = ofMap(p.delta, 0, 765, ui->pInt["duration"], ui->pInt["duration"] + ui->pInt["durationMax"]);
                 _midi->config.addNoteF(ofRandom(0,1), duration, vel);
             }
+//            p.draw(soft->fboRect);
+        }
+    }
+    
+    void draw() override {
+        for (auto & p : pickers) {
             p.draw(soft->fboRect);
+        }
+    }
+    
+    void draw2() {
+        ofRectangle r = ofRectangle(0,0, soft->fboFinal->getWidth(), soft->fboFinal->getHeight());
+        for (auto & p : pickers) {
+            p.draw(r);
         }
     }
 };
@@ -1235,3 +1252,20 @@ struct featureTest : public microFeature {
 };
 
 
+
+
+
+struct featureBlend : virtual public microFeature {
+    using microFeature::microFeature;
+    map <string, ofBlendMode> blendMap = {
+        { "add", OF_BLENDMODE_ADD },
+        { "alpha", OF_BLENDMODE_ALPHA },
+        { "screen", OF_BLENDMODE_SCREEN },
+        { "multiply", OF_BLENDMODE_MULTIPLY },
+        { "subtract", OF_BLENDMODE_SUBTRACT }
+    };
+    
+    void begin() override {
+        ofEnableBlendMode(blendMap[ui->pString["blend"]]);
+    }
+};
