@@ -1,9 +1,9 @@
 
 #define USETYPE 1
 
-struct sceneStocks : public ofxScenes::sceneBaseType, ofxScenes::sceneIncrementa {
+struct sceneStocks : public ofxScenes::sceneType, ofxScenes::sceneIncrementa {
 public:
-	using sceneBaseType::sceneBaseType;
+	using sceneType::sceneType;
 	// using sceneDmtrBasic::sceneDmtrBasic;
 
 	int screen = 0;
@@ -156,7 +156,7 @@ public:
 	};
 
 	void setup() override {
-		sceneBaseType::setup();
+        sceneType::setup();
 	}
 
 	void draw() override {
@@ -275,6 +275,6 @@ public:
 
 		text = views[screen].symbol + " " + views[screen].range;
 
-		typeUIEvent(e);
+        sceneType::uiEvents(e);
 	}
 };
