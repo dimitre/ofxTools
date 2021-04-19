@@ -808,6 +808,8 @@ public:
         poly.addVertex(40,20);
         poly.addVertex(40,60);
 	}
+    glm::vec2 offsets[2] = { glm::vec2(-1, 1), glm::vec2(0,0) };
+
 
 	void draw() override {
 		float offy = 0;
@@ -817,15 +819,24 @@ public:
 		while (offy < fbo->getHeight()) {
 			float offx = 0;
 			while(offx < fbo->getWidth()) {
-				ofSetColor(ofColor::fromHsb(fmod(index * 5.0, 360), 255, 255));
+				ofSetColor(ofColor::fromHsb(fmod(index * uiC->pEasy["hueMult"] + uiC->pEasy["hueStart"], 255), 255, 220));
 				ofDrawRectangle(offx, offy, modulo, modulo);
-				ofSetColor(255);
-				ofDrawBitmapString(config->name + ":" + ofToString(index), offx + 12, offy + 22);
-                
                 ofPushMatrix();
-                ofTranslate(offx, offy + 10);
-                poly.draw();
+                ofTranslate(offx, offy);
+                
+				ofSetColor(255);
+                
+                for (auto & i : { 0, 1 }) {
+                    ofSetColor(i == 0 ? 0 : 255);
+                    ofPushMatrix();
+                    ofTranslate(offsets[i]);
+                    ofDrawBitmapString(config->name + ":" + ofToString(index), 12, 22);
+                    ofTranslate(0, 10);
+                    poly.draw();
+                    ofPopMatrix();
+                }
                 ofPopMatrix();
+                
 				offx += modulo;
 				index ++ ;
                 
@@ -848,22 +859,48 @@ void setupScenesMuti() {
 // STRIP SCENES
 
 
-struct sceneStripTest : public sceneMuti {
+struct sceneStripTest2 : public sceneMuti {
 public:
 	using sceneMuti::sceneMuti;
 
 	ofImage image;
 	void setup() override {
 		image.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
+        for (int x=0; x<fbo->getWidth(); x++) {
+            for (int y=0; y<fbo->getHeight(); y++) {
+                ofColor rgb = ofColor(
+                    ofMap(x, 0, fbo->getWidth(), 0, 255),
+                    ofMap(y, 0, fbo->getHeight(), 0, 255),
+                    0
+                    );
+                image.setColor(x, y, rgb);
+            }
+        }
+        image.update();
 	}
 
 	void draw() override {
-		image.setColor(ofColor(0));
-		image.setColor(uiC->pInt["x"], uiC->pInt["y"], ofColor(255,0,0));
-		ofSetColor(255);
-		image.update();
+        ofSetColor(255);
 		image.draw(0,0);
 	}
+};
+
+struct sceneStripTest : public sceneMuti {
+public:
+    using sceneMuti::sceneMuti;
+
+    ofImage image;
+    void setup() override {
+        image.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
+    }
+
+    void draw() override {
+        image.setColor(ofColor(0));
+        image.setColor(uiC->pInt["x"], uiC->pInt["y"], ofColor(255,0,0));
+        ofSetColor(255);
+        image.update();
+        image.draw(0,0);
+    }
 };
 
 
