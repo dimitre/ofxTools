@@ -1,6 +1,5 @@
 //sceneImage, sceneNDI, sceneGen
 
-
 struct sceneImageNF : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
@@ -90,7 +89,6 @@ struct sceneNdi : public ofxScenes::sceneDmtr {
 	}
 #endif
 };
-
 
 struct sceneGen : public ofxScenes::sceneDmtr {
 	using sceneDmtr::sceneDmtr;
