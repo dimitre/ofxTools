@@ -1091,6 +1091,7 @@ void main()
 			ofClear(0,0);
 		}
 	}
+	
 	void end() override {
 		if (isOk()) {
 			f->end();

@@ -45,8 +45,6 @@ public:
 	svgPoly * _svg = NULL;
 	map <string, svgPoly> svgMap;
 
-
-	
 	void setup() override {
 
 		ofDirectory dir;
@@ -81,13 +79,14 @@ public:
 //		_svg->offX = fmod(incrementa("velX"), _svg->getWidth());
 //		_svg->offY = fmod(incrementa("velY"), _svg->getHeight());
 
-		
-		_svg->offX = fmod(_svg->offX + uiC->pEasy["velX"], _svg->getWidth());
-		_svg->offY = fmod(_svg->offY + uiC->pEasy["velY"], _svg->getHeight());
+        if (_svg != NULL) {
+            _svg->offX = fmod(_svg->offX + uiC->pEasy["velX"], _svg->getWidth());
+            _svg->offY = fmod(_svg->offY + uiC->pEasy["velY"], _svg->getHeight());
+            ofTranslate(uiC->pEasy["offX"] + _svg->offX, uiC->pEasy["offY"] + _svg->offY);
+        }
 
 		
 
-		ofTranslate(uiC->pEasy["offX"] + _svg->offX, uiC->pEasy["offY"] + _svg->offY);
 
 		if (uiC->pBool["pattern"]) {
 			
@@ -138,17 +137,20 @@ public:
 	}
 
 	void svgDraw() {
-		int i = 0;
+        if (_svg != NULL) {
+            int i = 0;
 
-		for (auto & p : _svg->outlines) {
-			float n = ofNoise(ofGetElapsedTimef() * uiC->pFloat["tempoNoise"], i * uiC->pFloat["pathNoise"]);
-			if (n > uiC->pEasy["drawLimite"]) {
-				ofSetColor(ofMap(n, uiC->pEasy["drawLimite"], 1, 0, 255 ));
-				ofSetColor(getColor(ofMap(n, uiC->pEasy["drawLimite"], 1, 0, 1 ), uiColors));
-				p.draw();
-			}
-			i++;
-		}
+            for (auto & p : _svg->outlines) {
+                float n = ofNoise(ofGetElapsedTimef() * uiC->pFloat["tempoNoise"], i * uiC->pFloat["pathNoise"]);
+                if (n > uiC->pEasy["drawLimite"]) {
+                    ofSetColor(ofMap(n, uiC->pEasy["drawLimite"], 1, 0, 255 ));
+    //				ofSetColor(getColor(ofMap(n, uiC->pEasy["drawLimite"], 1, 0, 1 ), uiColors));
+                    ofSetColor(getCor(ofMap(n, uiC->pEasy["drawLimite"], 1, 0, 1 )));
+                    p.draw();
+                }
+                i++;
+            }
+        }
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
