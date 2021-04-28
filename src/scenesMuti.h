@@ -150,7 +150,7 @@ public:
 		float rotatex = 0;
 		float rotatey = 0;
 		float rotatez = 0;
-        float tamanho = 0;
+		float tamanho = 0;
 
 		objNovo() {
 			rand = ofRandom(0,1);
@@ -388,7 +388,7 @@ public:
 				uiC->pEasy["larguraRand"] * objetos[a].rand;
 				
 				// xaxa
-                o.tamanho = MAX(altura, largura);
+				o.tamanho = MAX(altura, largura);
 				
 				if (uiC->pString["verticalAlign"] == "vrandom") {
 					o.x = ofRandom(-o.tamanho, fbo->getWidth() + o.tamanho);
@@ -799,16 +799,16 @@ public:
 struct sceneTestPixelmap : public sceneMuti {
 public:
 	using sceneMuti::sceneMuti;
-    ofPolyline poly;
+	ofPolyline poly;
 
 	void setup() override {
-        poly.addVertex(20,40);
-        poly.addVertex(40,20);
-        poly.addVertex(60,40);
-        poly.addVertex(40,20);
-        poly.addVertex(40,60);
+		poly.addVertex(20,40);
+		poly.addVertex(40,20);
+		poly.addVertex(60,40);
+		poly.addVertex(40,20);
+		poly.addVertex(40,60);
 	}
-    glm::vec2 offsets[2] = { glm::vec2(-1, 1), glm::vec2(0,0) };
+	glm::vec2 offsets[2] = { glm::vec2(-1, 1), glm::vec2(0,0) };
 
 
 	void draw() override {
@@ -821,25 +821,25 @@ public:
 			while(offx < fbo->getWidth()) {
 				ofSetColor(ofColor::fromHsb(fmod(index * uiC->pEasy["hueMult"] + uiC->pEasy["hueStart"], 255), 255, 220));
 				ofDrawRectangle(offx, offy, modulo, modulo);
-                ofPushMatrix();
-                ofTranslate(offx, offy);
-                
+				ofPushMatrix();
+				ofTranslate(offx, offy);
+				
 				ofSetColor(255);
-                
-                for (auto & i : { 0, 1 }) {
-                    ofSetColor(i == 0 ? 0 : 255);
-                    ofPushMatrix();
-                    ofTranslate(offsets[i]);
-                    ofDrawBitmapString(config->name + ":" + ofToString(index), 12, 22);
-                    ofTranslate(0, 10);
-                    poly.draw();
-                    ofPopMatrix();
-                }
-                ofPopMatrix();
-                
+				
+				for (auto & i : { 0, 1 }) {
+					ofSetColor(i == 0 ? 0 : 255);
+					ofPushMatrix();
+					ofTranslate(offsets[i]);
+					ofDrawBitmapString(config->name + ":" + ofToString(index), 12, 22);
+					ofTranslate(0, 10);
+					poly.draw();
+					ofPopMatrix();
+				}
+				ofPopMatrix();
+				
 				offx += modulo;
 				index ++ ;
-                
+				
 			}
 			offy += modulo;
 		}
@@ -868,12 +868,12 @@ struct sceneStripOndas : public sceneMuti {
 		}
 	};
 	vector <strip> strips;
-    
+	
 	void setup() override {
 //        cout << "setup sceneStripOndas" << endl;
 		int pos = 0;
-        for (int y=0; y<6; y++) {
-            for (int x=0; x<10; x++) {
+		for (int y=0; y<6; y++) {
+			for (int x=0; x<10; x++) {
 				strips.emplace_back(x,y,pos);
 				pos++;
 			}
@@ -884,7 +884,7 @@ struct sceneStripOndas : public sceneMuti {
 		for (auto & s : strips) {
 			ofSetColor(getCor(0));
 			float seno = sin(s.qual * uiC->pEasy["qual"] + ofGetElapsedTimef() * uiC->pFloat["tempo"]);
-            seno = ofMap(seno, -1, 1, uiC->pEasy["senoMin"], uiC->pEasy["senoMax"]);
+			seno = ofMap(seno, -1, 1, uiC->pEasy["senoMin"], uiC->pEasy["senoMax"]);
 			float largura = uiC->pFloat["largura"] + ofMap(seno, -1, 1, 0, fbo->getWidth()) * uiC->pEasy["senoLargura"];
 			float x = ofMap(seno, -1, 1, 0, fbo->getWidth() - largura) * uiC->pEasy["senoAnda"];
 			ofDrawLine(x, s.pos, x+largura, s.pos);
@@ -895,51 +895,66 @@ struct sceneStripOndas : public sceneMuti {
 // pontinho xy.
 struct sceneStripTest : public sceneMuti {
 public:
-    using sceneMuti::sceneMuti;
+	using sceneMuti::sceneMuti;
 
-    ofImage image;
-    ofImage imageGrad;
-    void setup() override {
-        image.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
-        
-        imageGrad.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
-        for (int x=0; x<fbo->getWidth(); x++) {
-            for (int y=0; y<fbo->getHeight(); y++) {
-                ofColor rgb = ofColor(
-                    ofMap(x, 0, fbo->getWidth(), 0, 255),
-                    ofMap(y, 0, fbo->getHeight(), 0, 255),
-                    0
-                    );
-                imageGrad.setColor(x, y, rgb);
-            }
-        }
-        imageGrad.update();
-    }
+	ofImage image;
+	ofImage imageGrad;
+	ofImage imageGrad2;
+	void setup() override {
+		image.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
+		
+		imageGrad.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
+		for (int x=0; x<fbo->getWidth(); x++) {
+			for (int y=0; y<fbo->getHeight(); y++) {
+				ofColor rgb = ofColor(
+					ofMap(x, 0, fbo->getWidth(), 0, 255),
+					ofMap(y, 0, fbo->getHeight(), 0, 255),
+					0
+					);
+				imageGrad.setColor(x, y, rgb);
+			}
+		}
+		imageGrad.update();
 
-    void draw() override {
-        
+		imageGrad2.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
+		for (int x=0; x<fbo->getWidth(); x++) {
+			for (int y=0; y<fbo->getHeight(); y++) {
+				ofColor rgb = ofColor(
+					abs(ofMap(x, 0, fbo->getWidth(), -255, 255))
+					);
+				imageGrad2.setColor(x, y, rgb);
+			}
+		}
+		imageGrad2.update();
+	}
+
+	void draw() override {
+		
 //        cout << config->name << endl;
-        if (uiC->pBool[config->name]) {
-            ofSetColor(255);
-            if (uiC->pString["tipo"] == "grad") {
-                imageGrad.draw(0,0);
-            }
-            else if (uiC->pString["tipo"] == "xy") {
-                image.setColor(ofColor(0));
-                image.setColor(uiC->pInt["x"], uiC->pInt["y"], ofColor(255,0,0));
-                ofSetColor(255);
-                image.update();
-                image.draw(0,0);
-            }
-            else if (uiC->pString["tipo"] == "rect") {
-                ofSetColor(getCor(0));
-                ofDrawRectangle(uiC->pInt["x"],
-                                uiC->pInt["y"],
-                                uiC->pInt["w"],
-                                uiC->pInt["h"]
-                                );
-            }
-        }
-    }
+		if (uiC->pBool[config->name]) {
+			ofSetColor(255);
+			if (uiC->pString["tipo"] == "grad") {
+				imageGrad.draw(0,0);
+			}
+			else if (uiC->pString["tipo"] == "grad2") {
+				imageGrad2.draw(0,0);
+			}
+			else if (uiC->pString["tipo"] == "xy") {
+				image.setColor(ofColor(0));
+				image.setColor(uiC->pInt["x"], uiC->pInt["y"], ofColor(255,0,0));
+				ofSetColor(255);
+				image.update();
+				image.draw(0,0);
+			}
+			else if (uiC->pString["tipo"] == "rect") {
+				ofSetColor(getCor(0));
+				ofDrawRectangle(uiC->pInt["x"],
+								uiC->pInt["y"],
+								uiC->pInt["w"],
+								uiC->pInt["h"]
+								);
+			}
+		}
+	}
 };
 
