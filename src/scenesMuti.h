@@ -857,54 +857,6 @@ void setupScenesMuti() {
 
 
 // STRIP SCENES
-
-
-struct sceneStripTest2 : public sceneMuti {
-public:
-	using sceneMuti::sceneMuti;
-
-	ofImage image;
-	void setup() override {
-		image.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
-        for (int x=0; x<fbo->getWidth(); x++) {
-            for (int y=0; y<fbo->getHeight(); y++) {
-                ofColor rgb = ofColor(
-                    ofMap(x, 0, fbo->getWidth(), 0, 255),
-                    ofMap(y, 0, fbo->getHeight(), 0, 255),
-                    0
-                    );
-                image.setColor(x, y, rgb);
-            }
-        }
-        image.update();
-	}
-
-	void draw() override {
-        ofSetColor(255);
-		image.draw(0,0);
-	}
-};
-
-struct sceneStripTest : public sceneMuti {
-public:
-    using sceneMuti::sceneMuti;
-
-    ofImage image;
-    void setup() override {
-        image.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
-    }
-
-    void draw() override {
-        image.setColor(ofColor(0));
-        image.setColor(uiC->pInt["x"], uiC->pInt["y"], ofColor(255,0,0));
-        ofSetColor(255);
-        image.update();
-        image.draw(0,0);
-    }
-};
-
-
-
 struct sceneStripOndas : public sceneMuti {
 	using sceneMuti::sceneMuti;
 	struct strip {
@@ -939,3 +891,55 @@ struct sceneStripOndas : public sceneMuti {
 		}
 	}
 };
+
+// pontinho xy.
+struct sceneStripTest : public sceneMuti {
+public:
+    using sceneMuti::sceneMuti;
+
+    ofImage image;
+    ofImage imageGrad;
+    void setup() override {
+        image.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
+        
+        imageGrad.allocate(fbo->getWidth(), fbo->getHeight(), OF_IMAGE_COLOR_ALPHA);
+        for (int x=0; x<fbo->getWidth(); x++) {
+            for (int y=0; y<fbo->getHeight(); y++) {
+                ofColor rgb = ofColor(
+                    ofMap(x, 0, fbo->getWidth(), 0, 255),
+                    ofMap(y, 0, fbo->getHeight(), 0, 255),
+                    0
+                    );
+                imageGrad.setColor(x, y, rgb);
+            }
+        }
+        imageGrad.update();
+    }
+
+    void draw() override {
+        
+//        cout << config->name << endl;
+        if (uiC->pBool[config->name]) {
+            ofSetColor(255);
+            if (uiC->pString["tipo"] == "grad") {
+                imageGrad.draw(0,0);
+            }
+            else if (uiC->pString["tipo"] == "xy") {
+                image.setColor(ofColor(0));
+                image.setColor(uiC->pInt["x"], uiC->pInt["y"], ofColor(255,0,0));
+                ofSetColor(255);
+                image.update();
+                image.draw(0,0);
+            }
+            else if (uiC->pString["tipo"] == "rect") {
+                ofSetColor(getCor(0));
+                ofDrawRectangle(uiC->pInt["x"],
+                                uiC->pInt["y"],
+                                uiC->pInt["w"],
+                                uiC->pInt["h"]
+                                );
+            }
+        }
+    }
+};
+
