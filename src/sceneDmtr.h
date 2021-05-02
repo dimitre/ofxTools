@@ -57,15 +57,6 @@ public:
 	}
 
 	virtual ofColor getCor(float n) {
-//        if (config == NULL) {
-//            cout << "config null" << endl;
-//        }
-//        if (config->uiColors == NULL) {
-//            cout << "UICOLORS NULL " << endl;
-//        }
-//        else {
-//            cout << config->uiColors->uiName << endl;
-//        }
         if (config != NULL) {
             return getColor(n, config->uiColors);
         } else {
