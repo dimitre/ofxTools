@@ -138,7 +138,7 @@ public:
 	}
 
 	void draw() {
-		ofSetLineWidth(ui->pEasy["lineWidth"]);
+//		ofSetLineWidth(ui->pEasy["lineWidth"]);
 		if (_scene != NULL) {
 //            cout << _scene->name << endl;
 			_scene->draw();
