@@ -197,15 +197,21 @@ public:
 
     void draw() override {
         i = &uiC->pImage["image"];
-        ofSetColor(255);
         if (i->isAllocated()) {
+            ofSetColor(getCor(0));
             float scale = uiC->pEasy["scale"];
+            
             float w = i->getWidth() * scale;
             float h = i->getHeight() * scale;
-            ofTranslate(fbo->getWidth() * .5, fbo->getHeight() * .5);
+            ofTranslate(middle);
 
             float x = -w*.5 + uiC->pEasy["offX"];
             float y = -h*.5 + uiC->pEasy["offY"];
+//            cout << scale << endl;
+//            cout << uiC->pEasy["offX"] << endl;
+//            cout << x << ":" << y << endl;
+//            cout << w << ":" << h << endl;
+//            cout << "-----" << endl;
 
             i->draw(x, y, w, h);
 //            i->draw(0,0);
