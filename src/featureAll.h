@@ -555,36 +555,11 @@ public:
 		cairo = make_shared<ofCairoRenderer>();
 		cairoOut = make_shared<ofCairoRenderer>();
 		cairo->setupMemoryOnly(ofCairoRenderer::IMAGE, false, false, rect);
+        render.allocate(rect.width, rect.height, GL_RGBA);
 //        bool useCairo = soft->_ui->uis["ui"].pBool["useCairo"];
 	}
 
-	void save() {
-		savingCairo = true;
-	}
-	
-	void beginSave() {
-		cout << "SAVINGCAIRO!" << endl;
-		savingCairoFilename = "_output/syntype_"+ofGetTimestampString()+".svg";
-		cout << "SAVING " << savingCairoFilename << endl;
-		cairoOut->setup(savingCairoFilename, ofCairoRenderer::SVG, false, false, rect);
-		ofSetCurrentRenderer(cairoOut);
-//		ofGetCurrentRenderer()->setupGraphicDefaults();		
-//        ofGetCurrentRenderer()->background(ofColor(0,0));
-//        ofGetCurrentRenderer()->setBackgroundColor(ofColor(0,0));
 
-		ofStyle style = ofGetCurrentRenderer()->getStyle();
-		ofGetCurrentRenderer()->setStyle(style);
-		cairo_set_miter_limit(cairoOut->getCairoContext(), 2);
-//		cairo_set_line_join(cairoOut->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
-//		cairo_set_line_cap(cairoOut->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
-	}
-	
-	void endSave() {
-		render.loadData(cairoOut->getImageSurfacePixels());
-		cairoOut->close();
-		string resultado = ofSystem("open " + ofToDataPath(savingCairoFilename));
-		savingCairo = false;
-	}
 	
 	void begin() override {
 		if (isOk()) {
@@ -592,7 +567,21 @@ public:
 				beginSave();
 			} else {
 				ofSetCurrentRenderer(cairo);
-				ofGetCurrentRenderer()->setupGraphicDefaults();
+                
+                
+                cairo_save (cairo->getCairoContext());
+                cairo_set_source_rgba (cairo->getCairoContext(), 1,0,0,0);
+                cairo_set_operator (cairo->getCairoContext(), CAIRO_OPERATOR_SOURCE);
+                cairo_paint (cairo->getCairoContext());
+                cairo_restore (cairo->getCairoContext());
+                
+//                ofSetCurrentRenderer(cairo, true);
+                
+                
+//				ofGetCurrentRenderer()->setupGraphicDefaults();
+//                cairo->clear(0,0,0,0);
+//                cairo->clearAlpha();
+
 //				ofStyle style = ofGetCurrentRenderer()->getStyle();
 //				ofGetCurrentRenderer()->setStyle(style);
 //                cairo_set_source_rgba(cairo->cr,0,0,0,1);
@@ -621,6 +610,7 @@ public:
 			}
 			ofPushMatrix();
 		}
+        ofClear(0,0);
 		startBlendingMode();
 	}
 
@@ -628,6 +618,8 @@ public:
 	void end() override {
 		if (isOk()) {
 			ofPopMatrix();
+            cairo->flush();
+
 			ofSetCurrentRenderer(opengl, true);
 			
 			if (savingCairo) {
@@ -640,6 +632,36 @@ public:
 			}
 		}
 	}
+    
+    
+    
+    void save() {
+        savingCairo = true;
+    }
+    
+    void beginSave() {
+        cout << "SAVINGCAIRO!" << endl;
+        savingCairoFilename = "_output/syntype_"+ofGetTimestampString()+".svg";
+        cout << "SAVING " << savingCairoFilename << endl;
+        cairoOut->setup(savingCairoFilename, ofCairoRenderer::SVG, false, false, rect);
+        ofSetCurrentRenderer(cairoOut);
+//        ofGetCurrentRenderer()->setupGraphicDefaults();
+//        ofGetCurrentRenderer()->background(ofColor(0,0));
+//        ofGetCurrentRenderer()->setBackgroundColor(ofColor(0,0));
+
+        ofStyle style = ofGetCurrentRenderer()->getStyle();
+        ofGetCurrentRenderer()->setStyle(style);
+        cairo_set_miter_limit(cairoOut->getCairoContext(), 2);
+//        cairo_set_line_join(cairoOut->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+//        cairo_set_line_cap(cairoOut->getCairoContext(), CAIRO_LINE_CAP_ROUND); // ROUND SQUARE
+    }
+    
+    void endSave() {
+        render.loadData(cairoOut->getImageSurfacePixels());
+        cairoOut->close();
+        string resultado = ofSystem("open " + ofToDataPath(savingCairoFilename));
+        savingCairo = false;
+    }
 	
 	void uiEvents(ofxMicroUI::element & e) override { 
 			//            cairo_set_line_join(cairo->getCairoContext(), CAIRO_LINE_JOIN_ROUND); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL

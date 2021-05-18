@@ -1,5 +1,80 @@
 #ifdef USESVG
 
+struct sceneSvgBase : public ofxScenes::sceneDmtr, ofxScenes::polar {
+public:
+    using sceneDmtr::sceneDmtr;
+    string loadedFile = "";
+    ofxSVG svg;
+    vector<ofPolyline> outlines;
+
+	ofRectangle boundsRect;
+    glm::vec2 pos = glm::vec2(0,0);
+
+	void setup() override {
+		int margem = 400;
+		boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
+	}
+    
+    void update() override {
+        float vx = r2x(uiC->pFloat["angle"], uiC->pFloat["vel"]);
+        float vy = r2y(uiC->pFloat["angle"], uiC->pFloat["vel"]);
+//        pos += glm::vec2(vx, vy);
+        pos.x = fmod(pos.x + vx, 2*uiC->pFloat["interval"]);
+        pos.y = fmod(pos.y + vy, 2*uiC->pFloat["interval"]);
+        
+    }
+
+    void draw() override {
+		ofSetColor(getCor(0));
+		float interval = uiC->pFloat["interval"];
+		int cx=0;
+		for (float x=boundsRect.x; x<boundsRect.width; x+=interval) {
+			int cy = 0;
+			for (float y=boundsRect.y; y<boundsRect.height; y+=interval) {
+				ofPushMatrix();
+				ofTranslate(x + pos.x, y + pos.y);
+				ofRotateDeg(uiC->pFloat["rot"]);
+				if (!uiC->pBool["impar"] || (cx+cy)%2) {
+					if (uiC->pBool["drawSvg"]) {
+						svg.draw();
+					}
+					else {
+                        ofScale(uiC->pFloat["scale"], uiC->pFloat["scale"]);
+						for (auto & o : outlines) {
+							o.draw();
+						}
+                        ofScale(1.0, 1.0);
+					}
+				}
+				ofPopMatrix();
+				cy++;
+			}
+			cx++;
+		}
+    }
+    
+    void uiEvents(ofxMicroUI::element & e) override {
+        if (e.name == "svg") {
+            if (*e.s != "") {
+                string file = ((ofxMicroUI::dirList*)&e)->getFileName();
+                if (loadedFile != file && ofFile::doesFileExist(file)) {
+                    cout << "SVG LOADED!" << file << endl;
+                    svg.load(file);
+					outlines.clear();
+					for (ofPath p: svg.getPaths()){
+						// svg defaults to non zero winding which doesn't look so good as contours
+						p.setPolyWindingMode(OF_POLY_WINDING_ODD);
+						const vector<ofPolyline>& lines = p.getOutline();
+						for(const ofPolyline & line: lines){
+							outlines.push_back(line.getResampledBySpacing(1));
+						}
+					}
+                }
+            }
+        }
+    }
+};
+
 struct sceneSvg : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
