@@ -100,6 +100,9 @@ public:
 		afterSetup();
 	}
 	
+    
+    
+    
 	static ofColor getColor(float n, ofxMicroUI * uiColors) {
 		if (uiColors->pBool["usePalette"]) {
 			return ((ofxMicroUI::colorPalette*)uiColors->getElement("colorPalette"))->getColor(n);
@@ -153,6 +156,13 @@ public:
 //			setup();
 //		}
 	}
+    
+    void updateFbos() {
+        for (auto & s : scenes) {
+            s->addConfig(&config);
+            s->setup();
+        }
+    }
 
 	void select(string scene) {
 //        cout << "preinside" << endl;
