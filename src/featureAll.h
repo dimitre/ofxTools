@@ -568,9 +568,24 @@ public:
 			} else {
 				ofSetCurrentRenderer(cairo);
                 
+                // forcing event
+                if (ui->pString["join"] != "") {
+                    cairo_set_line_join(cairo->getCairoContext(), lineJoin[ui->pString["join"]]); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
+                }
+                if (ui->pString["cap"] != "") {
+                    cairo_set_line_cap(cairo->getCairoContext(), lineCap[ui->pString["cap"]]); // ROUND SQUARE
+                }
+                
+                
+                // ALPHA
+//                cairo->clearAlpha();
+//                cairo->clear(0,0,0,0);
+                
                 
                 cairo_save (cairo->getCairoContext());
-                cairo_set_source_rgba (cairo->getCairoContext(), 1,0,0,0);
+//                cairo_set_source_rgba (cairo->getCairoContext(), 1,0,0,0);
+                cairo_set_source_rgba (cairo->getCairoContext(), 1,1,1,0);
+//                cairo_set_source_rgba (cairo->getCairoContext(), 1,1,1,0);
                 cairo_set_operator (cairo->getCairoContext(), CAIRO_OPERATOR_SOURCE);
                 cairo_paint (cairo->getCairoContext());
                 cairo_restore (cairo->getCairoContext());
