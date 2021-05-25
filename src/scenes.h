@@ -274,6 +274,7 @@ public:
         i = &uiC->pImage["image"];
         if (i->isAllocated()) {
             ofSetColor(getCor(0));
+            ofSetColor(255);
             float scale = uiC->pEasy["scale"];
             
             float w = i->getWidth() * scale;
@@ -284,6 +285,7 @@ public:
             float y = -h*.5 + uiC->pEasy["offY"];
 //            cout << scale << endl;
 //            cout << uiC->pEasy["offX"] << endl;
+//            cout << middle << endl;
 //            cout << x << ":" << y << endl;
 //            cout << w << ":" << h << endl;
 //            cout << "-----" << endl;
