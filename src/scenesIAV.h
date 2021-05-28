@@ -71,11 +71,11 @@ public:
 	settings set;
 	
 	void setupRectBounds(float margem) {
+        rectBounds = ofRectangle(0,0,fbo->getWidth(), fbo->getHeight());
 		rectBounds.x -= margem;
 		rectBounds.y -= margem;
 		rectBounds.width += margem * 2;
 		rectBounds.height += margem * 2;
-
 		set.rectBounds = rectBounds;
 	}
 
@@ -83,14 +83,14 @@ public:
 		if (pos.x < rectBounds.x) {
 			pos.x += rectBounds.width;
 		}
-		else if (pos.x > rectBounds.width) {
+		else if (pos.x > (rectBounds.x + rectBounds.width)) {
 			pos.x -= rectBounds.width;
 		}
 
 		if (pos.y < rectBounds.y) {
 			pos.y += rectBounds.height;
 		}
-		else if (pos.y > rectBounds.height) {
+		else if (pos.y > (rectBounds.y + rectBounds.height)) {
 			pos.y -= rectBounds.height;
 		}
 		return pos;
@@ -360,6 +360,18 @@ public:
 
 
 
+struct scenePlexus2022 : public sceneObjetos, ofThread {
+    using sceneObjetos::sceneObjetos;
+    void threadedFunction() {
+        while(isThreadRunning()) {
+            lock();
+//                image.setFromPixels(cam.getPixels());
+                // done with the resource
+           unlock();
+        }
+    }
+};
+
 
 struct scenePlexus2021 : public sceneObjetos {
 public:
@@ -370,8 +382,8 @@ public:
 		float raio = 6;
 		float velFactor = 1.0;
 		int index;
-		
 		float qual;
+        
 		ponto(glm::vec2 p, int i) : objeto(p), index(i) {
 			qual = ofRandom(0,1);
 			float mag = 2;
@@ -392,6 +404,7 @@ public:
 	};
 
 	vector <ponto> pontos;
+    ofVboMesh mesh;
 
 	void build() override {
 		pontos.clear();
@@ -401,7 +414,8 @@ public:
 	}
 
 	void setup() override {
-		setupRectBounds(300);
+        mesh.setMode(OF_PRIMITIVE_LINES);
+		setupRectBounds(-300);
 		build();
 	}
 
@@ -413,45 +427,101 @@ public:
 			p.pos = rectificate(p.pos);
 		}
 	}
-
-	void draw() override {
-		float distance = uiC->pEasy["distance"];
-		float dcube = distance + distance * uiC->pEasy["distanceFactor"];
-		ofColor cor;
-		for (auto & p : pontos) {
+    
+    void drawLines() {
+        float distance = uiC->pEasy["distance"];
+        ofColor cor;
+        for (auto & p : pontos) {
 //            cout << p.pos << endl;
-			cor = getCor(p.qual * uiC->pFloat["colorRange"]);
-			for (auto & pp : pontos) {
-				if (p.index != pp.index && p.pos.x <= pp.pos.x ) { //&& p.pos.y >= pp.pos.y
-					float d1 = (pp.pos.x - p.pos.x);
-					if (d1 < distance) {
-						float d2 = ABS(pp.pos.y - p.pos.y);
-						if (d2 < distance) {
-							if (uiC->pBool["useAlpha"]) {
-								cor.a = ofClamp(ofMap(d1 + d2, 0, dcube, 255, 0), 0, 255);
-//                                if (p.index == 1 && pp.index == 2) {
-//                                    cout << int(cor.a) << endl;
-//                                }
-//                            cor.a = ofMap(d1 + d2, 0, dcube, 255, 0);
-							}
-							if (cor.a > 0) {
-								ofSetColor(cor);
-								ofDrawLine(p.pos, pp.pos);
-							}
-						}
-					}
-				}
-			}
-			
-			if (uiC->pBool["recoverAlpha"]) {
-				cor.a = 255;
-			}
-			// ofSetColor(getCor(0));
-			p.draw();
-		}
+            cor = getCor(p.qual * uiC->pFloat["colorRange"]);
+            for (auto & pp : pontos) {
+                if (p.index != pp.index && p.pos.x <= pp.pos.x ) { //&& p.pos.y >= pp.pos.y
+                    float d1 = (pp.pos.x - p.pos.x);
+                    if (d1 < distance) {
+                        float d2 = ABS(pp.pos.y - p.pos.y);
+                        if (d2 < distance) {
+                            
+                            if (uiC->pBool["useAlpha"]) {
+                                float d = glm::distance(pp.pos, p.pos);
+                                cor.a = ofClamp(ofMap(d, 0, distance, 512, 0), 0, 255);
+                            }
+                            if (cor.a > 0) {
+                                ofSetColor(cor);
+                                ofDrawLine(p.pos, pp.pos);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (uiC->pBool["recoverAlpha"]) {
+                cor.a = 255;
+                ofSetColor(cor);
+            }
+            // ofSetColor(getCor(0));
+            p.draw();
+        }
+    }
+
+    void drawMesh() {
+        mesh.clear();
+        float distance = uiC->pEasy["distance"];
+        ofColor cor;
+        for (auto & p : pontos) {
+//            cout << p.pos << endl;
+            cor = getCor(p.qual * uiC->pFloat["colorRange"]);
+            for (auto & pp : pontos) {
+                if (p.index != pp.index && p.pos.x <= pp.pos.x ) { //&& p.pos.y >= pp.pos.y
+                    float d1 = (pp.pos.x - p.pos.x);
+                    if (d1 < distance) {
+                        float d2 = ABS(pp.pos.y - p.pos.y);
+                        if (d2 < distance) {
+                            
+                            if (uiC->pBool["useAlpha"]) {
+                                float d = glm::distance(pp.pos, p.pos);
+                                cor.a = ofClamp(ofMap(d, 0, distance, 512, 0), 0, 255);
+                            }
+                            if (cor.a > 0) {
+//                                ofSetColor(cor);
+                                mesh.addColor(cor);
+                                mesh.addVertex(glm::vec3(p.pos.x, p.pos.y, 0));
+                                mesh.addColor(cor);
+                                mesh.addVertex(glm::vec3(pp.pos.x, pp.pos.y, 0));
+
+//                                ofDrawLine(p.pos, pp.pos);
+                            }
+                        }
+                    }
+                }
+            }
+            
+//            if (uiC->pBool["recoverAlpha"]) {
+//                cor.a = 255;
+//                ofSetColor(cor);
+//            }
+//            // ofSetColor(getCor(0));
+//            p.draw();
+        }
+//        mesh.draw();
+    }
+    
+    
+	void draw() override {
+        ofNoFill();
+        ofDrawRectangle(rectBounds);
+        ofFill();
+        if (uiC->pBool["mesh"]) {
+            drawMesh();
+        } else {
+            drawLines();
+        }
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
+        if (e.name == "margem") {
+            setupRectBounds(*e.i);
+
+        }
 		if (e.name == "numero") {
 			build();
 		}

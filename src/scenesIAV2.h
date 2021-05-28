@@ -6,17 +6,186 @@ public:
 	struct microScene {
 		public:
 		ofRectangle rect = ofRectangle(0,0,100,100);
-		virtual void setup() {
-            cout << ">>> setup primitive microScene" << endl;
-        }
+		virtual void setup() {}
 		virtual void update() {}
 		virtual void draw() {}
 	};
 
-	struct gridRadial : public microScene {
-		public:
+	struct eq : public microScene {
 		void setup() override {
-            cout << ">>>> setup radial " << endl;
+			// cout << ">>>> setup horizon " << endl;
+			rect.width = 300;
+			rect.height = 75;
+		}
+
+		void draw() override {
+			ofPushMatrix();
+			ofDrawRectangle(rect);
+			ofTranslate(rect.x, rect.y);
+			float numero = 30;
+			float w = 300/(numero+2) - 4;
+			for (float a=0; a<numero; a++) {
+				float x = ofMap(a, -1, numero+1, 0, rect.width);
+				ofDrawRectangle(x,4,w,rect.height -8);
+			}
+			ofPopMatrix();
+		}
+	};
+
+
+	struct horizon : public microScene {
+		public:
+		
+		float rand = 0;
+		float multNoise = 0.02;
+		void setup() override {
+			// cout << ">>>> setup horizon " << endl;
+			rect.width = 300;
+			rect.height = 75;
+			rand = ofRandom(0,999);
+			multNoise = ofRandom(0.005, 0.03);
+		}
+		void draw() override {
+			ofPushMatrix();
+			ofDrawRectangle(rect);
+			ofTranslate(rect.x, rect.y);
+			// ofDrawRectangle(0,0,300,75);
+			vector <ofVec3f> pontos;
+			for (int a=0; a<300; a+=6) {
+				pontos.push_back(ofVec3f(a, ofNoise(a * multNoise , ofGetElapsedTimef() *.2 + rand)*75));
+			}
+			ofPolyline poly;
+			for (auto & p : pontos) {
+				poly.addVertex(p);
+				ofDrawCircle(p, 3.0);
+			}
+			poly.draw();
+			ofPopMatrix();
+		}
+	};
+
+	struct number : public microScene {
+		public:
+
+		void setup() override {
+			rect.width = 100;
+			rect.height = 12;
+			cout << "number setup" << endl;
+			cout << rect << endl;
+		}
+		void draw() override {
+			ofDrawBitmapString(ofToString(ofRandom(0,999)), rect.x, rect.y + 10);
+		}
+	};
+
+	struct ascii : public microScene {
+		public:
+
+		string st[6] = { ".", ":" , "/", "|", "\\", "o" };
+
+		void setup() override {
+			rect.width = 300;
+			rect.height = 75;
+		}
+		void draw() override {
+			ofPushMatrix();
+			ofTranslate(rect.x, rect.y);
+			for (int x=0; x<rect.width; x+= 12) {
+				for (int y=0; y<rect.height; y+= 12) {
+					int n = (ofNoise(x*.02, y *.03, ofGetElapsedTimef() * .3) * 6.0);
+					// int n = ofRandom(0,6);
+					ofDrawBitmapString(st[n], x, y);
+				}
+			}
+			ofPopMatrix();
+		}
+	};
+
+	struct gridNumber : public microScene {
+		public:
+
+		void setup() override {
+			rect.width = 300;
+			rect.height = 75;
+		}
+		void draw() override {
+			ofPushMatrix();
+			ofTranslate(rect.x, rect.y);
+			for (int x=0; x<rect.width; x+= 12) {
+				for (int y=0; y<rect.height; y+= 12) {
+					int n = ofRandom(0,9);
+					ofDrawBitmapString(ofToString(n), x, y);
+				}
+			}
+			ofPopMatrix();
+		}
+	};
+
+	struct noiseGrid : public microScene {
+		void setup() override {
+			rect.width = 200;
+			rect.height = 200;
+		}
+		void draw() override {
+			ofPushMatrix();
+			ofTranslate(rect.x, rect.y);
+			for (int a=0; a<rect.width; a+=14) {
+				for (int b=0; b<rect.height; b+=14) {
+					float raio = ofNoise(ofGetElapsedTimef() * .2, a + b) * 7.0;
+					ofDrawRectangle(a - raio*.5, b - raio*.5, raio, raio);
+				}
+			}
+			ofPopMatrix();
+		}
+	};
+
+	struct lathe : public microScene {
+		public:
+		float rotX, rotY, rotZ;
+		float rand;
+		void setup() override {
+			rect.width = 200;
+			rect.height = 200;
+			rotX = ofRandom(-120,120);
+			rotY = ofRandom(-120,120);
+			rotZ = ofRandom(-120,120);
+			rand = ofRandom(0,9999);
+		}
+
+		void draw() override {
+			ofPushMatrix();
+			// ofDrawRectangle(rect);
+			ofTranslate(rect.x + rect.width*.5, rect.y + rect.height*.5);
+			vector <glm::vec2> vertices;
+			ofPolyline poly;
+			for (int a=0; a<15; a++) {
+				float x = a*5 - 50;
+				float y = ofNoise(a*.08, ofGetElapsedTimef() * .15 + rand) * 40.0;
+				vertices.emplace_back(x, y);
+				poly.addVertex(x, y);
+			}
+
+			ofRotateXDeg(rotX);
+			ofRotateYDeg(rotY);
+			ofRotateZDeg(rotZ);
+			for (int a = 0; a<360; a+=18) {
+				ofPushMatrix();
+				ofRotateYDeg(a);
+				ofRotateZDeg(-90);
+				poly.draw();
+				// for (auto & v : vertices) {
+					
+				// }
+				ofPopMatrix();
+			}
+			ofPopMatrix();
+		}
+	};
+	
+	struct grid : public microScene {
+		public:
+		
+		void setup() override {
 			rect.width = 200;
 			rect.height = 200;
 		}
@@ -64,61 +233,10 @@ public:
 			
 		}
 	};
-
-	struct horizon : public microScene {
-		public:
-		void setup() override {
-			rect.width = 300;
-			rect.height = 75;
-
-		}
-		void draw() override {
-			ofPushMatrix();
-
-			ofDrawRectangle(rect);
-			ofTranslate(rect.x, rect.y);
-			// ofDrawRectangle(0,0,300,75);
-			vector <ofVec3f> pontos;
-			for (int a=0; a<300; a+=6) {
-				pontos.push_back(ofVec3f(a, ofNoise(a*.02, ofGetElapsedTimef() *.5)*75));
-			}
-			ofPolyline poly;
-			for (auto & p : pontos) {
-				poly.addVertex(p);
-				ofDrawCircle(p, 3.0);
-			}
-			poly.draw();
-			ofPopMatrix();
-		}
-	};
-
-	struct number : public microScene {
-		public:
-
-		void setup() override {
-			rect.width = 100;
-			rect.height = 50;
-		}
-		void draw() override {
-			ofDrawBitmapString(ofToString(ofRandom(0,999)), rect.x, rect.y);
-		}
-    };
+	
 
 	vector <microScene *> scenes;
 
-	void setup3() {
-		scenes.emplace_back(new gridRadial());
-		scenes.emplace_back(new horizon());
-        scenes.emplace_back(new number());
-		scenes[0]->rect.x = 40;
-		scenes[0]->rect.y = 40;
-
-		scenes[1]->rect.x = 280;
-		scenes[1]->rect.y = 40;
-
-		scenes[2]->rect.x = 40;
-		scenes[2]->rect.y = 240;
-	}
 	
 	void loadFromText() {
 		vector <string> lines = ofxMicroUI::textToVector("_pirose.txt");
@@ -128,6 +246,7 @@ public:
 		int colWidth = 0;
 
 		for (auto & l : lines) {
+			cout << "--------------" << endl;
 			cout << l << endl;
 			vector <string> cols = ofSplitString(l, "\t");
 			if (cols[0] == "flowVert") {
@@ -136,49 +255,71 @@ public:
 			else if (cols[0] == "flowHoriz") {
 				flowVert = false;
 			}
+
+			else if (cols[0] == "scene") {
+
+				if (cols[1] == "horizon") {
+					scenes.push_back(new horizon());
+				}
+				else if (cols[1] == "number") {
+					scenes.push_back(new number());
+				}
+				else if (cols[1] == "ascii") {
+					scenes.push_back(new ascii());
+				}
+
+				else if (cols[1] == "gridNumber") {
+					scenes.push_back(new gridNumber());
+				}				
+				else if (cols[1] == "grid") {
+					scenes.push_back(new grid());
+				}
+				else if (cols[1] == "lathe") {
+					scenes.push_back(new lathe());
+				}
+				else if (cols[1] == "noiseGrid") {
+					scenes.push_back(new noiseGrid());
+				}
+				else if (cols[1] == "eq") {
+					scenes.push_back(new eq());
+				}				
+
+				if (scenes.size()) {
+					scenes.back()->rect.x = flow.x;
+					scenes.back()->rect.y = flow.y;
+					scenes.back()->setup();
+					
+					if (flowVert) {
+						colWidth = MAX(colWidth, scenes.back()->rect.width);
+						flow.y += scenes.back()->rect.height  + margem;
+					} else {
+						flow.x += scenes.back()->rect.width  + margem;
+					}
+					// cout << flow << endl;
+					// cout << scenes.back()->rect << endl;
+				}
+ 			}
+
+			else if (cols[0] == "margem") {
+				margem = ofToInt(cols[1]);
+				flow = glm::vec2(margem, margem);
+			}
+
 			else if (cols[0] == "newCol") {
-				flow.x += colWidth;
+//				cout << colWidth << endl;
+				flow.x += colWidth + margem;
 				colWidth = 0;
 				flow.y = margem;
 			}
-			if (cols[0] == "scene") {
-				if (cols[1] == "gridRadial") {
-					scenes.emplace_back(new gridRadial());
-				} 
-				else if (cols[1] == "horizon") {
-					scenes.emplace_back(new horizon());
-				}
-				else if (cols[1] == "number") {
-			        scenes.emplace_back(new number());
-				}
-
- 			}
-            if (scenes.size()) {
-                
-                scenes.back()->rect.x = flow.x;
-                scenes.back()->rect.y = flow.y;
-                
-                if (flowVert) {
-                    colWidth = MIN(colWidth, scenes.back()->rect.width);
-                    flow.y += scenes.back()->rect.height;
-                } else {
-                    flow.x += scenes.back()->rect.width;
-                }
-                cout << flow << endl;
-                cout << scenes.back()->rect << endl;
-
-				scenes.back()->setup();
-            }
 		}
 	}
 
 	void setup() override {
-		// setup3();
+		//  setup3();
 		loadFromText();
-		for (auto & s : scenes) {
-			s->setup();
-		}
-
+//		for (auto & s : scenes) {
+//			s->setup();
+//		}
 		cout << "microScenes setup" << endl;
 		cout << scenes.size() << endl;
 	}
@@ -189,6 +330,14 @@ public:
 		for (auto & s : scenes) {
 			s->draw();
 		}
+
+		ofSetColor(255,0,70);
+		int i = 0;
+		for (auto & s : scenes) {
+			ofDrawBitmapString(ofToString(i), s->rect.x, s->rect.y + 10);
+			i++;
+		}
+
 	}
 };
 
