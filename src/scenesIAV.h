@@ -373,9 +373,20 @@ struct scenePlexus2022 : public sceneObjetos, ofThread {
 };
 
 
+//struct scenePlexus2021 : public sceneObjetos, ofThread {
 struct scenePlexus2021 : public sceneObjetos {
 public:
 	using sceneObjetos::sceneObjetos;
+    
+//    void threadedFunction() override {
+//        while(isThreadRunning()) {
+//            lock();
+//            updateMesh();
+////                image.setFromPixels(cam.getPixels());
+//                // done with the resource
+//            unlock();
+//        }
+//    }
 
 	struct ponto : public objeto {
 		public:
@@ -426,6 +437,10 @@ public:
 			p.update();
 			p.pos = rectificate(p.pos);
 		}
+        
+        if (uiC->pBool["mesh"]) {
+            updateMesh();
+        }
 	}
     
     void drawLines() {
@@ -444,6 +459,13 @@ public:
                             if (uiC->pBool["useAlpha"]) {
                                 float d = glm::distance(pp.pos, p.pos);
                                 cor.a = ofClamp(ofMap(d, 0, distance, 512, 0), 0, 255);
+                                if (uiC->pBool["randomAlpha"]) {
+//                                    cor.a = ofClamp(ofRandom(-355,cor.a), 0, 255);
+                                    
+                                    float n = ofNoise(p.index + pp.index, ofGetElapsedTimef() * uiC->pFloat["noiseTempo"]);
+                                    float n2 = ofMap(n, 0, 1, -355, cor.a);
+                                    cor.a = ofClamp(n2, 0, 255);
+                                }
                             }
                             if (cor.a > 0) {
                                 ofSetColor(cor);
@@ -464,6 +486,11 @@ public:
     }
 
     void drawMesh() {
+        updateMesh();
+        mesh.draw();
+    }
+    
+    void updateMesh() {
         mesh.clear();
         float distance = uiC->pEasy["distance"];
         ofColor cor;
@@ -511,7 +538,9 @@ public:
         ofDrawRectangle(rectBounds);
         ofFill();
         if (uiC->pBool["mesh"]) {
-            drawMesh();
+//            lock();
+            mesh.draw();
+//            unlock();
         } else {
             drawLines();
         }
