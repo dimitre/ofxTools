@@ -694,6 +694,7 @@ public:
 			glm::vec3 rot, rotVel;
 
 			ofVboMesh mesh;
+            ofVboMesh meshTri;
 			ofPlanePrimitive plane;
 		
 		float raio, raio2;
@@ -712,6 +713,13 @@ public:
 			plane.set(raio*2, raio2*2);
 			plane.setResolution(5, 5);
 			mesh = plane.getMesh();
+            
+            float factor = ofRandom(3,5);
+            plane.set(raio*factor, raio2*factor);
+            plane.setResolution(2,2);
+            meshTri = plane.getMesh();
+            meshTri.removeIndex(0);
+//            meshTri
 
 			rot = glm::vec3(
 				ofRandom(0,180),
@@ -727,23 +735,25 @@ public:
 		}
 
 		void draw() {
+
 			rot += rotVel;
 			float soma = *vel * mult;
 			float somaX = *velX * mult;
 			pos.y += soma;
 			pos.x += somaX;
-			if (pos.y > rect->height) {
+            
+			if (pos.y > (rect->y + rect->height)) {
 				pos.y = rect->y;
 			}
 			else if (pos.y < rect->y) {
-				pos.y = rect->height;
+				pos.y = rect->y + rect->height;
 			}
 
-			if (pos.x > rect->width) {
+			if (pos.x > (rect->x + rect->width)) {
 				pos.x = rect->x;
 			}
 			else if (pos.x < rect->x) {
-				pos.x = rect->width;
+				pos.x = rect->x + rect->width;
 			}
 
 
@@ -752,11 +762,21 @@ public:
 
 	vector <confetti> confettis;
 
-	int margem = 100;
-	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
+//	int margem = 100;
+//	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
+    void setupRectBounds(float margem) {
+        rectBounds = ofRectangle(0,0,fbo->getWidth(), fbo->getHeight());
+        rectBounds.x -= margem;
+        rectBounds.y -= margem;
+        rectBounds.width += margem * 2;
+        rectBounds.height += margem * 2;
+//        set.rectBounds = rectBounds;
+    }
+    
 	void setup() override {
+        setupRectBounds(50);
 		for (auto a=0; a<3600; a++) {
-			confettis.push_back(confetti(a, &boundsRect, &vel, &velX));
+			confettis.push_back(confetti(a, &rectBounds, &vel, &velX));
 		}
 	}
 	
@@ -764,6 +784,7 @@ public:
 	float velX = 0;
 
 	void draw() override {
+//        cout << rectBounds << endl;
 		checkSetup();
 		vel = uiC->pEasy["vel"];
 		velX = uiC->pEasy["velX"];
@@ -776,7 +797,9 @@ public:
 				} else if (uiC->pInt["colorMode"] == 1) {
 					ofSetColor(ofxScenes::getColor(ofRandom(0,1), config->uiColors));
 				} else if (uiC->pInt["colorMode"] == 2) {
+                    
 					float n = ofNoise(incrementa("tempoColor"), c.mult, c.pos.x * .1);
+                    
 					ofSetColor(ofxScenes::getColor(n, config->uiColors));
 				}
 				
@@ -791,7 +814,12 @@ public:
 				 if (uiC->pBool["circle"]) {
 					ofDrawCircle(0, 0, c.raio*scale, c.raio*scale);
 				 } else {
-					c.mesh.draw();
+                     if (uiC->pString["draw"] == "mesh") {
+                         c.mesh.draw();
+                     }
+                     else if (uiC->pString["draw"] == "tri") {
+                         c.meshTri.draw();
+                     }
 				 }
 
 				ofPopMatrix();

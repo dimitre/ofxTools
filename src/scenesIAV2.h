@@ -239,6 +239,7 @@ public:
 
 	
 	void loadFromText() {
+        cout << "_pirose load from text " << endl;
 		vector <string> lines = ofxMicroUI::textToVector("_pirose.txt");
 		int margem = 20;
 		glm::vec2 flow = glm::vec2(margem, margem);
@@ -331,12 +332,14 @@ public:
 			s->draw();
 		}
 
-		ofSetColor(255,0,70);
-		int i = 0;
-		for (auto & s : scenes) {
-			ofDrawBitmapString(ofToString(i), s->rect.x, s->rect.y + 10);
-			i++;
-		}
+        
+        // DEBUG ONLY
+//		ofSetColor(255,0,70);
+//		int i = 0;
+//		for (auto & s : scenes) {
+//			ofDrawBitmapString(ofToString(i), s->rect.x, s->rect.y + 10);
+//			i++;
+//		}
 
 	}
 };
@@ -974,3 +977,91 @@ struct sceneDelaunay : public ofxScenes::sceneDmtr { //, ofxScenes::sceneType
 
 
 
+
+
+struct sceneSorteio : public ofxScenes::sceneDmtr { //, ofxScenes::sceneType
+public:
+    using sceneDmtr::sceneDmtr;
+
+    vector <ofRectangle> rects = {
+        ofRectangle(768, 128, 512, 384),
+        ofRectangle(1280, 128, 512, 384),
+        ofRectangle(1792, 128, 512, 384),
+        ofRectangle(2304, 128, 512, 384),
+    };
+    
+    vector <ofRectangle> rectsMargem = rects;
+    
+    float margem = 12;
+    void setup() override {
+        for (auto & r : rectsMargem) {
+            r.x += margem *.5;
+            r.y += margem *.5;
+            r.width -= margem;
+            r.height -= margem;
+        }
+        
+    }
+    
+    int indexRect = 0;
+    float endTime = 0;
+    void draw() override {
+        ofNoFill();
+        ofSetColor(getCor(0));
+        ofSetLineWidth(margem);
+        if (ofGetElapsedTimef() < endTime) {
+            int nframes = uiC->pInt["nframes"];
+            if (ofGetFrameNum() % nframes == 0) {
+                int lastFrame = indexRect;
+                while (indexRect == lastFrame) {
+                    indexRect = ofRandom(0,4);
+                }
+            }
+            ofDrawRectangle(rectsMargem[indexRect]);
+        } else {
+            if ((ofGetFrameNum()/2) % 2 == 0) {
+                ofDrawRectangle(rectsMargem[uiC->pInt["vencedor"]]);
+            }
+        }
+    }
+    
+    void uiEvents(ofxMicroUI::element & e) override {
+        if (e.name == "reset") {
+            endTime = ofGetElapsedTimef() + uiC->pInt["segundos"];
+        }
+    }
+};
+
+
+
+struct sceneLikeDislike : public ofxScenes::sceneDmtr {
+public:
+    using sceneDmtr::sceneDmtr;
+    ofImage l, d;
+    
+    void setup() override {
+        l.load("_img/Like.png");
+        d.load("_img/Dislike.png");
+    }
+    
+    void draw() override {
+        float x = 0;
+        bool dislike = true;
+        ofSetColor(255);
+        while (x < fbo->getWidth()) {
+            dislike ^= 1;
+            float y = 0;
+//            float yy = fmod(y + incrementa("velY"), fbo->getHeight());
+            while (y < fbo->getHeight()) {
+                ofPushMatrix();
+//                float xx = fmod(x + incrementa("velX"), fbo->getWidth());
+                ofTranslate(x, y);
+                ofImage * i = dislike ? &l : &d;
+                i->draw(0,0);
+                ofPopMatrix();
+                y += 100;
+            }
+            x += 100;
+        }
+    }
+};

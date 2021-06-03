@@ -313,7 +313,7 @@ public:
 		} else {
 			set.lineFactor = uiC->pEasy["lineFactor"];
 			for (auto & r : objetos) {
-				ofSetColor(getCor(r->qual));
+				ofSetColor(getCor(r->qual * uiC->pFloat["colorRange"]));
 				r->draw();
 			}
 		}
@@ -549,7 +549,6 @@ public:
 	void uiEvents(ofxMicroUI::element & e) override {
         if (e.name == "margem") {
             setupRectBounds(*e.i);
-
         }
 		if (e.name == "numero") {
 			build();
@@ -617,8 +616,7 @@ public:
 	
 
 	void build() override {
-		
-		cout << "BUILD" << endl;
+		cout << "GEAR BUILD" << endl;
 		if (uiC->pBool["seed"]) {
 			ofSeedRandom(uiC->pInt["seed"]);
 		}
@@ -646,7 +644,7 @@ public:
 
 	void draw() override {
 		for (auto & o : objetos) {
-			ofSetColor(getCor(o->qual));
+			ofSetColor(getCor(o->qual * uiC->pFloat["colorRange"]));
 			o->draw();
 		}
 	}
