@@ -1304,6 +1304,8 @@ struct featureBlend : virtual public microFeature {
     };
     
     void begin() override {
-        ofEnableBlendMode(blendMap[ui->pString["blend"]]);
+        if (ui->pString["blend"] != "_") {
+            ofEnableBlendMode(blendMap[ui->pString["blend"]]);
+        }
     }
 };

@@ -31,13 +31,7 @@ public:
 		girino(glm::vec2 p, float q, settings * s)
 		: pos(p), qual(q), _set(s) {}
 
-		void draw() {
-			if (alive) {
-				ofDrawRectangle(pos.x, pos.y, 10, 10);
-				p.draw();
-				
-			}
-		}
+
 
 		void addX(float v) {
 			pos.x += v;
@@ -48,8 +42,20 @@ public:
 			pos.y += v;
 			for (auto & p : positions) { p.y += v; }
 		}
+        
+        void draw() {
+            if (alive) {
+//                ofDrawRectangle(pos.x, pos.y, 10, 10);
+                p.draw();
+            }
+        }
 
 		void update() {
+            /*
+             
+             existe um problema conceitual aqui que quando o objeto sai da margem automaticamente ele perde o angulo que tinha anteriormente. se o angulo nao for definido mas sim deformado por isso ajudaria muito
+             */
+             
 //            cout << _set->ui->pFloat["densidade"] << endl;
 			angulo = fmod(ofNoise((pos.x)/_set->ui->pFloat["densidade"],
 				(pos.y)/_set->ui->pFloat["densidade"],
@@ -58,21 +64,24 @@ public:
 			) * 360.0 * _set->ui->pFloat["anguloMult"], 360.0);
 
             vel = _set->ui->pFloat["vel"];
-			pos += p2c(glm::vec2(angulo, vel));
 				
-			if (pos.x > _set->bounds.width) {
+            pos += p2c(glm::vec2(angulo, vel));
+
+			if (pos.x > (_set->bounds.x + _set->bounds.width)) {
 				addX(-_set->bounds.width);
 			}
 			else if (pos.x < _set->bounds.x) {
 				addX(_set->bounds.width);
 			}
 
-			if (pos.y > _set->bounds.height) {
+			if (pos.y > (_set->bounds.y + _set->bounds.height)) {
 				addY(-_set->bounds.height);
 			}
 			else if (pos.y < _set->bounds.y) {
 				addY(_set->bounds.height);
 			}
+            
+
 
 			positions[cursor] = pos;
             positions[cursor + _set->maxPositions] = pos;
@@ -129,8 +138,10 @@ public:
 
 	void draw() override {
 		ofNoFill();
-		ofSetColor(255);
-		for (auto & g : girinos) { 
+//        ofSetColor(255);
+//        ofDrawRectangle(set.bounds);
+		for (auto & g : girinos) {
+            ofSetColor(getCor(g.qual));
 			g.draw();
 		}
 	}
@@ -146,7 +157,7 @@ public:
 	
 	
 
-
+/*
 
 struct sceneGirinos : public ofxScenes::sceneDmtr, ofxScenes::polarVec2 {
 public:
@@ -243,14 +254,14 @@ public:
 				}
 				pos += p2c(glm::vec2(angulo, vel));
 				
-				if (pos.x > _settings->boundsRect.width) {
+				if (pos.x > (_settings->boundsRect.x + _settings->boundsRect.width)) {
 					addX(-_settings->fboRect.width);
 				}
 				else if (pos.x < _settings->boundsRect.x) {
 					addX(_settings->fboRect.width);
 				}
 
-				if (pos.y > _settings->boundsRect.height) {
+				if (pos.y > (_settings->boundsRect.y +_settings->boundsRect.height)) {
 					addY(-_settings->fboRect.height);
 				}
 				else if (pos.y < _settings->boundsRect.y) {
@@ -352,7 +363,7 @@ public:
 	void setup() override {
 //        girinoSet.fboRect = config->soft->fboRect;
 		girinoSet.fboRect = ofRectangle(0,0,fbo->getWidth(), fbo->getHeight());
-		int margem = 100;
+		int margem = -200;
 		girinoSet.boundsRect = ofRectangle(-margem, -margem,
 											 fbo->getWidth() + margem * 2,
 											 fbo->getHeight() + margem * 2);
@@ -371,6 +382,9 @@ public:
 	float incrementador = 0;
 
 	void draw() override {
+        ofSetColor(255);
+        ofDrawRectangle(girinoSet.boundsRect);
+        cout << girinoSet.boundsRect << endl;
 		checkSetup();
 
 		if (girinoChanged)
@@ -457,3 +471,4 @@ public:
 
 
 
+*/

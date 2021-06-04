@@ -1040,11 +1040,12 @@ public:
     ofImage l, d;
     
     void setup() override {
-        l.load("_img/Like.png");
-        d.load("_img/Dislike.png");
+        l.load("_img/like.png");
+        d.load("_img/dis.png");
     }
     
     void draw() override {
+        int interval = uiC->pInt["interval"];
         float x = 0;
         bool dislike = true;
         ofSetColor(255);
@@ -1057,11 +1058,14 @@ public:
 //                float xx = fmod(x + incrementa("velX"), fbo->getWidth());
                 ofTranslate(x, y);
                 ofImage * i = dislike ? &l : &d;
+                float alpha = ofNoise(x * uiC->pFloat["qual"], y * uiC->pFloat["qual"], ofGetElapsedTimef() * uiC->pFloat["alphaTime"]) * uiC->pFloat["maxAlpha"] + uiC->pFloat["minAlpha"];
+                alpha = ofClamp(alpha, 0, 255);
+                ofSetColor(255, alpha);
                 i->draw(0,0);
                 ofPopMatrix();
-                y += 100;
+                y += interval;
             }
-            x += 100;
+            x += interval;
         }
     }
 };
