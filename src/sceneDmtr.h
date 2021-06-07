@@ -17,7 +17,6 @@ public:
 //	sceneDmtrBasic() { }
 
 	glm::vec2 randomPos() {
-		return glm::vec2(ofRandom(0,fbo->getWidth()), ofRandom(0,fbo->getHeight()));
         return glm::vec2(
                          ofRandom(rectBounds.x, rectBounds.x + rectBounds.width),
                          ofRandom(rectBounds.y, rectBounds.y + rectBounds.height)

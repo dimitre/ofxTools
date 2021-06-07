@@ -110,6 +110,7 @@ void main()
 		float w = soft->fboFinal->getWidth();
 		float h = soft->fboFinal->getHeight();
 //        int depth = GL_RGBA32F_ARB; //GL_RGBA
+//        int depth = GL_RGBA16F_ARB; //GL_RGBA
         int depth = GL_RGBA; //
 		for (int a=0; a<11; a++) {
             if (w > 2 && h > 2) {
@@ -158,8 +159,10 @@ void main()
                 fo2->begin(); // original style
                 ofClear(0,0);
                 shader.begin();
-                shader.setUniform1i("horizontal", 0);
+                shader.setUniform1i("horizontal", 1);
                 shader.setUniform1f("scale", 0.5);
+                
+                // reduz imagem aqui. o certo seria fazer um ping pong.
                 f1->draw(0,0,fo->getWidth(), fo->getHeight());
 //                f12->draw(0,0,fo->getWidth(), fo->getHeight());
                 shader.end();
@@ -168,35 +171,10 @@ void main()
 
                 fo->begin(); // original style
                 shader.begin();
-                shader.setUniform1i("horizontal", 1);
+                shader.setUniform1i("horizontal", 0);
                 shader.setUniform1f("scale", 1);
                 fo2->draw(0,0);
-//                f1->draw(0,0,fo->getWidth(), fo->getHeight());
-//                f12->draw(0,0,fo->getWidth(), fo->getHeight());
-                
                 shader.end();
-                
-                
-                
-//				fo->begin(); // original style
-//				shader.begin();
-//				shader.setUniform1i("horizontal", a%2);
-//				f1->draw(0,0,fo->getWidth(), fo->getHeight());
-//				shader.end();
-
-                
-// CROSS
-//                shader.begin();
-//                shader.setUniform1i("horizontal", 0);
-//                f1->draw(0,0,fo->getWidth(), fo->getHeight());
-//                shader.end();
-//
-//                shader.begin();
-//                shader.setUniform1i("horizontal", 1);
-//                f1->draw(0,0,fo->getWidth(), fo->getHeight());
-//                shader.end();
-
-                
                 
                 fo->end();
 			}
