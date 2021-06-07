@@ -170,13 +170,18 @@ void main()
 
 
                 fo->begin(); // original style
+//                ofClear(0,0);
                 shader.begin();
                 shader.setUniform1i("horizontal", 0);
                 shader.setUniform1f("scale", 1);
                 fo2->draw(0,0);
                 shader.end();
-                
                 fo->end();
+                
+                
+//                fo2->begin();
+//                ofClear(0,0);
+//                fo2->end();
 			}
 
             ofSetColor(255);

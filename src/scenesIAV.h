@@ -458,7 +458,7 @@ public:
                             
                             if (uiC->pBool["useAlpha"]) {
                                 float d = glm::distance(pp.pos, p.pos);
-                                cor.a = ofClamp(ofMap(d, 0, distance, 512, 0), 0, 255);
+                                cor.a = ofClamp(ofMap(d, 0, distance, uiC->pFloat["mapMaxAlpha"], 0), 0, 255);
                                 if (uiC->pBool["randomAlpha"]) {
 //                                    cor.a = ofClamp(ofRandom(-355,cor.a), 0, 255);
                                     
