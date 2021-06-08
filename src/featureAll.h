@@ -237,7 +237,11 @@ public:
 			} else {
 				cam.disableOrtho();
 			}
-		}		
+		}
+        
+        else if (e.name == "pointsPerMeter") {
+            pointsPerMeter = *e.f;
+        }
 	}
 };
 

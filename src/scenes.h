@@ -7,12 +7,10 @@ public:
     ofxSVG svg;
     vector<ofPolyline> outlines;
 
-	ofRectangle boundsRect;
     glm::vec2 pos = glm::vec2(0,0);
 
 	void setup() override {
-		int margem = 400;
-		boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
+        setupRectBounds(400);
 	}
     
     void update() override {
@@ -28,9 +26,9 @@ public:
 		ofSetColor(getCor(0));
 		float interval = uiC->pFloat["interval"];
 		int cx=0;
-		for (float x=boundsRect.x; x<boundsRect.width; x+=interval) {
+		for (float x=rectBounds.x; x<(rectBounds.x + rectBounds.width); x+=interval) {
 			int cy = 0;
-			for (float y=boundsRect.y; y<boundsRect.height; y+=interval) {
+			for (float y=rectBounds.y; y<(rectBounds.y + rectBounds.height); y+=interval) {
 				ofPushMatrix();
 				ofTranslate(x + pos.x, y + pos.y);
 				ofRotateDeg(uiC->pFloat["rot"]);
@@ -762,17 +760,6 @@ public:
 
 	vector <confetti> confettis;
 
-//	int margem = 100;
-//	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
-    void setupRectBounds(float margem) {
-        rectBounds = ofRectangle(0,0,fbo->getWidth(), fbo->getHeight());
-        rectBounds.x -= margem;
-        rectBounds.y -= margem;
-        rectBounds.width += margem * 2;
-        rectBounds.height += margem * 2;
-//        set.rectBounds = rectBounds;
-    }
-    
 	void setup() override {
         setupRectBounds(50);
 		for (auto a=0; a<3600; a++) {
@@ -913,11 +900,8 @@ public:
 	using sceneDmtr::sceneDmtr;
 	// name = "random";
 
-	int margem = 500;
-	// boundsrect quadrado aqui.
-	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem*2, fbo->getWidth() + margem*2);
-	
 	void setup() override {
+        setupRectBounds(500);
 	}
 	
 	void draw() override {
@@ -933,15 +917,15 @@ public:
 			for (int a=0; a<uiC->pFloat["numero"]; a++) {
 				float w = ofNoise(a * uiC->pEasy["noiseWA"], tx) * fbo->getWidth() * uiC->pEasy["w"];
 				float h = ofNoise(a * uiC->pEasy["noiseHA"], ty) * fbo->getHeight() * uiC->pEasy["h"];
-				float x = -fbo->getWidth()* .5 + boundsRect.x + ofNoise(a * uiC->pEasy["noiseXA"], tx) * boundsRect.width;
-				float y = -fbo->getHeight()* .5 + boundsRect.x + ofNoise(a * uiC->pEasy["noiseYA"], ty) * boundsRect.height;
+				float x = -fbo->getWidth()* .5 + rectBounds.x + ofNoise(a * uiC->pEasy["noiseXA"], tx) * rectBounds.width;
+				float y = -fbo->getHeight()* .5 + rectBounds.x + ofNoise(a * uiC->pEasy["noiseYA"], ty) * rectBounds.height;
 				ofSetColor(ofxScenes::getColor(a * uiC->pEasy["aColor"] + uiC->pEasy["offColor"], config->uiColors));
 				ofDrawRectangle(x,y,w,h);
 			}
 		} else {
 			for (int a=0; a<uiC->pFloat["numero"]; a++) {
-				float x = -fbo->getWidth()* .5 + ofRandom(boundsRect.x, boundsRect.width);
-				float y = -fbo->getHeight()* .5 + ofRandom(boundsRect.x, boundsRect.width);
+				float x = -fbo->getWidth()* .5 + ofRandom(rectBounds.x, rectBounds.x + rectBounds.width);
+				float y = -fbo->getHeight()* .5 + ofRandom(rectBounds.x, rectBounds.x + rectBounds.width);
 				float w = ofRandom(0,fbo->getWidth()*.5);
 				float h = ofRandom(0,fbo->getHeight()*.5);
 				ofSetColor(ofxScenes::getColor(ofRandom(0,1), config->uiColors));

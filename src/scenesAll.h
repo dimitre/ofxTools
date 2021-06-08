@@ -168,13 +168,12 @@ public:
 	};
 
 	vector <worm> worms;
-	int margem = 100;
-	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
 
 	void setup() override {
+        setupRectBounds(100);
 		for (int a=0; a<400; a++) {
 			// worms.emplace_back()
-			worms.push_back(worm(boundsRect, uiC, a));
+			worms.push_back(worm(rectBounds, uiC, a));
 		}
 	}
 
@@ -977,16 +976,12 @@ public:
 
 	vector <rede> redes;
 	
-	
-	int margem = 100;
-	ofRectangle boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
-	
 	void setup() override {
+        setupRectBounds(100);
 		int numero = 150;
 		redes.reserve(numero);
 		for (int a=0; a<numero; a++) {
-//			redes.push_back(rede(a, boundsRect));
-			redes.emplace_back(a, boundsRect);
+			redes.emplace_back(a, rectBounds);
 		}
 	}
 	void draw() override {

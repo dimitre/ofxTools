@@ -162,7 +162,7 @@ public:
 			qual = ofRandom(0,1);
 			vel = ofRandom(-4, 4);
 			w = ofRandom(2,140);
-			rect.height = ofRandom(10,200);
+//			rect.height = ;
 			// cout << rect << endl;
 			int x = -rect.width * .25;
 			while (x < rect.width*1.25) {
@@ -187,10 +187,19 @@ public:
 	float nextJump = 0;
 
 	void build() {
+        if (uiC->pBool["seed"]) {
+            ofSeedRandom(uiC->pInt["seed"]);
+        }
 		int y=0;
+        float heightFactor = uiC->pFloat["height"];
+        if (heightFactor < .5) {
+            heightFactor = .5;
+        }
 		while (y < fbo->getHeight()) {
-			bars.emplace_back(ofRectangle(0,y,fbo->getWidth(),10));
-			y+= bars.back().rect.height;
+            int h = ofRandom(10,200);
+			bars.emplace_back(ofRectangle(0,y,fbo->getWidth(), h));
+//			y+= bars.back().rect.height;
+            y+= h * heightFactor;
 		}
 //		cout << "setup bars size = " << bars.size() << endl;
 	}
@@ -214,19 +223,23 @@ public:
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
+        if (e.name == "vel") {
+            for (auto & b : bars) {
+                b.velFactor = *e.f;
+            }
+        }
 		if (e.name == "build") {
 			build();
 		}
 		else if (e.name == "clear") {
 			bars.clear();
 		}
-		else if (e.name == "rebuild") {
+		else if (e.name == "rebuild" || e.name == "seed") {
 			bars.clear(); 
 			build();
 		}
 	}
 };
-
 
 
 
@@ -312,6 +325,7 @@ struct sceneStripes : public ofxScenes::sceneDmtr {
 	}
 
 	void build() {
+        
 		fbo.begin();
 		ofClear(0,255);
 		// ofSetColor(252, 186, 3);

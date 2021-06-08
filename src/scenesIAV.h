@@ -70,12 +70,8 @@ public:
 	vector <objeto*> objetos;
 	settings set;
 	
-	void setupRectBounds(float margem) {
-        rectBounds = ofRectangle(0,0,fbo->getWidth(), fbo->getHeight());
-		rectBounds.x -= margem;
-		rectBounds.y -= margem;
-		rectBounds.width += margem * 2;
-		rectBounds.height += margem * 2;
+	void setupRectBounds(float margem) override {
+        rectBounds = ofRectangle(-margem,-margem,fbo->getWidth()+margem*2, fbo->getHeight()+margem*2);
 		set.rectBounds = rectBounds;
 	}
 
@@ -101,11 +97,10 @@ public:
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
-        
         set.raio = uiC->pFloat["raio"];
         set.raioRand = uiC->pFloat["raioRand"];
 
-		if (e.name == "numero") {
+		if (e.name == "numero" || e.name == "seed") {
 			build();
 		}
 		
@@ -343,13 +338,18 @@ public:
 		}
 
 //        cout << e.name << endl;
-		if (e.name == "numero") {
-			build();
-		}
+        // isso ja ta la no sceneObjetos::uiEvents
+//		if (e.name == "numero" || e.name == "seed") {
+//			build();
+//		}
 	}
 	
 	void build() override {
 		objetos.clear();
+        cout << "RELOGIO BUILD" << endl;
+        if (uiC->pBool["seed"]) {
+            ofSeedRandom(uiC->pInt["seed"]);
+        }
 		for (int a=0; a<uiC->pInt["numero"]; a++) {
 			// objetos.emplace_back(new relogio(rectBounds));
 			objetos.emplace_back(new relogio(randomPos(), &set));
@@ -393,6 +393,7 @@ public:
 		float raio = 6;
 		float velFactor = 1.0;
 		int index;
+        float indexQual;
 		float qual;
         
 		ponto(glm::vec2 p, int i) : objeto(p), index(i) {
@@ -426,7 +427,7 @@ public:
 
 	void setup() override {
         mesh.setMode(OF_PRIMITIVE_LINES);
-		setupRectBounds(-300);
+		setupRectBounds(100);
 		build();
 	}
 
@@ -447,6 +448,9 @@ public:
         float distance = uiC->pEasy["distance"];
         ofColor cor;
         for (auto & p : pontos) {
+            if (uiC->pBool["randomAlpha"]) {
+                p.indexQual = p.index * uiC->pFloat["noiseQual"];
+            }
 //            cout << p.pos << endl;
             cor = getCor(p.qual * uiC->pFloat["colorRange"]);
             for (auto & pp : pontos) {
@@ -462,7 +466,7 @@ public:
                                 if (uiC->pBool["randomAlpha"]) {
 //                                    cor.a = ofClamp(ofRandom(-355,cor.a), 0, 255);
                                     
-                                    float n = ofNoise(p.index + pp.index, ofGetElapsedTimef() * uiC->pFloat["noiseTempo"]);
+                                    float n = ofNoise(p.indexQual + pp.indexQual, ofGetElapsedTimef() * uiC->pFloat["noiseTempo"]);
                                     float n2 = ofMap(n, 0, 1, -355, cor.a);
                                     cor.a = ofClamp(n2, 0, 255);
                                 }
@@ -550,7 +554,7 @@ public:
         if (e.name == "margem") {
             setupRectBounds(*e.i);
         }
-		if (e.name == "numero") {
+		if (e.name == "numero" || e.name == "seed") {
 			build();
 		}
 	}

@@ -14,7 +14,9 @@ public:
 	glm::vec2 middle;
 	ofRectangle rectBounds;
     
-//	sceneDmtrBasic() { }
+    virtual void setupRectBounds(float margem) {
+        rectBounds = ofRectangle(-margem,-margem,fbo->getWidth()+margem*2, fbo->getHeight()+margem*2);
+    }
 
 	glm::vec2 randomPos() {
         return glm::vec2(

@@ -59,7 +59,8 @@ public:
 	// name = "ocean";
 
 	ofVboMesh mesh;
-	int width = 105;
+	int width = 125;
+    int height = 125;
 	float multiplicador = 0.4;
 	
 	struct param {
@@ -90,39 +91,47 @@ public:
 			params[a].signal = a%2 ? -1 : 1;
 		}
 	}
+    
+    float shaper(float in, float inMin, float inMax, float outMin, float outMax, float shaper){
+        // (1) convert to pct (0-1)
+        float pct = ofMap (in, inMin, inMax, 0, 1, true);
+        // raise this number to a power
+        pct = powf(pct, shaper);
+        float out = ofMap(pct, 0,1, outMin, outMax, true);
+        return out;
+    }
+    
+    
+    void build() {
+//        cout << "ocean build!" << endl;
+        mesh.clear();
+        for (int z=0; z<height; z++) {
+            for (int x=0; x<width; x++) {
+                float y = 0;
+                glm::vec3 pos = glm::vec3(x*multiplicador - width/2*multiplicador, y, z*multiplicador - height/2*multiplicador);
+                mesh.addVertex(pos);
+            }
+        }
+
+        for (int z=0; z<height-1; z++) {
+            for (int x=0; x<width-1; x++) {
+                mesh.addIndex(x+z*width);                // 0
+                mesh.addIndex((x+1)+z*width);            // 1
+                mesh.addIndex(x+(z+1)*width);            // 10
+                mesh.addIndex((x+1)+z*width);            // 1
+                mesh.addIndex((x+1)+(z+1)*width);        // 11
+                mesh.addIndex(x+(z+1)*width);            // 10
+            }
+        }
+    }
 	
 	void setup() override {
 		setupParams();
-		for (int x=0; x<width; x++) {
-			for (int z=0; z<width; z++) {
-				float y = 0;
-				glm::vec3 pos = glm::vec3(x*multiplicador - width/2*multiplicador, y, z*multiplicador - width/2*multiplicador);
-				mesh.addVertex(pos);
-			}
-		}
-
-		for (int x=0; x<width-1; x++) {
-			for (int z=0; z<width-1; z++) {
-				mesh.addIndex(x+z*width);				// 0
-				mesh.addIndex((x+1)+z*width);			// 1
-				mesh.addIndex(x+(z+1)*width);			// 10
-				mesh.addIndex((x+1)+z*width);			// 1
-				mesh.addIndex((x+1)+(z+1)*width);		// 11
-				mesh.addIndex(x+(z+1)*width);			// 10
-			}
-		}
+        build();
 	}
 	
-	float shaper(float in, float inMin, float inMax, float outMin, float outMax, float shaper){
-		// (1) convert to pct (0-1)
-		float pct = ofMap (in, inMin, inMax, 0, 1, true);
-		// raise this number to a power
-		pct = powf(pct, shaper);
-		float out = ofMap(pct, 0,1, outMin, outMax, true);
-		return out;
-	}
-
 	void draw() override {
+//        cout << "draw ocean" << endl;
 		checkSetup();
 		for (auto & p : params) {
 			p.ok = uiC->pBool["ok" + p.i];
@@ -143,7 +152,7 @@ public:
 //		}
 		
 		
-		for (int y=0; y<width; y++) {
+		for (int y=0; y<height; y++) {
 			for (auto & p : params) {
 				if (p.ok) {
 					p.ny = y * p.noiseMult + offYTime;
@@ -179,6 +188,7 @@ public:
 			calcNormals(mesh, uiC->pBool["normalize"], uiC->pBool["winding"]);
 		}
 
+        ofSetColor(getCor(0));
 		drawMeshStatic(&mesh, ui);
 	}
 	
@@ -208,6 +218,19 @@ public:
 				mesh.clearNormals();
 			}
 		}
+        
+        else if (e.name == "width") {
+            if (*e.i != width) {
+                width = *e.i;
+                build();
+            }
+        }
+        else if (e.name == "height") {
+            if (*e.i != height) {
+                height = *e.i;
+                build();
+            }
+        }
 	}
 };
 
@@ -1417,12 +1440,8 @@ public:
 	ofMesh mesh;
 	vector <ofVboMesh> meshes;
 
-	int margem = 400;
-	ofRectangle boundsRect;
-	
-
 	void setup() override {
-		boundsRect = ofRectangle(-margem, -margem, fbo->getWidth() + margem, fbo->getHeight() + margem);
+        setupRectBounds(400);
 		
 		ofDirectory dir;
 		dir.allowExt("dae");
@@ -1515,8 +1534,9 @@ public:
 		float spaceY = uiC->pEasy["spaceY"] ? uiC->pEasy["spaceY"] : uiC->pFloat["spaceY"];
 		
 		if (uiC->pBool["rapport"]) {
-			float nx = (boundsRect.width - boundsRect.x) / spaceX;
-			float ny = (boundsRect.height - boundsRect.y) / spaceY;
+            // talvez erro de logica aqui. xaxa
+			float nx = (rectBounds.width - rectBounds.x) / spaceX;
+			float ny = (rectBounds.height - rectBounds.y) / spaceY;
 			
 			float offX = fmod(incrementa("velX"), spaceX) - spaceX *.5;
 			float offY = fmod(incrementa("velY"), spaceY) - spaceY *.5;
