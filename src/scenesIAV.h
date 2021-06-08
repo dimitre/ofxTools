@@ -374,10 +374,6 @@ struct scenePlexus2022 : public sceneObjetos, ofThread {
 
 
 //struct scenePlexus2021 : public sceneObjetos, ofThread {
-struct scenePlexus2021 : public sceneObjetos {
-public:
-	using sceneObjetos::sceneObjetos;
-    
 //    void threadedFunction() override {
 //        while(isThreadRunning()) {
 //            lock();
@@ -387,6 +383,13 @@ public:
 //            unlock();
 //        }
 //    }
+
+
+struct scenePlexus2021 : public sceneObjetos {
+public:
+	using sceneObjetos::sceneObjetos;
+    
+
 
 	struct ponto : public objeto {
 		public:
