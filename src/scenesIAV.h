@@ -31,6 +31,10 @@ public:
 	objeto(glm::vec2 p, settings * s) : pos(p), _set(s) {
 		setup();
 	}
+    
+    objeto(glm::vec2 p, settings * s, float q) : pos(p), _set(s), qual(q) {
+        setup();
+    }
 	
 	objeto(settings * s) : _set(s) {
 		setup();
@@ -38,16 +42,20 @@ public:
 
 	virtual void setup() {
         if (_set != NULL) {
-            raio = ofRandom(_set->raio, _set->raio + _set->raioRand);
+//            raio = ofRandom(_set->raio, _set->raio + _set->raioRand);
+            raio = _set->raio + qual * _set->raioRand;
         }
 		vel = glm::vec2(ofRandom(-1,1), ofRandom(-1,1));
 		velAngle = ofRandom(-1, 1);
-		qual = ofRandom(0,1);
+//		qual = ofRandom(0,1);
 	}
 
 	virtual void update() {
 		angulo += velAngle * _set->velRotFactor;
 		pos += vel * _set->velFactor;
+        
+        
+
 	}
 
 	virtual void draw() {
@@ -213,19 +221,30 @@ public:
 //		float angulo = 0;
 //		float velAngulo;
 //        int numeros[6] = { 12, 20, 30, 40, 60, 120 };
-		int numeros[6] = { 30, 60, 30, 40, 60, 120 };
-		
+//		int numeros[6] = { 30, 60, 30, 40, 60, 120 };
+        int numeros[6] = { 20, 20, 30, 40, 50, 60 };
+
 		int numero;
 		float graus;
 		float lineWidth;
 		ofRectangle rect;
+        
+        /*
+         seria lindo fazer um qual aqui e deixar o raio e numero de dentes proporcional a isso.
+         seria mesmo.
+         */
 
         void setup() override {
             objeto::setup();
             raio2 = raio + ofRandom(raio*.1, raio*.3);
-            numero = numeros[int(ofRandom(0,5))];
+            numero = numeros[int(qual * 6)];
+//            numero = numeros[int(ofRandom(0,5))];
             graus = 360.0 / (float) numero;
             lineWidth = ofRandom(0,5);
+        }
+        
+        relogio(glm::vec2 pos, settings * s, float q) : objeto(pos, s, q) {
+            setup();
         }
         
 		relogio(glm::vec2 pos, settings * s) : objeto(pos, s) {
@@ -237,6 +256,7 @@ public:
 		}
 
 		void draw() override {
+            
 			// objeto
 			update();
 			ofPushMatrix();
@@ -267,8 +287,19 @@ public:
 	int lastSecond;
 	float nextJump;
 	int totalSeconds = 10;
+    
+    void update() override {
+        for (auto & r : objetos) {
+            r->pos = rectificate(r->pos);
+        }
+    }
 	
 	void draw() override {
+        ofNoFill();
+        ofSetColor(255);
+        ofDrawRectangle(rectBounds);
+
+        
 		if (uiC->pBool["auto"]) {
 			if (ofGetElapsedTimef() > nextJump) {
 				contagem -=1;
@@ -331,6 +362,10 @@ public:
 	void uiEvents(ofxMicroUI::element & e) override {
         sceneObjetos::uiEvents(e);
 		sceneType::uiEvents(e);
+        
+        if (e.name == "margem") {
+            setupRectBounds(*e.i);
+        }
 
 		if (e.name == "minuto") {
 			totalSeconds = uiC->pBool["minuto"] ? 60 : 10;
@@ -351,8 +386,9 @@ public:
             ofSeedRandom(uiC->pInt["seed"]);
         }
 		for (int a=0; a<uiC->pInt["numero"]; a++) {
+            float q = a/(float)uiC->pInt["numero"];
 			// objetos.emplace_back(new relogio(rectBounds));
-			objetos.emplace_back(new relogio(randomPos(), &set));
+			objetos.emplace_back(new relogio(randomPos(), &set, q));
 		}
 	}
 };
@@ -389,8 +425,6 @@ struct scenePlexus2021 : public sceneObjetos {
 public:
 	using sceneObjetos::sceneObjetos;
     
-
-
 	struct ponto : public objeto {
 		public:
 		float raio = 6;
@@ -570,12 +604,17 @@ public:
 
 	struct gear : public objeto {
 		public:
-		int ndentes[6] = { 36,24,30,36,45,60 };
+		int ndentes[6] = { 24, 30, 36, 36, 40, 40 }; //,60
+        int d;
 
-		void setup()  {
+		void setup() override {
             objeto::setup();
 			// int dentes = 20;
-			float dentes = ndentes[int(ofRandom(0,6))];
+//			float dentes = ndentes[int(ofRandom(0,6))];
+            float dentes = ndentes[int(qual * 6)];
+
+            
+            d = dentes;
 
 			float fatia = 360.0 / dentes * 2.0;
 			float dentinho = fatia / 6.0;
@@ -619,6 +658,21 @@ public:
 			qual = ofRandom(0,1);
 			setup();
 		}
+        
+        gear(glm::vec2 p, settings * s, float q) : objeto(p, s, q) {
+            setup();
+        }
+        
+//        void draw() override {
+//            ofPushMatrix();
+//            ofTranslate(pos);
+//            ofDrawBitmapString(ofToString(d), 0, 0);
+//            ofRotateDeg(angulo);
+//            for (auto & p : polys) {
+//                p.draw();
+//            }
+//            ofPopMatrix();
+//        }
 	};
 	
 
@@ -629,7 +683,8 @@ public:
 		}
 		objetos.clear();
 		for (int a=0; a<uiC->pInt["numero"]; a++) {
-			objetos.emplace_back(new gear(randomPos(), &set));
+            float qual = a/(float)uiC->pInt["numero"];
+			objetos.emplace_back(new gear(randomPos(), &set, qual));
 		}
 	}
 

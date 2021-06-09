@@ -1,4 +1,4 @@
-struct scenePlexus2022 : public sceneObjetos, ofThread {
+struct scenePlexus2022Thread : public sceneObjetos, ofThread {
     using sceneObjetos::sceneObjetos;
     void threadedFunction() {
         while(isThreadRunning()) {
@@ -23,12 +23,10 @@ struct scenePlexus2022 : public sceneObjetos, ofThread {
 //    }
 
 
-struct scenePlexus2021 : public sceneObjetos {
+struct scenePlexusNeu : public sceneObjetos {
 public:
 	using sceneObjetos::sceneObjetos;
     
-
-
 	struct ponto : public objeto {
 		public:
 		float raio = 6;
@@ -66,6 +64,7 @@ public:
 	}
 
 	void setup() override {
+        setupLookup();
         mesh.setMode(OF_PRIMITIVE_LINES);
 		setupRectBounds(100);
 		build();
@@ -83,6 +82,28 @@ public:
             updateMesh();
         }
 	}
+
+//    struct dist {
+//        public:
+//        float dist;
+//        float alpha;
+//    };
+
+    float dist[200][200];
+
+    void setupLookup() {
+        for (int a=0; a<200; a++) {
+            for (int b=0; b<200; b++) {
+                dist[a][b] = glm::distance(glm::vec2(0,0), glm::vec2(a, b));
+            }
+        }
+    }
+
+    float getDistance(glm::vec2 p1, glm::vec2 p2) {
+        int dx = ABS(p1.x - p2.x);
+        int dy = ABS(p1.y - p2.y);
+        return dist[dx][dy];
+    }
     
     void drawLines() {
         float distance = uiC->pEasy["distance"];
@@ -93,14 +114,21 @@ public:
             }
             cor = getCor(p.qual * uiC->pFloat["colorRange"]);
             for (auto & pp : pontos) {
-                if (p.index != pp.index && p.pos.x <= pp.pos.x ) { //&& p.pos.y >= pp.pos.y
+                // if (p.index != pp.index && p.pos.x <= pp.pos.x ) { //&& p.pos.y >= pp.pos.y
+                if (p.pos.x <= pp.pos.x ) { //&& p.pos.y >= pp.pos.y
                     float d1 = (pp.pos.x - p.pos.x);
                     if (d1 < distance) {
                         float d2 = ABS(pp.pos.y - p.pos.y);
                         if (d2 < distance) {
-                            
                             if (uiC->pBool["useAlpha"]) {
-                                float d = glm::distance(pp.pos, p.pos);
+                                float d;
+                                if (uiC->pBool["lookup"]) {
+                                    d = getDistance(pp.pos, p.pos);
+                                }
+                                else {
+                                    d = glm::distance(pp.pos, p.pos);
+                                }
+                                // float 
                                 cor.a = ofClamp(ofMap(d, 0, distance, uiC->pFloat["mapMaxAlpha"], 0), 0, 255);
                                 if (uiC->pBool["randomAlpha"]) {
                                     
