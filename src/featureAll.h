@@ -1313,3 +1313,54 @@ struct featureBlend : virtual public microFeature {
         }
     }
 };
+
+
+
+
+struct featureTiffRecorder : public microFeature {
+    using microFeature::microFeature;
+    bool recording;
+    int frame = 0;
+    
+    string folder = "_output";
+
+    void setup() override {}
+    void begin() override {
+        cout << "RECORDER BEGIN" << endl;
+        frame = 0;
+        recording = true;
+        
+        if (!ofFile::doesFileExist(folder)) {
+            ofDirectory::createDirectory(folder);
+        }
+    }
+    
+    void end() override {
+        recording = false;
+        frame = 0;
+    }
+    
+    void update() override {
+        rec();
+    }
+    
+    int maxFrames = 80;
+    
+    void rec() {
+        if (recording && frame < maxFrames) {
+            string n = folder + "/" + ofToString(frame) + ".tif";
+            cout << n << endl;
+            soft->fboToTiff(n);
+            frame++;
+        }
+        if (frame == maxFrames) {
+            string resultado = ofSystem("open " + ofToDataPath(folder));
+            //rm *.mov;
+            string resultado2 = ofSystem("cd "+ofToDataPath(folder)+
+            ";  /opt/homebrew/bin/ffmpeg -f image2 -framerate 29.97 -i %d.tif -c:v prores_ks -profile:v 2 eliminacao.mov " );
+            end();
+        }
+        
+    }
+    
+};

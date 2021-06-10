@@ -143,14 +143,20 @@ public:
 };
 
 
-
-
 struct sceneBars : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	
+    struct settings {
+    public:
+        float minW = 20;
+        float maxW = 140;
+    } set;
+    
 	struct bar {
 		public:
+        
+        settings * _set = NULL;
 		ofRectangle rect;
 		vector <ofRectangle> rects;
 		int w = 5;
@@ -158,18 +164,65 @@ public:
 		float vel;
 		float velFactor = 1;
 		float qual = 0;
+        bar(ofRectangle r, settings * s) : rect(r), _set(s) {
+            setup();
+        }
 		bar(ofRectangle r) : rect(r) {
-			qual = ofRandom(0,1);
-			vel = ofRandom(-4, 4);
-			w = ofRandom(2,140);
-//			rect.height = ;
-			// cout << rect << endl;
-			int x = -rect.width * .25;
-			while (x < rect.width*1.25) {
-				rects.emplace_back(ofRectangle(x, rect.y, w, rect.height));
-				x += w * 2;
-			}
+            setup();
 		}
+        
+        struct config {
+        public:
+            float width = 20;
+            float vel = 1;
+            config (float w, float v) : width(w), vel(v) {}
+        };
+        
+        config configs[6] = {
+            config(20,-4),
+            config(40,-4),
+            config(40,2),
+            config(80,-4),
+            config(160,-8),
+            config(320,8),
+        };
+        
+        void setup() {
+            
+            int frames = 0;
+            for (auto & c : configs) {
+                frames = MAX(frames, ABS(c.width/c.vel));
+//                cout << ABS(width/vel) << endl;
+            }
+            cout << "------- BARS -------";
+            cout << frames << endl;
+            cout << "------- BARS -------";
+            
+            
+            qual = ofRandom(0,1);
+            vel = ofRandom(-4, 4);
+            if (_set != NULL) {
+                w = ofRandom(_set->minW, _set->maxW);
+            } else {
+                w = ofRandom(20,140);
+            }
+            
+            // novo modo
+            int i = ofRandom(0,6);
+            w = configs[i].width;
+            vel = configs[i].vel;
+            
+            if (ofRandom(0,10) > 5) {
+                vel *= -1;
+            }
+//            rect.height = ;
+            // cout << rect << endl;
+            int x = -rect.width * .25;
+            while (x < rect.width*1.25) {
+                rects.emplace_back(ofRectangle(x, rect.y, w, rect.height));
+                x += w * 2;
+            }
+        }
 
 		void draw() {
 			pos += vel * velFactor;
@@ -197,7 +250,7 @@ public:
         }
 		while (y < fbo->getHeight()) {
             int h = ofRandom(10,200);
-			bars.emplace_back(ofRectangle(0,y,fbo->getWidth(), h));
+			bars.emplace_back(ofRectangle(0,y,fbo->getWidth(), h), &set);
 //			y+= bars.back().rect.height;
             y+= h * heightFactor;
 		}
@@ -223,6 +276,12 @@ public:
 	}
 
 	void uiEvents(ofxMicroUI::element & e) override {
+        if (e.name == "minW") {
+            set.minW = *e.i;
+        }
+        else if (e.name == "maxW") {
+            set.maxW = *e.i;
+        }
         if (e.name == "vel") {
             for (auto & b : bars) {
                 b.velFactor = *e.f;
