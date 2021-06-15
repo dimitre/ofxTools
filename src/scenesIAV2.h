@@ -147,36 +147,17 @@ struct sceneBars : public ofxScenes::sceneDmtr {
 public:
 	using sceneDmtr::sceneDmtr;
 	
+    struct config {
+    public:
+        double width = 20;
+        double vel = 1;
+        config (float w, float v) : width(w), vel(v) {}
+    };
+    
     struct settings {
     public:
         float minW = 20;
         float maxW = 140;
-    } set;
-    
-	struct bar {
-		public:
-        
-        settings * _set = NULL;
-		ofRectangle rect;
-		vector <ofRectangle> rects;
-		int w = 5;
-		float pos = 0;
-		float vel;
-		float velFactor = 1;
-		float qual = 0;
-        bar(ofRectangle r, settings * s) : rect(r), _set(s) {
-            setup();
-        }
-		bar(ofRectangle r) : rect(r) {
-            setup();
-		}
-        
-        struct config {
-        public:
-            float width = 20;
-            float vel = 1;
-            config (float w, float v) : width(w), vel(v) {}
-        };
         
         config configs[6] = {
             config(20,-4),
@@ -186,17 +167,35 @@ public:
             config(160,-8),
             config(320,8),
         };
+    } set;
+    
+
+    
+	struct bar {
+		public:
+        
+        settings * _set = NULL;
+		ofRectangle rect;
+		vector <ofRectangle> rects;
+		int w = 5;
+		float pos = 0;
+        double vel;
+        double velFactor = 1;
+		float qual = 0;
+        bar(ofRectangle r, settings * s) : rect(r), _set(s) {
+            setup();
+        }
+		bar(ofRectangle r) : rect(r) {
+            setup();
+		}
+        
+
+        
+
         
         void setup() {
             
-            int frames = 0;
-            for (auto & c : configs) {
-                frames = MAX(frames, ABS(c.width/c.vel));
-//                cout << ABS(width/vel) << endl;
-            }
-            cout << "------- BARS -------";
-            cout << frames << endl;
-            cout << "------- BARS -------";
+
             
             
             qual = ofRandom(0,1);
@@ -209,8 +208,8 @@ public:
             
             // novo modo
             int i = ofRandom(0,6);
-            w = configs[i].width;
-            vel = configs[i].vel;
+            w = _set->configs[i].width;
+            vel = _set->configs[i].vel;
             
             if (ofRandom(0,10) > 5) {
                 vel *= -1;
@@ -275,7 +274,23 @@ public:
 		}
 	}
 
+    void calcVelFactor() {
+        int frames = 0;
+        for (auto & c : set.configs) {
+            frames = MAX(frames, ABS(c.width/(c.vel*uiC->pFloat["vel"])));
+    //                cout << ABS(width/vel) << endl;
+        }
+        cout << "------- BARS -------";
+        cout << frames << endl;
+        cout << "------- BARS -------";
+    }
+    
+    
 	void uiEvents(ofxMicroUI::element & e) override {
+        
+        if (e.name == "vel") {
+            calcVelFactor();
+        }
         if (e.name == "minW") {
             set.minW = *e.i;
         }
@@ -298,6 +313,69 @@ public:
 			build();
 		}
 	}
+};
+
+
+
+struct sceneBars2 : public ofxScenes::sceneDmtr {
+public:
+    using sceneDmtr::sceneDmtr;
+    vector <ofRectangle> rects;
+
+    struct bar {
+    public:
+        float h;
+        ofRectangle rect;
+        bar(ofRectangle r) : rect(r) {}
+        
+        void draw() {
+            ofDrawRectangle(rect);
+        }
+    };
+    
+    vector <bar> bars;
+    
+    void build()  {
+        float y =0;
+        
+        while (y < fbo->getHeight()) {
+            float w = ofRandom(20,140);
+            float h = ofRandom(20,140);
+            float x = 0;
+            while (x < fbo->getWidth()) {
+                bars.emplace_back(ofRectangle(x, y, w, h));
+                x += w * 2;
+            }
+            y += h;
+        }
+    }
+    
+    void setup() override {
+        build();
+    }
+    void draw() override {
+        ofFloatColor c = getCor(0);
+        for (auto & b : bars) {
+//            c.a = ofNoise(ofGetElapsedTimef() , b.rect.x + b.rect.y) * 255.0;
+            c.a = ofMap(sin(
+                            ofGetElapsedTimef() * uiC->pFloat["alphaTime"] +
+                            ofDegToRad(ofGetFrameNum() * uiC->pFloat["alphaFrames"]) +
+                            b.rect.x * uiC->pFloat["alphaX"] +
+                            b.rect.y * uiC->pFloat["alphaY"]
+                            ), -1, 1, 0, 1);
+            ofSetColor(c);
+            b.draw();
+        }
+    }
+    
+    void uiEvents(ofxMicroUI::element & e) override {
+        if (e.name == "build") {
+            build();
+        }
+        if (e.name == "clear") {
+            bars.clear();
+        }
+    }
 };
 
 

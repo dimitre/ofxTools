@@ -573,10 +573,11 @@ public:
 				ofSetCurrentRenderer(cairo);
                 
                 // forcing event
-                if (ui->pString["join"] != "") {
+//                cout << ui->uiName << endl;
+                if (ui->pString.find("join") != ui->pString.end() && ui->pString["join"] != "") {
                     cairo_set_line_join(cairo->getCairoContext(), lineJoin[ui->pString["join"]]); //CAIRO_LINE_JOIN_ROUND //CAIRO_LINE_JOIN_BEVEL
                 }
-                if (ui->pString["cap"] != "") {
+                if (ui->pString.find("cap") != ui->pString.end() && ui->pString["cap"] != "") {
                     cairo_set_line_cap(cairo->getCairoContext(), lineCap[ui->pString["cap"]]); // ROUND SQUARE
                 }
                 
@@ -1321,7 +1322,10 @@ struct featureTiffRecorder : public microFeature {
     using microFeature::microFeature;
     bool recording;
     int frame = 0;
-    
+    int maxFrames = 160;
+//    int maxFrames = 119;
+//    int maxFrames = 105;
+
     string folder = "_output";
 
     void setup() override {}
@@ -1344,7 +1348,6 @@ struct featureTiffRecorder : public microFeature {
         rec();
     }
     
-    int maxFrames = 80;
     
     void rec() {
         if (recording && frame < maxFrames) {
@@ -1356,8 +1359,10 @@ struct featureTiffRecorder : public microFeature {
         if (frame == maxFrames) {
             string resultado = ofSystem("open " + ofToDataPath(folder));
             //rm *.mov;
+//            string resultado2 = ofSystem("cd "+ofToDataPath(folder)+
+//            ";  /opt/homebrew/bin/ffmpeg -f image2 -framerate 29.97 -i %d.tif -c:v prores_ks -profile:v 2 eliminacao.mov " );
             string resultado2 = ofSystem("cd "+ofToDataPath(folder)+
-            ";  /opt/homebrew/bin/ffmpeg -f image2 -framerate 29.97 -i %d.tif -c:v prores_ks -profile:v 2 eliminacao.mov " );
+            ";  /opt/homebrew/bin/ffmpeg -f image2 -framerate 30 -i %d.tif -c:v prores_ks -profile:v 4 eliminacao.mov " );
             end();
         }
         

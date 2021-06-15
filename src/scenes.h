@@ -794,10 +794,12 @@ public:
 				
 				ofPushMatrix();
 				ofTranslate(c.pos);
-				ofRotateXDeg(c.rot.x);
-				ofRotateYDeg(c.rot.y);
-				ofRotateZDeg(c.rot.z);
-
+                if (uiC->pBool["useRot"]) {
+                    ofRotateXDeg(c.rot.x);
+                    ofRotateYDeg(c.rot.y);
+                    ofRotateZDeg(c.rot.z);
+                }
+                
 				 if (uiC->pBool["circle"]) {
 					ofDrawCircle(0, 0, c.raio*scale, c.raio*scale);
 				 } else {
@@ -815,6 +817,9 @@ public:
 	}
 	
 	void uiEvents(ofxMicroUI::element & e) override {
+        if (e.name == "circleResolution") {
+            ofSetCircleResolution(*e.i);
+        }
 	}
 };
 
