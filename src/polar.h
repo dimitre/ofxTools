@@ -27,5 +27,4 @@ static glm::vec2 p2c (glm::vec2 pos) {
 }
 
 #endif /* DmtrPolar */
-
 #endif /* DmtrPolar */
