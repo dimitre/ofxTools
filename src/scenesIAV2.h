@@ -109,10 +109,10 @@ public:
 		float size = uiC->pFloat["size"];
 		size = MAX(20, size);
 //        cout << size << endl;
-		while (x < fbo->getWidth()) {
+		while (x < fbo->getWidth() * uiC->pFloat["fatorW"]) {
 //            cout << x << endl;
 			y = 0;
-			while (y < fbo->getHeight()) {
+			while (y < fbo->getHeight()* uiC->pFloat["fatorH"]) {
 				modulos.emplace_back(glm::vec2(x,y), size);
 //                y += modulos.back().rect.width;
 				y += size;

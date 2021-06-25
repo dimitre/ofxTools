@@ -196,7 +196,7 @@ public:
 		}
 
 		ofPolyline p;
-		p.addVertices(verts);
+//		p.addVertices(verts);
 	}
 
 	void build() override {
