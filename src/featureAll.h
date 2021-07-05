@@ -586,14 +586,15 @@ public:
 //                cairo->clearAlpha();
 //                cairo->clear(0,0,0,0);
                 
-                
-                cairo_save (cairo->getCairoContext());
-//                cairo_set_source_rgba (cairo->getCairoContext(), 1,0,0,0);
-                cairo_set_source_rgba (cairo->getCairoContext(), 1,1,1,0);
-//                cairo_set_source_rgba (cairo->getCairoContext(), 1,1,1,0);
-                cairo_set_operator (cairo->getCairoContext(), CAIRO_OPERATOR_SOURCE);
-                cairo_paint (cairo->getCairoContext());
-                cairo_restore (cairo->getCairoContext());
+
+                // Transparent BG Cairo
+                if (2==3) {
+                    cairo_save (cairo->getCairoContext());
+                    cairo_set_source_rgba (cairo->getCairoContext(), 1,1,1,0);
+                    cairo_set_operator (cairo->getCairoContext(), CAIRO_OPERATOR_SOURCE);
+                    cairo_paint (cairo->getCairoContext());
+                    cairo_restore (cairo->getCairoContext());
+                }
                 
 //                ofSetCurrentRenderer(cairo, true);
                 

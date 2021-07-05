@@ -306,6 +306,10 @@ public:
 		int index;
 		float indexQual;
 		float qual;
+        
+        void setup() override {
+            
+        }
 		
 		ponto(glm::vec2 p, int i) : objeto(p), index(i) {
 			qual = ofRandom(0,1);
@@ -316,10 +320,10 @@ public:
 			vel = glm::vec2(vx, vy);
 //			vel = glm::vec2(ofRandom(-2,2), ofRandom(-2,2));
 		}
-		void update() {
+		void update() override {
 			pos += vel * velFactor;
 		}
-		void draw() {
+		void draw() override {
 			if (raio) {
 				ofDrawCircle(pos.x, pos.y, raio);
 			}

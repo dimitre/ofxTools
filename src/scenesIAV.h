@@ -45,19 +45,20 @@ public:
 	virtual void setup() {
 		if (_set != NULL) {
 			raio = _set->raio + qual * _set->raioRand;
-		}
-		vel = glm::vec2(ofRandom(-1,1), ofRandom(-1,1));
-		velAngle = ofRandom(-1, 1);
+            
+            vel = glm::vec2(ofRandom(-1,1), ofRandom(-1,1));
+            velAngle = ofRandom(-1, 1);
 
-		ofPolyline p;
-		for (int a=0; a<3; a++) {
-			float angulo = a * 120 + ofRandom(-40,40);
-			float mag = ofRandom(_set->raio,_set->raioRand);
-			p.addVertex(r2x(angulo,mag), r2y(angulo,mag));
+//            ofPolyline p;
+//            for (int a=0; a<3; a++) {
+//                float angulo = a * 120 + ofRandom(-40,40);
+//                float mag = ofRandom(_set->raio,_set->raioRand);
+//                p.addVertex(r2x(angulo,mag), r2y(angulo,mag));
+//            }
+//            p.close();
+//            p.setClosed(true);
+//            polys.emplace_back(p);
 		}
-		p.close();
-		p.setClosed(true);
-		polys.emplace_back(p);
 	}
 
 	virtual void update() {
