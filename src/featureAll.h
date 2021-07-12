@@ -563,8 +563,18 @@ public:
 //        bool useCairo = soft->_ui->uis["ui"].pBool["useCairo"];
 	}
 
+	void clip(ofRectangle & r) {
+		// auto & cr = cairo->getCairoContext();
+		cairo_rectangle (cairo->getCairoContext(), rect.x, rect.y, rect.width, rect.height);
+		cairo_clip(cairo->getCairoContext());
+  		// cairo_paint(cairo->getCairoContext()); 
+	}
 
-	
+	void endClip() {
+		cairo_paint(cairo->getCairoContext()); 
+		cairo_reset_clip(cairo->getCairoContext());
+	}
+
 	void begin() override {
 		if (isOk()) {
 			if (savingCairo) {
